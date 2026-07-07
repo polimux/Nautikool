@@ -62,20 +62,21 @@ Date: 2026-07-07
 Repository state reviewed:
 
 - Repository exists and is writable.
-- Previous `test.txt` write-access probe was removed.
-- No application code or documentation foundation existed before this file.
-- The next valuable improvement is to create a durable product and planning backbone before adding code.
+- `ideas.md` exists as product source of truth.
+- `README.md` existed but only contained a title.
+- No application code, package setup, tests or documentation structure exists yet.
 
 Decision:
 
-- Create `ideas.md` as the source of truth for product direction, backlog, risks, roadmap and working log.
-- Do not choose the technical stack yet. The next commit should make the repository readable (`README.md`) before framework decisions.
+- Expand `README.md` into a useful public project entry point before choosing a technical stack.
+- Keep `ideas.md` as the detailed backlog and stewardship log.
+- Do not introduce application code yet; the repository still benefits more from clear product framing and contribution structure.
 
 Rationale:
 
-- Starting with code now would likely create accidental architecture.
-- Nautikool has safety-critical implications, so product intent, assumptions and test strategy should be explicit from the beginning.
-- The repo needs a visible roadmap so future commits can be evaluated against a coherent product direction.
+- A readable README improves project orientation for future users, contributors and automated stewardship runs.
+- Starting with a framework before documenting product boundaries could create accidental architecture.
+- Nautikool has safety-critical implications, so public-facing documentation should state the safety posture early.
 
 ## Feature backlog
 
@@ -182,7 +183,7 @@ Goal: make the repository understandable and ready for implementation.
 Tasks:
 
 - [x] Add `ideas.md`.
-- [ ] Add `README.md` with product pitch, target user and planned modules.
+- [x] Add `README.md` with product pitch, target user and planned modules.
 - [ ] Add `CHANGELOG.md`.
 - [ ] Add `/docs` structure.
 - [ ] Decide initial tech stack.
@@ -322,6 +323,7 @@ content + vessel profile + voyage plan + sensor context + decision support = Nau
 | 2026-07-07 | Start with product documentation before choosing a framework. | The repository needs direction before architecture. |
 | 2026-07-07 | Prioritize offline, checklists, vessel profile and safety workflows first. | These create immediate value without requiring live integrations. |
 | 2026-07-07 | Treat NMEA2000, AIS and weather as later adapters around a stable core. | Hardware and external data can be unreliable; the core product must remain useful without them. |
+| 2026-07-07 | Expand `README.md` before adding code. | A clear public entry point improves repository readability and makes the next implementation choices easier to evaluate. |
 
 ## Changelog
 
@@ -338,6 +340,12 @@ Added:
 - Test strategy.
 - Product decisions.
 - Working log.
+- Expanded `README.md` with product pitch, target user, modules, repository status, development direction, safety posture and roadmap snapshot.
+
+Changed:
+
+- Marked the README foundation task as complete.
+- Updated the current repository assessment to reflect that the README is now useful and the next gap is repository structure/changelog.
 
 Removed:
 
@@ -345,7 +353,7 @@ Removed:
 
 ## Working log
 
-### 2026-07-07
+### 2026-07-07 - Initial product backlog
 
 Role mix used: project manager, developer, tester, user and product manager.
 
@@ -373,6 +381,41 @@ Next best action:
 Commit target:
 
 - `docs: add Nautikool product backlog and working log`
+
+### 2026-07-07 - README foundation
+
+Role mix used: project manager, developer, tester, user and product manager.
+
+Repository review:
+
+- `ideas.md` exists and gives the project a backlog and decision log.
+- `README.md` existed but only contained the project title.
+- No application code exists yet, so repository usability is still mostly documentation-driven.
+
+Decision:
+
+- Expand `README.md` now instead of starting application code.
+
+Action taken:
+
+- Replaced the one-line README with a structured project overview.
+- Added target user, product modules, repository status, development direction, safety posture and roadmap snapshot.
+- Updated this file to record the decision, rationale, changelog and next best action.
+
+Testing/reasoning:
+
+- No application tests were run because there is no application code yet.
+- Documentation was checked for consistency with the product thesis, roadmap and safety posture.
+- From a user and product-manager perspective, the repository is now easier to understand before technical implementation starts.
+
+Next best action:
+
+- Add `CHANGELOG.md` and a minimal `/docs` structure so project history, decisions and future domain notes are easier to navigate.
+
+Commit target:
+
+- `docs: expand README project overview`
+- `docs: log README foundation step`
 
 ## Repository stewardship protocol
 
