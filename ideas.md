@@ -63,20 +63,23 @@ Repository state reviewed:
 
 - Repository exists and is writable.
 - `ideas.md` exists as product source of truth.
-- `README.md` existed but only contained a title.
-- No application code, package setup, tests or documentation structure exists yet.
+- `README.md` exists as a useful public project entry point.
+- `CHANGELOG.md` now exists as the project history file.
+- `docs/README.md` now exists as the documentation index.
+- No application code, package setup or automated tests exist yet.
 
 Decision:
 
-- Expand `README.md` into a useful public project entry point before choosing a technical stack.
-- Keep `ideas.md` as the detailed backlog and stewardship log.
-- Do not introduce application code yet; the repository still benefits more from clear product framing and contribution structure.
+- Add formal repository history and documentation structure before starting code.
+- Keep `ideas.md` focused on product discovery, decisions and stewardship.
+- Use `CHANGELOG.md` for notable repository changes.
+- Use `/docs` for architecture, domain, safety, content and testing notes.
 
 Rationale:
 
-- A readable README improves project orientation for future users, contributors and automated stewardship runs.
-- Starting with a framework before documenting product boundaries could create accidental architecture.
-- Nautikool has safety-critical implications, so public-facing documentation should state the safety posture early.
+- Separating changelog, documentation and product backlog reduces future clutter.
+- A documentation index makes the next architecture and domain-model work easier to place.
+- The repository is still in foundation mode; code should wait until the local-first MVP boundaries are clearer.
 
 ## Feature backlog
 
@@ -184,8 +187,8 @@ Tasks:
 
 - [x] Add `ideas.md`.
 - [x] Add `README.md` with product pitch, target user and planned modules.
-- [ ] Add `CHANGELOG.md`.
-- [ ] Add `/docs` structure.
+- [x] Add `CHANGELOG.md`.
+- [x] Add `/docs` structure.
 - [ ] Decide initial tech stack.
 - [ ] Define contribution and decision-log format.
 
@@ -324,6 +327,7 @@ content + vessel profile + voyage plan + sensor context + decision support = Nau
 | 2026-07-07 | Prioritize offline, checklists, vessel profile and safety workflows first. | These create immediate value without requiring live integrations. |
 | 2026-07-07 | Treat NMEA2000, AIS and weather as later adapters around a stable core. | Hardware and external data can be unreliable; the core product must remain useful without them. |
 | 2026-07-07 | Expand `README.md` before adding code. | A clear public entry point improves repository readability and makes the next implementation choices easier to evaluate. |
+| 2026-07-07 | Add `CHANGELOG.md` and `docs/README.md` before application code. | The project needs a clean place for history and deeper documentation before technical decisions accumulate. |
 
 ## Changelog
 
@@ -341,11 +345,14 @@ Added:
 - Product decisions.
 - Working log.
 - Expanded `README.md` with product pitch, target user, modules, repository status, development direction, safety posture and roadmap snapshot.
+- Added `CHANGELOG.md` for notable project changes.
+- Added `docs/README.md` as the documentation index.
 
 Changed:
 
-- Marked the README foundation task as complete.
-- Updated the current repository assessment to reflect that the README is now useful and the next gap is repository structure/changelog.
+- Marked the README, changelog and docs foundation tasks as complete.
+- Updated the current repository assessment to reflect the new foundation state.
+- Clarified that the next useful step is a technical stack decision and contribution/decision-log format.
 
 Removed:
 
@@ -416,6 +423,42 @@ Commit target:
 
 - `docs: expand README project overview`
 - `docs: log README foundation step`
+
+### 2026-07-07 - Changelog and docs foundation
+
+Role mix used: project manager, developer, tester, user and product manager.
+
+Repository review:
+
+- `README.md` and `ideas.md` were present and coherent.
+- Phase 0 still had two documentation foundation gaps: project history and `/docs` structure.
+- No application code exists yet, so the best improvement remained repository clarity rather than implementation.
+
+Decision:
+
+- Add `CHANGELOG.md` and `docs/README.md` before selecting a stack or writing application code.
+
+Action taken:
+
+- Added `CHANGELOG.md` with the current unreleased project history.
+- Added `docs/README.md` with planned documentation topics and documentation principles.
+- Updated this file with the decision, rationale, completed roadmap tasks, changelog entry and next best action.
+
+Testing/reasoning:
+
+- No application tests were run because no application code exists yet.
+- Documentation was checked against the README and product thesis for consistency.
+- From a tester and safety perspective, keeping safety, architecture, domain model and testing notes separated will make future acceptance criteria easier to audit.
+
+Next best action:
+
+- Decide the initial technical stack and record it in `docs/architecture.md`, with explicit rationale for local-first storage, content format, testing and mobile/offline implications.
+
+Commit target:
+
+- `docs: add changelog and docs index`
+- `docs: add documentation index`
+- `docs: log changelog and docs foundation`
 
 ## Repository stewardship protocol
 
