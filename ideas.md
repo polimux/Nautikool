@@ -66,23 +66,23 @@ Repository state reviewed:
 - `README.md` exists as a useful public project entry point.
 - `CHANGELOG.md` exists as the project history file.
 - `docs/README.md` exists as the documentation index.
-- `docs/architecture.md` now records the initial architecture decision.
+- `docs/architecture.md` records the initial architecture decision.
+- `docs/domain-model.md` now defines the first implementation-facing domain concepts.
 - No application code, package setup or automated tests exist yet.
 
 Decision:
 
-- Record the initial architecture decision before starting code.
-- Use a PWA-first, TypeScript, SvelteKit and IndexedDB-abstraction direction.
-- Keep Markdown as the initial content format for checklists, lessons and reference cards.
-- Treat AIS, NMEA2000, weather and cloud sync as later adapters around a useful offline core.
+- Add the initial domain model before generating a runnable app skeleton.
+- Define the first entities around vessel profile, checklist templates, checklist runs, passage plans, weather snapshots, risk assessments, assumptions, data freshness and trip packs.
+- Keep the model implementation-facing but not yet a fixed database schema.
+- Make assumptions, freshness and missing data first-class concepts from the start.
 
 Rationale:
 
-- The repository had enough product and documentation foundation to make the first technical decision.
-- A small PWA stack supports offline-first use, quick iteration and eventual mobile usage without native complexity.
-- SvelteKit is a good first choice for a compact, content-heavy application where domain logic should remain clear.
-- IndexedDB should be hidden behind repositories so future SQLite, native-wrapper or sync decisions remain possible.
-- Deferring live integrations keeps the first MVP focused on vessel profile, checklists, passage preparation and testable logic.
+- The architecture document identified the domain model as the next missing boundary before code.
+- A domain model reduces the risk that the first SvelteKit implementation becomes screen-driven rather than sailing-workflow-driven.
+- Safety-critical concepts such as assumptions, stale data and skipped checklist items need to be modelled early so they are testable later.
+- The first code slice should now be small: pure TypeScript types and checklist state-transition tests before IndexedDB or UI complexity.
 
 ## Feature backlog
 
@@ -179,6 +179,8 @@ Rationale:
 | B-005 | Weather freshness | Old forecast displayed as current. | Expiry rules and prominent freshness banner. |
 | B-006 | Safety language | Overconfident or unsafe recommendation wording. | Conservative copy, assumptions and red/yellow escalation. |
 | B-007 | Vessel-specific data | Generic checklist ignores the actual boat setup. | Vessel profile linked to checklist generation. |
+| B-008 | Checklist state | Skipped required items appear as safe completion. | Checklist completion logic must distinguish clean completion from warned completion. |
+| B-009 | Missing data | Unknown weather, route or crew data defaults to green. | Model `unknown` separately and test conservative escalation. |
 
 ## Roadmap
 
@@ -193,6 +195,7 @@ Tasks:
 - [x] Add `CHANGELOG.md`.
 - [x] Add `/docs` structure.
 - [x] Decide initial tech stack.
+- [x] Define first domain model.
 - [ ] Define contribution and decision-log format.
 
 ### Phase 1: Local-first MVP
@@ -295,6 +298,7 @@ content + vessel profile + voyage plan + sensor context + decision support = Nau
 ```
 
 See `docs/architecture.md` for the current architecture decision.
+See `docs/domain-model.md` for the first implementation-facing domain model.
 
 ## Test strategy
 
@@ -302,6 +306,7 @@ See `docs/architecture.md` for the current architecture decision.
 
 - Vessel profile can be created, edited, saved and exported.
 - Checklist state persists offline.
+- Checklist state distinguishes clean completion, warned completion and incomplete state.
 - Passage plan can be saved and reloaded.
 - ETA calculations handle time zones correctly.
 - Unit conversion is tested for nautical miles, knots, metres and hours.
@@ -318,6 +323,7 @@ See `docs/architecture.md` for the current architecture decision.
 ### Safety tests
 
 - No safety recommendation is displayed without assumptions.
+- Missing critical data does not produce silent green.
 - Red/no-go states are visually prominent.
 - Stale weather is impossible to overlook.
 - Emergency flow remains accessible from anywhere.
@@ -333,6 +339,7 @@ See `docs/architecture.md` for the current architecture decision.
 | 2026-07-07 | Expand `README.md` before adding code. | A clear public entry point improves repository readability and makes the next implementation choices easier to evaluate. |
 | 2026-07-07 | Add `CHANGELOG.md` and `docs/README.md` before application code. | The project needs a clean place for history and deeper documentation before technical decisions accumulate. |
 | 2026-07-08 | Choose a PWA-first SvelteKit and TypeScript architecture with IndexedDB abstraction. | This supports offline-first use and rapid iteration while keeping future native, sync and hardware choices open. |
+| 2026-07-08 | Define the first domain model before code generation. | Vessel, checklist, passage, risk, assumption and freshness concepts need stable names before UI or persistence choices harden. |
 
 ## Changelog
 
@@ -341,14 +348,18 @@ See `docs/architecture.md` for the current architecture decision.
 Added:
 
 - Added `docs/architecture.md` with the initial architecture decision.
+- Added `docs/domain-model.md` with first domain entities and acceptance criteria.
 - Documented PWA, TypeScript, SvelteKit, IndexedDB abstraction, Markdown content and test-first domain logic as the first technical direction.
-- Updated `docs/README.md` to list the new architecture document.
+- Documented assumptions, data freshness, risk levels and checklist state as first-class domain concepts.
+- Updated `docs/README.md` to list the new architecture and domain model documents.
 
 Changed:
 
 - Marked the Phase 0 initial tech stack decision as complete.
+- Marked the first domain model as complete.
 - Replaced the prior open-ended stack bias with a concrete first implementation direction.
 - Updated current repository assessment and next best action.
+- Added expected bug classes for skipped checklist items and missing-data risk escalation.
 
 ### 2026-07-07
 
@@ -379,105 +390,47 @@ Removed:
 
 ## Working log
 
-### 2026-07-07 - Initial product backlog
+### 2026-07-08 - Domain model foundation
 
 Role mix used: project manager, developer, tester, user and product manager.
 
 Repository review:
 
-- Repository was writable.
-- Only a temporary write-access test file was present.
-- No product documentation or code foundation existed.
-
-Action taken:
-
-- Removed the temporary test file.
-- Added this `ideas.md` as the initial source of truth.
-
-Testing/reasoning:
-
-- Confirmed repository permissions include push/write access through successful file operations.
-- No application tests were run because no application code exists yet.
-- Product risk was assessed before implementation: safety, stale data, offline use, unit conversion and cockpit usability are the dominant early concerns.
-
-Next best action:
-
-- Add `README.md` with a concise product pitch, target user, planned modules, repository status and development setup placeholder.
-
-Commit target:
-
-- `docs: add Nautikool product backlog and working log`
-
-### 2026-07-07 - README foundation
-
-Role mix used: project manager, developer, tester, user and product manager.
-
-Repository review:
-
-- `ideas.md` exists and gives the project a backlog and decision log.
-- `README.md` existed but only contained the project title.
-- No application code exists yet, so repository usability is still mostly documentation-driven.
+- `ideas.md`, `README.md`, `CHANGELOG.md`, `docs/README.md` and `docs/architecture.md` were present.
+- `docs/architecture.md` explicitly identified the domain model as the next architecture step.
+- No application code exists yet, so clarifying domain boundaries was more valuable than starting UI or storage work.
 
 Decision:
 
-- Expand `README.md` now instead of starting application code.
+- Add `docs/domain-model.md` before generating the first SvelteKit/TypeScript skeleton.
+- Model vessel profile, checklist template, checklist run, passage plan, weather snapshot, risk assessment, trip pack, assumptions and data freshness.
+- Treat `unknown` as distinct from `green` for risk assessment.
+- Require skipped safety-critical checklist items to remain visible as warnings.
 
 Action taken:
 
-- Replaced the one-line README with a structured project overview.
-- Added target user, product modules, repository status, development direction, safety posture and roadmap snapshot.
-- Updated this file to record the decision, rationale, changelog and next best action.
-
-Testing/reasoning:
-
-- No application tests were run because there is no application code yet.
-- Documentation was checked for consistency with the product thesis, roadmap and safety posture.
-- From a user and product-manager perspective, the repository is now easier to understand before technical implementation starts.
-
-Next best action:
-
-- Add `CHANGELOG.md` and a minimal `/docs` structure so project history, decisions and future domain notes are easier to navigate.
-
-Commit target:
-
-- `docs: expand README project overview`
-- `docs: log README foundation step`
-
-### 2026-07-07 - Changelog and docs foundation
-
-Role mix used: project manager, developer, tester, user and product manager.
-
-Repository review:
-
-- `README.md` and `ideas.md` were present and coherent.
-- Phase 0 still had two documentation foundation gaps: project history and `/docs` structure.
-- No application code exists yet, so the best improvement remained repository clarity rather than implementation.
-
-Decision:
-
-- Add `CHANGELOG.md` and `docs/README.md` before selecting a stack or writing application code.
-
-Action taken:
-
-- Added `CHANGELOG.md` with the current unreleased project history.
-- Added `docs/README.md` with planned documentation topics and documentation principles.
-- Updated this file with the decision, rationale, completed roadmap tasks, changelog entry and next best action.
+- Added `docs/domain-model.md` with implementation-facing TypeScript-style interface sketches and acceptance criteria.
+- Updated `docs/README.md` to move the domain model from planned to active documentation.
+- Updated `CHANGELOG.md` with the domain model foundation.
+- Updated this file with the decision, rationale, roadmap status, bug-class additions and next best action.
 
 Testing/reasoning:
 
 - No application tests were run because no application code exists yet.
-- Documentation was checked against the README and product thesis for consistency.
-- From a tester and safety perspective, keeping safety, architecture, domain model and testing notes separated will make future acceptance criteria easier to audit.
+- Documentation was checked for consistency with `docs/architecture.md`, the product thesis and the safety posture.
+- From a developer perspective, the next code step can now focus on pure domain types and checklist state transitions.
+- From a tester perspective, the first meaningful tests should verify checklist completion semantics, assumptions and conservative handling of missing data.
+- From a user and product perspective, the app is being shaped around vessel-specific preparation rather than generic notes.
 
 Next best action:
 
-- Decide the initial technical stack and record it in `docs/architecture.md`, with explicit rationale for local-first storage, content format, testing and mobile/offline implications.
+- Create the first runnable SvelteKit/TypeScript skeleton with pure domain types for vessel/checklist and Vitest tests for checklist state transitions.
 
 Commit target:
 
-- `docs: add changelog and docs index`
-- `docs: add documentation index`
-- `docs: log changelog and docs foundation`
+- `docs: add initial domain model`
+- `docs: update documentation index for domain model`
+- `docs: log domain model foundation`
 
 ### 2026-07-08 - Initial architecture decision
 
@@ -519,6 +472,106 @@ Commit target:
 - `docs: add initial architecture decision`
 - `docs: log architecture decision`
 - `docs: update documentation index for architecture`
+
+### 2026-07-07 - Changelog and docs foundation
+
+Role mix used: project manager, developer, tester, user and product manager.
+
+Repository review:
+
+- `README.md` and `ideas.md` were present and coherent.
+- Phase 0 still had two documentation foundation gaps: project history and `/docs` structure.
+- No application code exists yet, so the best improvement remained repository clarity rather than implementation.
+
+Decision:
+
+- Add `CHANGELOG.md` and `docs/README.md` before selecting a stack or writing application code.
+
+Action taken:
+
+- Added `CHANGELOG.md` with the current unreleased project history.
+- Added `docs/README.md` with planned documentation topics and documentation principles.
+- Updated this file with the decision, rationale, completed roadmap tasks, changelog entry and next best action.
+
+Testing/reasoning:
+
+- No application tests were run because no application code exists yet.
+- Documentation was checked against the README and product thesis for consistency.
+- From a tester and safety perspective, keeping safety, architecture, domain model and testing notes separated will make future acceptance criteria easier to audit.
+
+Next best action:
+
+- Decide the initial technical stack and record it in `docs/architecture.md`, with explicit rationale for local-first storage, content format, testing and mobile/offline implications.
+
+Commit target:
+
+- `docs: add changelog and docs index`
+- `docs: add documentation index`
+- `docs: log changelog and docs foundation`
+
+### 2026-07-07 - README foundation
+
+Role mix used: project manager, developer, tester, user and product manager.
+
+Repository review:
+
+- `ideas.md` exists and gives the project a backlog and decision log.
+- `README.md` existed but only contained the project title.
+- No application code exists yet, so repository usability is still mostly documentation-driven.
+
+Decision:
+
+- Expand `README.md` now instead of starting application code.
+
+Action taken:
+
+- Replaced the one-line README with a structured project overview.
+- Added target user, product modules, repository status, development direction, safety posture and roadmap snapshot.
+- Updated this file to record the decision, rationale, changelog and next best action.
+
+Testing/reasoning:
+
+- No application tests were run because there is no application code yet.
+- Documentation was checked for consistency with the product thesis, roadmap and safety posture.
+- From a user and product-manager perspective, the repository is now easier to understand before technical implementation starts.
+
+Next best action:
+
+- Add `CHANGELOG.md` and a minimal `/docs` structure so project history, decisions and future domain notes are easier to navigate.
+
+Commit target:
+
+- `docs: expand README project overview`
+- `docs: log README foundation step`
+
+### 2026-07-07 - Initial product backlog
+
+Role mix used: project manager, developer, tester, user and product manager.
+
+Repository review:
+
+- Repository was writable.
+- Only a temporary write-access test file was present.
+- No product documentation or code foundation existed.
+
+Action taken:
+
+- Removed the temporary test file.
+- Added this `ideas.md` as the initial source of truth.
+
+Testing/reasoning:
+
+- Confirmed repository permissions include push/write access through successful file operations.
+- No application tests were run because no application code exists yet.
+- Product risk was assessed before implementation: safety, stale data, offline use, unit conversion and cockpit usability are the dominant early concerns.
+
+Next best action:
+
+- Add `README.md` with a concise product pitch, target user, planned modules, repository status and development setup placeholder.
+
+Commit target:
+
+- `docs: add Nautikool product backlog and working log`
 
 ## Repository stewardship protocol
 
