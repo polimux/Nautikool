@@ -12,10 +12,12 @@ This project uses a simple human-readable changelog while the product and archit
 - Expanded `README.md` as the public project entry point.
 - `CHANGELOG.md` to separate project history from product discovery notes.
 - `docs/README.md` as the documentation index for future architecture, domain model, safety and content notes.
+- `docs/architecture.md` with the initial architecture decision: PWA, TypeScript, SvelteKit, IndexedDB abstraction, Markdown content and test-first domain logic.
 
 ### Changed
 
 - No application code exists yet; the repository is still in product-definition and foundation mode.
+- The initial technical direction is now documented as an architecture decision rather than only a backlog bias.
 
 ### Removed
 
