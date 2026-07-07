@@ -57,29 +57,32 @@ Nautikool should help answer four cockpit-relevant questions:
 
 ## Current repository assessment
 
-Date: 2026-07-07
+Date: 2026-07-08
 
 Repository state reviewed:
 
 - Repository exists and is writable.
 - `ideas.md` exists as product source of truth.
 - `README.md` exists as a useful public project entry point.
-- `CHANGELOG.md` now exists as the project history file.
-- `docs/README.md` now exists as the documentation index.
+- `CHANGELOG.md` exists as the project history file.
+- `docs/README.md` exists as the documentation index.
+- `docs/architecture.md` now records the initial architecture decision.
 - No application code, package setup or automated tests exist yet.
 
 Decision:
 
-- Add formal repository history and documentation structure before starting code.
-- Keep `ideas.md` focused on product discovery, decisions and stewardship.
-- Use `CHANGELOG.md` for notable repository changes.
-- Use `/docs` for architecture, domain, safety, content and testing notes.
+- Record the initial architecture decision before starting code.
+- Use a PWA-first, TypeScript, SvelteKit and IndexedDB-abstraction direction.
+- Keep Markdown as the initial content format for checklists, lessons and reference cards.
+- Treat AIS, NMEA2000, weather and cloud sync as later adapters around a useful offline core.
 
 Rationale:
 
-- Separating changelog, documentation and product backlog reduces future clutter.
-- A documentation index makes the next architecture and domain-model work easier to place.
-- The repository is still in foundation mode; code should wait until the local-first MVP boundaries are clearer.
+- The repository had enough product and documentation foundation to make the first technical decision.
+- A small PWA stack supports offline-first use, quick iteration and eventual mobile usage without native complexity.
+- SvelteKit is a good first choice for a compact, content-heavy application where domain logic should remain clear.
+- IndexedDB should be hidden behind repositories so future SQLite, native-wrapper or sync decisions remain possible.
+- Deferring live integrations keeps the first MVP focused on vessel profile, checklists, passage preparation and testable logic.
 
 ## Feature backlog
 
@@ -189,7 +192,7 @@ Tasks:
 - [x] Add `README.md` with product pitch, target user and planned modules.
 - [x] Add `CHANGELOG.md`.
 - [x] Add `/docs` structure.
-- [ ] Decide initial tech stack.
+- [x] Decide initial tech stack.
 - [ ] Define contribution and decision-log format.
 
 ### Phase 1: Local-first MVP
@@ -275,22 +278,23 @@ Success criteria:
 
 ## Initial technical direction
 
-No final stack decision yet.
-
-Current bias:
+Initial stack decision:
 
 - App model: Progressive Web App first.
-- Frontend candidates: SvelteKit or React.
-- Storage: local-first, likely IndexedDB-backed in browser; SQLite later if native wrapper is chosen.
-- Content: Markdown/MDX for lessons, checklists and reference material.
-- Testing: unit tests for pure logic, parser tests for GPX/AIS/NMEA-like data, scenario tests for risk cards.
-- Integrations: simulators and file import/export before live hardware integration.
+- Language: TypeScript.
+- Frontend framework: SvelteKit.
+- Storage: local-first IndexedDB behind a storage/repository abstraction.
+- Content: Markdown for lessons, checklists and reference material, with metadata/frontmatter.
+- Testing: Vitest for pure logic first; Playwright later for workflow coverage.
+- Integrations: simulators and file import/export before live hardware.
 
 Architecture concept:
 
 ```text
 content + vessel profile + voyage plan + sensor context + decision support = Nautikool
 ```
+
+See `docs/architecture.md` for the current architecture decision.
 
 ## Test strategy
 
@@ -328,8 +332,23 @@ content + vessel profile + voyage plan + sensor context + decision support = Nau
 | 2026-07-07 | Treat NMEA2000, AIS and weather as later adapters around a stable core. | Hardware and external data can be unreliable; the core product must remain useful without them. |
 | 2026-07-07 | Expand `README.md` before adding code. | A clear public entry point improves repository readability and makes the next implementation choices easier to evaluate. |
 | 2026-07-07 | Add `CHANGELOG.md` and `docs/README.md` before application code. | The project needs a clean place for history and deeper documentation before technical decisions accumulate. |
+| 2026-07-08 | Choose a PWA-first SvelteKit and TypeScript architecture with IndexedDB abstraction. | This supports offline-first use and rapid iteration while keeping future native, sync and hardware choices open. |
 
 ## Changelog
+
+### 2026-07-08
+
+Added:
+
+- Added `docs/architecture.md` with the initial architecture decision.
+- Documented PWA, TypeScript, SvelteKit, IndexedDB abstraction, Markdown content and test-first domain logic as the first technical direction.
+- Updated `docs/README.md` to list the new architecture document.
+
+Changed:
+
+- Marked the Phase 0 initial tech stack decision as complete.
+- Replaced the prior open-ended stack bias with a concrete first implementation direction.
+- Updated current repository assessment and next best action.
 
 ### 2026-07-07
 
@@ -459,6 +478,47 @@ Commit target:
 - `docs: add changelog and docs index`
 - `docs: add documentation index`
 - `docs: log changelog and docs foundation`
+
+### 2026-07-08 - Initial architecture decision
+
+Role mix used: project manager, developer, tester, user and product manager.
+
+Repository review:
+
+- `ideas.md`, `README.md`, `CHANGELOG.md` and `docs/README.md` were present.
+- The documentation index already identified architecture as the next missing document.
+- No application code exists yet, so making the first technical decision was more valuable than generating a skeleton without agreed boundaries.
+
+Decision:
+
+- Choose a PWA-first SvelteKit and TypeScript architecture for the first implementation.
+- Use IndexedDB behind repository abstractions for local-first persistence.
+- Use Markdown content with metadata for lessons, checklists and reference cards.
+- Defer live integrations, cloud sync, native wrappers and chart rendering.
+
+Action taken:
+
+- Added `docs/architecture.md` with architecture goals, stack decision, module boundaries, offline implications, testing implications, deferred decisions and first implementation slice.
+- Updated `CHANGELOG.md` with the architecture decision.
+- Updated `docs/README.md` to list the architecture document.
+- Updated this file with the decision, rationale, roadmap status, changelog and next best action.
+
+Testing/reasoning:
+
+- No application tests were run because no application code exists yet.
+- Documentation consistency was checked against README, roadmap and backlog.
+- From a developer and tester perspective, the architecture now gives a clear path to a small runnable skeleton while keeping domain logic testable.
+- From a user and product perspective, the decision protects the offline skipper-preparation wedge before adding live integrations.
+
+Next best action:
+
+- Add `docs/domain-model.md` with first data structures for vessel profile, checklist template, checklist run, passage plan, trip pack, assumptions and freshness metadata.
+
+Commit target:
+
+- `docs: add initial architecture decision`
+- `docs: log architecture decision`
+- `docs: update documentation index for architecture`
 
 ## Repository stewardship protocol
 
