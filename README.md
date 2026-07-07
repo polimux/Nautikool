@@ -102,34 +102,66 @@ These integrations should remain optional adapters around a useful local-first c
 
 ## Current repository status
 
-This repository is at the product-definition stage.
+This repository now has its first runnable application foundation.
 
 Implemented so far:
 
 - `ideas.md` as the product backlog, roadmap and working log,
-- this `README.md` as the public project entry point.
+- this `README.md` as the public project entry point,
+- `CHANGELOG.md` as the project history,
+- `docs/README.md`, `docs/architecture.md` and `docs/domain-model.md`,
+- a SvelteKit and TypeScript project skeleton,
+- pure checklist domain types and state-transition logic,
+- Vitest tests for checklist state semantics.
 
 Not implemented yet:
 
-- application code,
-- package manager setup,
-- automated tests,
-- documentation structure,
-- technical stack decision.
+- local persistence,
+- checklist authoring from Markdown/frontmatter,
+- vessel profile UI,
+- passage planning UI,
+- offline/PWA caching,
+- production build verification in CI.
+
+## Development setup
+
+Install dependencies:
+
+```sh
+npm install
+```
+
+Run the development server:
+
+```sh
+npm run dev
+```
+
+Run type checks:
+
+```sh
+npm run check
+```
+
+Run domain tests:
+
+```sh
+npm test
+```
 
 ## Development direction
 
-No final technical stack has been selected yet.
-
-Current bias:
+Current stack:
 
 - Progressive Web App first,
-- local-first storage,
-- Markdown/MDX for learning content and checklists,
-- clear separation between content, vessel data, voyage planning, checklist logic and integrations,
-- tests around calculations, parsing, offline state and safety logic.
+- SvelteKit,
+- TypeScript,
+- local-first storage later behind a repository abstraction,
+- Markdown/MDX for learning content and checklists later,
+- Vitest for pure domain logic first,
+- Playwright later for workflow coverage.
 
-Framework candidates currently remain open. The project should choose the simplest stack that supports offline use, fast iteration and eventual mobile use.
+The first implementation slice intentionally focuses on checklist state semantics before UI, persistence, sync, charts or hardware integrations.
 
 ## Safety posture
 
@@ -155,18 +187,6 @@ No go/no-go logic should be implemented without explicit tests and visible reaso
 6. Cockpit companion: emergency screen, cockpit mode and underway decision support.
 
 See [`ideas.md`](ideas.md) for the detailed backlog and working log.
-
-## Development setup
-
-There is no runnable application yet.
-
-Until a stack is chosen, development should focus on:
-
-- product structure,
-- markdown content format,
-- domain model sketches,
-- test scenarios,
-- and safety-critical acceptance criteria.
 
 ## License
 
