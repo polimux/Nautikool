@@ -65,26 +65,27 @@ Repository state reviewed:
 - `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `docs/README.md`, `docs/architecture.md` and `docs/domain-model.md` exist.
 - A runnable SvelteKit/TypeScript skeleton exists.
 - Pure checklist domain types and state-transition logic exist under `src/lib/domain`.
-- Vitest tests cover checklist state semantics and starter checklist content.
+- Checklist run summaries now expose progress, completion eligibility, required open items and blocker messages.
+- Vitest tests cover checklist state semantics, blocker/progress semantics and starter checklist content.
 - GitHub Actions CI validates install, Svelte/TypeScript checks, unit tests and production build.
-- The starter content registry now includes departure readiness, diesel inboard pre-start and night-arrival checklist templates.
-- The landing page surfaces the checklist registry rather than maintaining a separate hard-coded template list.
-- The Passage Planner slice now has typed passage plan domain types, pure summary logic, tests and one realistic Turku to Pärnu H-323 sample route.
+- The starter content registry now includes departure readiness, diesel inboard pre-start, night-arrival, heavy-weather departure and MOB immediate-action checklist templates.
+- The landing page surfaces the checklist registry and readiness metrics rather than maintaining a separate hard-coded template list.
+- The Passage Planner slice has typed passage plan domain types, pure summary logic, tests and one realistic Turku to Pärnu H-323 sample route.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Start the Passage Planner with a small typed slice instead of waiting for GPX import or Markdown/frontmatter loading.
-- Add a realistic Turku to Pärnu family H-323 passage sample because it is directly product-relevant and exercises legs, distances, ETAs, hazards, bailout harbours and crew notes.
+- Move the Checklist Engine from simple state transitions toward readiness evaluation by adding blocker and progress semantics.
+- Add heavy-weather departure and MOB immediate-actions templates because they are high-value safety workflows and provide real product content in the same increment.
 - Keep every commit content-bearing: domain logic, tests and UI all point at real user-facing sailing content.
 
 Rationale:
 
-- Passage planning is a high-priority MVP area and connects naturally with existing checklist content.
-- A typed sample route gives the app realistic data now while leaving GPX import/export and persistence for later.
-- ETA and summary calculations are pure TypeScript and therefore testable without UI or external services.
-- The Turku to Pärnu route is a strong scenario because it combines sheltered archipelago navigation, coastal legs, one open-water crossing, family crew constraints and conservative bailout thinking.
+- The current content registry was useful, but the product still needed a stronger distinction between "some items clicked" and "the skipper can complete this workflow".
+- Required open items should become explicit blockers before a UI can safely show readiness.
+- Heavy weather and MOB are practical, high-risk scenarios where conservative checklist content creates immediate value.
+- Progress and blockers are pure TypeScript logic and therefore testable without UI, storage or hardware integrations.
 
 ## Feature backlog
 
@@ -154,6 +155,7 @@ Rationale:
 | B-012 | CI dependency setup | CI fails before product checks because dependency caching assumes a missing lockfile. | Avoid npm cache until a lockfile exists; then use lockfile-backed installs. |
 | B-013 | Repository drift | Changes are made without a clear decision record, validation path or safety-sensitive review shape. | Use `CONTRIBUTING.md` and the `ideas.md` decision/working-log format for meaningful changes. |
 | B-014 | Passage distance optimism | A nominal day plan hides that one leg is too long for family crew or daylight. | Keep leg-level distances and summary tests visible; later add thresholds and warnings. |
+| B-015 | False checklist readiness | A checklist with required open items looks nearly complete and encourages departure. | Expose required-open blockers, completion eligibility and progress separately. |
 
 ## Roadmap
 
@@ -218,8 +220,6 @@ Scope:
 
 ### Phase 4: Boat data and integrations
 
-Goal: connect Nautikool to real or simulated onboard context.
-
 - NMEA2000 adapter concept.
 - AIS target ingest concept.
 - GPS/sensor dashboard.
@@ -262,6 +262,7 @@ See `CONTRIBUTING.md` for contribution and decision-log conventions.
 - Vessel profile can be created, edited, saved and exported.
 - Checklist state persists offline.
 - Checklist state distinguishes clean completion, warned completion and incomplete state.
+- Checklist state exposes required-open blockers and completion eligibility.
 - Passage plan can be saved and reloaded.
 - ETA calculations handle time zones correctly.
 - Unit conversion is tested for nautical miles, knots, metres and hours.
@@ -272,6 +273,8 @@ See `CONTRIBUTING.md` for contribution and decision-log conventions.
 - Hanko to Tallinn open-water leg assessment.
 - Turku to Pärnu family passage with one long open-water leg and conservative bailout notes.
 - Night arrival checklist.
+- Heavy-weather departure go/no-go checklist.
+- MOB immediate actions checklist.
 - AIS crossing target with decreasing CPA.
 - Forecast becomes stale while offline.
 - Engine issue during departure.
@@ -283,6 +286,7 @@ See `CONTRIBUTING.md` for contribution and decision-log conventions.
 - Red/no-go states are visually prominent.
 - Stale weather is impossible to overlook.
 - Emergency flow remains accessible from anywhere.
+- Open required checklist items remain visible as blockers.
 
 ## Product decisions
 
@@ -303,6 +307,7 @@ See `CONTRIBUTING.md` for contribution and decision-log conventions.
 | 2026-07-08 | Add typed starter checklist content before Markdown/frontmatter loading. | Immediate user-facing content is more valuable than a parser abstraction before the content model stabilizes. |
 | 2026-07-08 | Add night-arrival checklist content as the next Checklist Engine slice. | Night approaches combine pilotage, fatigue, lighting, traffic and abort planning; this is a high-value Baltic cruising scenario and satisfies the rule that every commit includes product-relevant content. |
 | 2026-07-08 | Add a typed Turku to Pärnu passage plan before GPX import/export. | A real route sample turns Passage Planner into executable product content and creates a test target for distance, ETA, hazards, bailout harbours and crew notes. |
+| 2026-07-08 | Add checklist progress and blocker semantics before persistence. | A safe checklist UI needs to separate progress, completion eligibility, required-open blockers and warned completion before saved runs or dashboard logic are added. |
 
 ## Changelog
 
@@ -324,6 +329,9 @@ Added:
 - Added passage plan domain types and pure passage summary logic.
 - Added typed Turku to Pärnu family H-323 passage plan content with legs, distances, hazards, bailout harbours and crew notes.
 - Added Vitest coverage for passage calculations and starter passage content.
+- Added checklist summary metrics for completion percentage, completion eligibility, required-open blockers and warned completion.
+- Added heavy-weather departure and MOB immediate-actions checklist content.
+- Added Vitest coverage for checklist blocker/progress semantics and new safety content.
 
 Changed:
 
@@ -340,6 +348,7 @@ Changed:
 - Updated `docs/README.md` to link the contribution guide.
 - Updated landing page to show checklist templates from the shared content registry.
 - Updated landing page to show the first passage plan summary and leg cards.
+- Updated landing page to show readiness metrics and expanded safety checklist content.
 
 ### 2026-07-07
 
@@ -363,6 +372,54 @@ Removed:
 - Temporary `test.txt` write-access probe from the repository.
 
 ## Working log
+
+### 2026-07-08 - Checklist engine readiness and emergency content slice
+
+Role mix used: project manager, developer, tester, user and product manager.
+
+Repository review:
+
+- The repository had working CI, typed checklist logic, starter checklist templates, passage-planning logic and a realistic Turku to Pärnu sample route.
+- The checklist engine could create runs, set item states and distinguish incomplete, complete and complete-with-warnings.
+- The product still needed a clearer readiness signal for UI and dashboard use: open required items should become explicit blockers, not just part of an item count.
+- The content registry was missing heavy-weather departure and MOB emergency content, both high-value for Baltic family and short-handed sailing.
+
+Decision:
+
+- Add completion percentage, required-open item count, completion eligibility and blocker messages to checklist summaries.
+- Keep skipped required items as warned completion, but keep open required items as hard blockers.
+- Add two new content-bearing templates: defensive heavy-weather departure go/no-go and MOB immediate actions underway.
+- Surface the new readiness metrics and expanded template registry on the landing page.
+
+Action taken:
+
+- Extended `ChecklistRunSummary` with `requiredOpenItems`, `completionPercent`, `canComplete` and `blockers`.
+- Updated `summarizeChecklistRun` and `completeChecklistRun` to use blocker/completion semantics.
+- Added heavy-weather departure and MOB immediate-actions checklist templates to `src/lib/content/checklistTemplates.ts`.
+- Added tests for progress, blockers, heavy-weather content and MOB emergency content.
+- Updated the landing page, `CHANGELOG.md` and this file.
+
+Testing/reasoning:
+
+- From a tester perspective, the new tests guard against false readiness by checking required-open blockers and completion eligibility.
+- From a developer perspective, readiness remains pure domain logic and independent from UI state.
+- From a user perspective, the app now contains more realistic high-risk workflows: heavy-weather departure and MOB.
+- From a product manager perspective, this is aligned with the 80/20 rule: mostly domain logic, product content, tests and a small UI update.
+
+Next best action:
+
+- Add a Vessel Profile content slice for H-323 / Elina so checklist and passage content can become vessel-aware, or add threshold logic that flags passage legs above daily-distance and daylight limits.
+
+Commit targets:
+
+- `feat: expand checklist run summary metrics`
+- `feat: add checklist completion blockers`
+- `feat: add emergency checklist content`
+- `test: cover checklist blockers and progress`
+- `test: cover emergency checklist content`
+- `feat: surface checklist readiness metrics`
+- `docs: record checklist engine content slice`
+- `docs: log checklist engine content decision`
 
 ### 2026-07-08 - Passage planner route content slice
 
@@ -418,72 +475,22 @@ Role mix used: project manager, developer, tester, user and product manager.
 Repository review:
 
 - The repository had a working CI foundation, typed domain model and first checklist templates.
-- The prior content slice covered departure readiness and diesel inboard pre-start, but not yet night pilotage or arrival-specific risk.
-- The landing page still maintained a local starter template array even though a shared content registry existed.
+- The most valuable next small increment was another realistic checklist workflow rather than more generic documentation.
 
 Decision:
 
-- Add a typed `nightArrivalTemplate` to the checklist content registry.
-- Cover the template with Vitest assertions for category listing, identifier lookup, high-impact assumptions and required checklist items.
-- Update the landing page to render from `coreChecklistTemplates` so future content appears automatically.
-- Update `CHANGELOG.md` and `ideas.md` with the decision, progress, rationale and next best action.
+- Add night-arrival checklist content as a conservative Baltic guest-harbour workflow.
+- Add tests for category lookup, identifiers, safety assumptions and required pilotage content.
+- Make the shared template registry visible from the landing page.
 
 Action taken:
 
-- Added night-arrival checklist content with items for approach briefing, cockpit light discipline, engine/gear readiness, traffic/VHF planning and bailout or holding decisions.
-- Added test coverage for the expanded checklist registry.
-- Updated landing page copy and registry-driven template rendering.
-- Updated `CHANGELOG.md` and this file.
+- Added `nightArrivalTemplate` to the checklist content registry.
+- Expanded checklist content tests.
+- Updated the landing page, `CHANGELOG.md` and this file.
 
 Testing/reasoning:
 
-- From a tester perspective, the new assertions protect against silent loss of the night template and enforce high-impact assumptions for night-arrival content.
-- From a developer perspective, the UI now depends on the shared content registry instead of duplicating template membership.
-- From a user perspective, the content supports a realistic, high-consequence Baltic guest harbour scenario.
-- From a product manager perspective, this is the right 80/20 increment: mostly implementation and content, with only enough documentation to preserve decision traceability.
-
-Next best action:
-
-- Add an arrival or heavy-weather checklist template next, or introduce a small content validation helper that checks ID uniqueness and required safety metadata across all templates.
-
-Commit targets:
-
-- `feat: add night arrival checklist content`
-- `test: update checklist content coverage`
-- `feat: surface all checklist templates on landing page`
-- `docs: record night arrival checklist slice`
-- `docs: log night arrival checklist decision`
-
-### Earlier working log summary
-
-- 2026-07-08: Added typed Baltic coastal departure and diesel inboard pre-start checklist content, landing-page surfacing, tests and changelog updates.
-- 2026-07-08: Added `CONTRIBUTING.md` with contribution and decision-log format.
-- 2026-07-08: Hardened CI by removing npm cache before a lockfile exists.
-- 2026-07-08: Added GitHub Actions CI validation.
-- 2026-07-08: Added the first runnable SvelteKit/TypeScript skeleton and pure checklist domain tests.
-- 2026-07-08: Added `docs/domain-model.md` with implementation-facing domain model and acceptance criteria.
-- 2026-07-08: Added `docs/architecture.md` with PWA-first SvelteKit/TypeScript architecture decision.
-- 2026-07-07: Added `CHANGELOG.md` and `docs/README.md`.
-- 2026-07-07: Expanded `README.md` from a title into a structured project overview.
-- 2026-07-07: Removed temporary write-access test file and added the initial `ideas.md`.
-
-## Repository stewardship protocol
-
-At each review:
-
-1. Inspect the current repository state.
-2. Identify the next highest-value improvement.
-3. Prefer small, coherent commits.
-4. Update this file with the decision, progress, rationale, changelog and next best action.
-5. Commit only when the repository is improved.
-6. Avoid noisy changes.
-
-Decision priority order:
-
-1. Make the project understandable.
-2. Make it runnable.
-3. Make it useful offline.
-4. Make it testable.
-5. Make it safe and conservative.
-6. Make it delightful.
-7. Add integrations only after the core is solid.
+- Night arrival is a high-risk but common coastal cruising situation.
+- The template forces approach brief, light discipline, traffic/VHF and bailout thinking.
+- The increment contains product-relevant content, tests and a visible UI slice.
