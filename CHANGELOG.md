@@ -27,6 +27,7 @@ This project uses a simple human-readable changelog while the product and archit
 - The documentation index now lists the domain model as an active document instead of a planned document.
 - `README.md` now includes concrete development commands for install, dev server, type checks and tests.
 - Repository validation is now automated for future pushes and pull requests.
+- CI no longer enables npm dependency caching before a package lockfile exists.
 
 ### Removed
 
