@@ -84,8 +84,21 @@ describe('checklist domain logic', () => {
     expect(summarizeChecklistRun(template, run)).toMatchObject({
       status: 'incomplete',
       openItems: 1,
-      doneItems: 1
+      doneItems: 1,
+      requiredOpenItems: 0,
+      completionPercent: 50,
+      canComplete: false
     });
+  });
+
+  it('shows blockers for unresolved required items', () => {
+    const summary = summarizeChecklistRun(template, newRun());
+
+    expect(summary.status).toBe('incomplete');
+    expect(summary.requiredOpenItems).toBe(1);
+    expect(summary.canComplete).toBe(false);
+    expect(summary.blockers).toContain('Required checklist item is still open: Check seacocks and bilge.');
+    expect(summary.completionPercent).toBe(0);
   });
 
   it('treats skipped required items as complete with warnings, not clean complete', () => {
@@ -104,6 +117,9 @@ describe('checklist domain logic', () => {
 
     expect(summary.status).toBe('complete-with-warnings');
     expect(summary.requiredSkippedItems).toBe(1);
+    expect(summary.requiredOpenItems).toBe(0);
+    expect(summary.completionPercent).toBe(100);
+    expect(summary.canComplete).toBe(true);
     expect(summary.warnings).toContain(
       'Skipping seacocks and bilge removes an important flooding check.'
     );
@@ -117,7 +133,11 @@ describe('checklist domain logic', () => {
       at: '2026-07-08T00:06:00.000Z'
     });
 
-    expect(summarizeChecklistRun(template, resolved).status).toBe('complete');
+    expect(summarizeChecklistRun(template, resolved)).toMatchObject({
+      status: 'complete',
+      completionPercent: 100,
+      canComplete: true
+    });
     expect(completeChecklistRun(template, resolved, '2026-07-08T00:07:00.000Z').completedAt).toBe(
       '2026-07-08T00:07:00.000Z'
     );
