@@ -1,44 +1,13 @@
 <script lang="ts">
+  import { departureReadinessTemplate, enginePreStartTemplate } from '$lib/content/checklistTemplates';
   import { createChecklistRun, summarizeChecklistRun } from '$lib/domain/checklists';
-  import type { ChecklistTemplate } from '$lib/domain/types';
 
-  const departureTemplate: ChecklistTemplate = {
-    id: 'checklist-template:departure-basics',
-    title: 'Departure basics',
-    category: 'departure',
-    vesselSpecific: false,
-    safetyCritical: true,
-    assumptions: [
-      {
-        id: 'assumption:weather-reviewed',
-        statement: 'The skipper has reviewed a current forecast before departure.',
-        source: 'user',
-        confidence: 'medium',
-        safetyImpact: 'high'
-      }
-    ],
-    items: [
-      {
-        id: 'item:seacocks',
-        text: 'Check seacocks and bilge.',
-        required: true,
-        warningIfSkipped: 'Skipping seacocks and bilge removes an important flooding check.'
-      },
-      {
-        id: 'item:weather',
-        text: 'Confirm weather, wind, gusts and bailout options.',
-        required: true,
-        warningIfSkipped: 'Skipping the weather review should prevent a clean departure status.'
-      }
-    ],
-    contentVersion: '0.1.0'
-  };
-
-  const run = createChecklistRun(departureTemplate, {
+  const run = createChecklistRun(departureReadinessTemplate, {
     id: 'checklist-run:demo',
     vesselId: 'vessel:demo'
   });
-  const summary = summarizeChecklistRun(departureTemplate, run);
+  const summary = summarizeChecklistRun(departureReadinessTemplate, run);
+  const starterTemplates = [departureReadinessTemplate, enginePreStartTemplate];
 </script>
 
 <svelte:head>
@@ -58,15 +27,16 @@
   </p>
 
   <section aria-labelledby="slice-title">
-    <h2 id="slice-title">First implementation slice</h2>
+    <h2 id="slice-title">First product content slice</h2>
     <p>
-      The app skeleton now includes pure TypeScript domain logic for checklist runs before storage,
-      sync, charts or hardware integrations are added.
+      The app now includes typed starter checklist content for a Baltic coastal departure and a
+      diesel inboard pre-start check. This keeps the project moving from documentation toward
+      usable skipper workflows.
     </p>
     <dl>
       <div>
         <dt>Demo checklist</dt>
-        <dd>{departureTemplate.title}</dd>
+        <dd>{departureReadinessTemplate.title}</dd>
       </div>
       <div>
         <dt>Current status</dt>
@@ -82,6 +52,24 @@
       </div>
     </dl>
   </section>
+
+  <section aria-labelledby="templates-title">
+    <h2 id="templates-title">Starter checklist templates</h2>
+    <div class="template-list">
+      {#each starterTemplates as template}
+        <article>
+          <p class="template-category">{template.category}</p>
+          <h3>{template.title}</h3>
+          <p>{template.items.length} items · content {template.contentVersion}</p>
+          <ul>
+            {#each template.items.slice(0, 3) as item}
+              <li>{item.text}</li>
+            {/each}
+          </ul>
+        </article>
+      {/each}
+    </div>
+  </section>
 </main>
 
 <style>
@@ -94,7 +82,7 @@
   }
 
   main {
-    max-width: 760px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 4rem 1.5rem;
   }
@@ -139,5 +127,38 @@
 
   dd {
     margin: 0.25rem 0 0;
+  }
+
+  .template-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+
+  article {
+    padding: 1rem;
+    border: 1px solid #e4dece;
+    border-radius: 0.75rem;
+    background: #ffffff;
+  }
+
+  h3 {
+    margin: 0.35rem 0 0.5rem;
+  }
+
+  ul {
+    padding-left: 1.25rem;
+  }
+
+  li + li {
+    margin-top: 0.5rem;
+  }
+
+  .template-category {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 </style>
