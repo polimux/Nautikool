@@ -70,19 +70,21 @@ Repository state reviewed:
 - A first SvelteKit/TypeScript skeleton exists.
 - Pure checklist domain types and state-transition logic exist under `src/lib/domain`.
 - Vitest tests cover the first checklist state semantics.
-- GitHub Actions CI now validates install, Svelte/TypeScript checks, unit tests and production build.
+- GitHub Actions CI validates install, Svelte/TypeScript checks, unit tests and production build.
+- The repository currently has `package.json` but no committed npm lockfile.
+- CI no longer enables npm dependency caching until a lockfile exists.
 
 Decision:
 
-- Add CI before adding more product surface.
-- Use the validation path `npm install`, `npm run check`, `npm test` and `npm run build` on pushes and pull requests to `main`.
-- Keep the next product feature focused on checklist template loading from Markdown/frontmatter once CI is verified.
+- Harden the new CI workflow before adding more product surface.
+- Remove `cache: npm` from `actions/setup-node` while the repository has no committed lockfile.
+- Keep dependency installation as `npm install` for now, then switch to a lockfile-backed install path once `package-lock.json` is generated and committed.
 
 Rationale:
 
-- The previous next best action was to run or stabilize the test/build path before adding Markdown checklist template loading.
-- CI turns future changes from trust-based commits into repeatable validation.
-- For a safety-oriented sailing tool, type checks, tests and production build must fail early before behaviour becomes complex.
+- The previous next best action was to inspect the first CI run and fix dependency or configuration issues before adding Markdown checklist template loading.
+- `actions/setup-node` npm caching expects a dependency lockfile; using cache before the lockfile exists risks a CI failure unrelated to Nautikool product logic.
+- A reliable CI foundation is more valuable than starting checklist parsing while the validation path itself may still be brittle.
 
 ## Feature backlog
 
@@ -149,6 +151,7 @@ Rationale:
 | B-009 | Missing data | Unknown weather, route or crew data defaults to green. | Model `unknown` separately and test conservative escalation. |
 | B-010 | Domain/UI coupling | UI state becomes the source of truth. | Keep checklist logic as pure TypeScript functions with tests. |
 | B-011 | Broken main branch | New features compile locally but break tests or build. | GitHub Actions validates checks, tests and build on push/PR. |
+| B-012 | CI dependency setup | CI fails before product checks because dependency caching assumes a missing lockfile. | Avoid npm cache until a lockfile exists; then use lockfile-backed installs. |
 
 ## Roadmap
 
@@ -292,6 +295,7 @@ See `docs/domain-model.md` for the first implementation-facing domain model.
 | 2026-07-08 | Define the first domain model before code generation. | Vessel, checklist, passage, risk, assumption and freshness concepts need stable names before UI or persistence choices harden. |
 | 2026-07-08 | Add the first runnable SvelteKit/TypeScript skeleton with pure checklist domain tests. | This turns the project from documentation-only into a testable product foundation while preserving small safe increments. |
 | 2026-07-08 | Add GitHub Actions CI before adding checklist template loading. | Automated validation reduces regression risk before the app gains more content and parsing logic. |
+| 2026-07-08 | Remove npm caching from CI until a lockfile exists. | This avoids lockfile-related CI setup failure while keeping the validation workflow useful. |
 
 ## Changelog
 
@@ -313,6 +317,7 @@ Changed:
 - Marked the first domain model as complete.
 - Marked the first runnable skeleton and first domain tests as complete.
 - Marked CI validation as complete.
+- Removed npm caching from CI until a lockfile exists.
 - Updated current repository assessment and next best action.
 - Updated `README.md` with build and CI validation details.
 
@@ -338,6 +343,45 @@ Removed:
 - Temporary `test.txt` write-access probe from the repository.
 
 ## Working log
+
+### 2026-07-08 - CI lockfile hardening
+
+Role mix used: project manager, developer, tester, user and product manager.
+
+Repository review:
+
+- `.github/workflows/ci.yml` existed and ran install, checks, tests and build.
+- `package.json` existed, but no npm lockfile was present in the repository.
+- The CI workflow configured `actions/setup-node` with `cache: npm`, which is better paired with a committed dependency lockfile.
+
+Decision:
+
+- Remove npm cache configuration until the project has a committed package lockfile.
+- Keep `npm install` as the CI install command for the current unlocked foundation.
+- Do not add checklist Markdown/frontmatter loading until the CI foundation is less brittle.
+
+Action taken:
+
+- Updated `.github/workflows/ci.yml` to remove `cache: npm` from `actions/setup-node`.
+- Updated `CHANGELOG.md`.
+- Updated this file with the decision, rationale, changelog and next best action.
+
+Testing/reasoning:
+
+- From a tester perspective, CI must fail only for meaningful validation failures, not avoidable setup assumptions.
+- From a developer perspective, lockfile-backed caching can be reintroduced after `package-lock.json` exists.
+- From a product manager perspective, stabilizing validation is the right small increment before content parsing or UI expansion.
+- From a user perspective, this keeps the safety-related checklist foundation from accumulating unverified changes.
+
+Next best action:
+
+- Generate and commit `package-lock.json`, then switch CI from `npm install` to `npm ci` and re-enable npm caching. After that, add checklist template loading from Markdown/frontmatter with tests.
+
+Commit targets:
+
+- `ci: avoid npm cache without lockfile`
+- `docs: record CI lockfile hardening`
+- `docs: log CI lockfile hardening`
 
 ### 2026-07-08 - CI validation foundation
 
