@@ -34,8 +34,9 @@
     <h2 id="slice-title">First product content slice</h2>
     <p>
       The app now includes typed starter checklist content for Baltic coastal departure, diesel
-      inboard pre-start and night arrival preparation. This keeps the project moving from
-      documentation toward usable skipper workflows.
+      inboard pre-start, night arrival, heavy-weather departure and MOB immediate actions. The
+      checklist engine reports progress, blockers and warned completion so the UI can distinguish
+      preparation from actual readiness.
     </p>
     <dl>
       <div>
@@ -47,8 +48,16 @@
         <dd>{summary.status}</dd>
       </div>
       <div>
+        <dt>Completion</dt>
+        <dd>{summary.completionPercent}%</dd>
+      </div>
+      <div>
         <dt>Open items</dt>
         <dd>{summary.openItems}</dd>
+      </div>
+      <div>
+        <dt>Required blockers</dt>
+        <dd>{summary.requiredOpenItems}</dd>
       </div>
       <div>
         <dt>Required skipped items</dt>
