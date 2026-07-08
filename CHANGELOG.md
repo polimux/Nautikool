@@ -19,6 +19,7 @@ This project uses a simple human-readable changelog while the product and archit
 - Vitest tests for checklist creation, item transitions, skipped required items, completion and unknown item handling.
 - A minimal landing page that demonstrates the first checklist domain slice.
 - GitHub Actions CI workflow for install, Svelte/TypeScript checks, unit tests and production build.
+- `CONTRIBUTING.md` with contribution principles, validation path, commit message convention and decision-log format.
 
 ### Changed
 
@@ -28,6 +29,7 @@ This project uses a simple human-readable changelog while the product and archit
 - `README.md` now includes concrete development commands for install, dev server, type checks and tests.
 - Repository validation is now automated for future pushes and pull requests.
 - CI no longer enables npm dependency caching before a package lockfile exists.
+- `docs/README.md` now links the contribution guide.
 
 ### Removed
 
