@@ -18,6 +18,7 @@ This project uses a simple human-readable changelog while the product and archit
 - Pure checklist domain types and state-transition logic under `src/lib/domain`.
 - Vitest tests for checklist creation, item transitions, skipped required items, completion and unknown item handling.
 - A minimal landing page that demonstrates the first checklist domain slice.
+- GitHub Actions CI workflow for install, Svelte/TypeScript checks, unit tests and production build.
 
 ### Changed
 
@@ -25,6 +26,7 @@ This project uses a simple human-readable changelog while the product and archit
 - The initial technical direction is now documented as an architecture decision rather than only a backlog bias.
 - The documentation index now lists the domain model as an active document instead of a planned document.
 - `README.md` now includes concrete development commands for install, dev server, type checks and tests.
+- Repository validation is now automated for future pushes and pull requests.
 
 ### Removed
 
