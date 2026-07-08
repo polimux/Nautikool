@@ -22,6 +22,62 @@ export interface VesselDimensions {
   displacementKg?: number;
 }
 
+export interface VesselRigProfile {
+  type: string;
+  mainsail?: string;
+  headsails: string[];
+  downwindSails?: string[];
+  reefingNotes?: string;
+}
+
+export interface VesselEngineProfile {
+  make: string;
+  model: string;
+  type: 'diesel-inboard' | 'petrol-inboard' | 'outboard' | 'electric' | 'unknown';
+  powerHp?: number;
+  drive?: 'shaft' | 'saildrive' | 'outboard' | 'unknown';
+  fuelType?: 'diesel' | 'petrol' | 'electric' | 'unknown';
+  checks: string[];
+}
+
+export interface VesselTankProfile {
+  fuelLiters?: number;
+  waterLiters?: number;
+  holdingTankLiters?: number;
+  notes?: string;
+}
+
+export interface VesselBatteryProfile {
+  houseBank?: string;
+  starterBattery?: string;
+  chargingSources: string[];
+  notes?: string;
+}
+
+export type VesselEquipmentCategory =
+  | 'safety'
+  | 'navigation'
+  | 'communication'
+  | 'electrical'
+  | 'ground-tackle'
+  | 'spares'
+  | 'documents';
+
+export interface VesselEquipmentItem {
+  id: string;
+  name: string;
+  category: VesselEquipmentCategory;
+  installed: boolean;
+  critical: boolean;
+  notes?: string;
+}
+
+export interface VesselReadinessFinding {
+  id: string;
+  severity: 'info' | 'warning' | 'blocker';
+  text: string;
+}
+
 export interface VesselProfile {
   id: string;
   name: string;
@@ -32,6 +88,12 @@ export interface VesselProfile {
   callSign?: string;
   mmsi?: string;
   dimensions: VesselDimensions;
+  rig?: VesselRigProfile;
+  engine?: VesselEngineProfile;
+  tanks?: VesselTankProfile;
+  batteries?: VesselBatteryProfile;
+  equipment: VesselEquipmentItem[];
+  assumptions: Assumption[];
   notes?: string;
   audit: AuditMetadata;
 }
