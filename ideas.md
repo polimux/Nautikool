@@ -64,7 +64,8 @@ Repository state reviewed:
 - `ideas.md` exists as product source of truth.
 - `README.md` exists as a useful public project entry point.
 - `CHANGELOG.md` exists as the project history file.
-- `docs/README.md` exists as the documentation index.
+- `CONTRIBUTING.md` now defines contribution principles, validation path, commit message convention, decision-log format and working-log format.
+- `docs/README.md` exists as the documentation index and links the contribution guide.
 - `docs/architecture.md` records the initial architecture decision.
 - `docs/domain-model.md` defines the first implementation-facing domain concepts.
 - A first SvelteKit/TypeScript skeleton exists.
@@ -76,15 +77,15 @@ Repository state reviewed:
 
 Decision:
 
-- Harden the new CI workflow before adding more product surface.
-- Remove `cache: npm` from `actions/setup-node` while the repository has no committed lockfile.
-- Keep dependency installation as `npm install` for now, then switch to a lockfile-backed install path once `package-lock.json` is generated and committed.
+- Complete the Phase 0 contribution and decision-log format before adding more product surface.
+- Add a root `CONTRIBUTING.md` as the operational guide for future changes.
+- Keep the next technical step focused on generating a lockfile and hardening CI before checklist Markdown/frontmatter loading.
 
 Rationale:
 
-- The previous next best action was to inspect the first CI run and fix dependency or configuration issues before adding Markdown checklist template loading.
-- `actions/setup-node` npm caching expects a dependency lockfile; using cache before the lockfile exists risks a CI failure unrelated to Nautikool product logic.
-- A reliable CI foundation is more valuable than starting checklist parsing while the validation path itself may still be brittle.
+- The roadmap still had contribution and decision-log format open, and the repository is now mature enough to need a stable working protocol.
+- A safety-oriented sailing product benefits from explicit change shape, validation expectations, decision records and safety-sensitive contribution rules before adding parsers, storage or UI workflows.
+- The guide reduces future drift: small commits, explicit assumptions, visible safety reasoning and repeatable checks are now documented.
 
 ## Feature backlog
 
@@ -152,6 +153,7 @@ Rationale:
 | B-010 | Domain/UI coupling | UI state becomes the source of truth. | Keep checklist logic as pure TypeScript functions with tests. |
 | B-011 | Broken main branch | New features compile locally but break tests or build. | GitHub Actions validates checks, tests and build on push/PR. |
 | B-012 | CI dependency setup | CI fails before product checks because dependency caching assumes a missing lockfile. | Avoid npm cache until a lockfile exists; then use lockfile-backed installs. |
+| B-013 | Repository drift | Changes are made without a clear decision record, validation path or safety-sensitive review shape. | Use `CONTRIBUTING.md` and the `ideas.md` decision/working-log format for meaningful changes. |
 
 ## Roadmap
 
@@ -170,7 +172,7 @@ Tasks:
 - [x] Create first runnable SvelteKit/TypeScript skeleton.
 - [x] Add first pure domain logic and Vitest tests.
 - [x] Add CI validation for checks, tests and production build.
-- [ ] Define contribution and decision-log format.
+- [x] Define contribution and decision-log format.
 
 ### Phase 1: Local-first MVP
 
@@ -248,10 +250,12 @@ Initial stack decision:
 - Content: Markdown for lessons, checklists and reference material, with metadata/frontmatter.
 - Testing: Vitest for pure logic first; Playwright later for workflow coverage.
 - CI: GitHub Actions validates install, Svelte/TypeScript checks, unit tests and production build.
+- Contributions: `CONTRIBUTING.md` defines change shape, validation path, commit convention and decision-log format.
 - Integrations: simulators and file import/export before live hardware.
 
 See `docs/architecture.md` for the current architecture decision.
 See `docs/domain-model.md` for the first implementation-facing domain model.
+See `CONTRIBUTING.md` for contribution and decision-log conventions.
 
 ## Test strategy
 
@@ -296,6 +300,7 @@ See `docs/domain-model.md` for the first implementation-facing domain model.
 | 2026-07-08 | Add the first runnable SvelteKit/TypeScript skeleton with pure checklist domain tests. | This turns the project from documentation-only into a testable product foundation while preserving small safe increments. |
 | 2026-07-08 | Add GitHub Actions CI before adding checklist template loading. | Automated validation reduces regression risk before the app gains more content and parsing logic. |
 | 2026-07-08 | Remove npm caching from CI until a lockfile exists. | This avoids lockfile-related CI setup failure while keeping the validation workflow useful. |
+| 2026-07-08 | Add a contribution and decision-log guide before expanding product features. | The project now has enough moving parts that change shape, validation and decision records should be explicit before parser, storage or UI complexity grows. |
 
 ## Changelog
 
@@ -310,6 +315,7 @@ Added:
 - Added Vitest tests for checklist run creation, item transitions, skipped required items, completion and unknown item handling.
 - Added a minimal SvelteKit landing page that demonstrates the first checklist domain slice.
 - Added GitHub Actions CI workflow for install, Svelte/TypeScript checks, unit tests and production build.
+- Added `CONTRIBUTING.md` with contribution principles, validation path, commit message convention and decision-log format.
 
 Changed:
 
@@ -317,9 +323,11 @@ Changed:
 - Marked the first domain model as complete.
 - Marked the first runnable skeleton and first domain tests as complete.
 - Marked CI validation as complete.
+- Marked contribution and decision-log format as complete.
 - Removed npm caching from CI until a lockfile exists.
 - Updated current repository assessment and next best action.
 - Updated `README.md` with build and CI validation details.
+- Updated `docs/README.md` to link the contribution guide.
 
 ### 2026-07-07
 
@@ -343,6 +351,47 @@ Removed:
 - Temporary `test.txt` write-access probe from the repository.
 
 ## Working log
+
+### 2026-07-08 - Contribution and decision format
+
+Role mix used: project manager, developer, tester, user and product manager.
+
+Repository review:
+
+- The repository had a working product log, documentation index, CI workflow and first application skeleton.
+- Phase 0 still had one open governance item: define contribution and decision-log format.
+- The next planned technical step remains lockfile-backed CI, but that requires generating a real `package-lock.json` from npm rather than inventing one in the connector.
+
+Decision:
+
+- Add `CONTRIBUTING.md` now as a repository-level guide for change shape, validation, commit messages, decision logs, working logs and safety-sensitive changes.
+- Mark the Phase 0 contribution and decision-log format complete.
+- Do not add Markdown/frontmatter checklist loading until CI dependency locking is resolved.
+
+Action taken:
+
+- Added `CONTRIBUTING.md`.
+- Updated `docs/README.md` to link the contribution guide.
+- Updated `CHANGELOG.md`.
+- Updated this file with the decision, rationale, changelog and next best action.
+
+Testing/reasoning:
+
+- From a project manager perspective, this finishes the last visible Phase 0 stewardship task and makes future increments easier to review.
+- From a developer perspective, the guide defines validation expectations and commit message shape before more code paths are added.
+- From a tester perspective, it explicitly calls out safety-sensitive changes and unknown-data handling.
+- From a user and product manager perspective, it protects the calm co-skipper positioning: features should grow with visible assumptions, conservative wording and small validated steps.
+
+Next best action:
+
+- Generate and commit `package-lock.json`, then switch CI from `npm install` to `npm ci` and re-enable npm caching. After that, add checklist template loading from Markdown/frontmatter with tests.
+
+Commit targets:
+
+- `docs: add contribution and decision log format`
+- `docs: link contribution guide from docs index`
+- `docs: record contribution guide addition`
+- `docs: log contribution and decision format`
 
 ### 2026-07-08 - CI lockfile hardening
 
