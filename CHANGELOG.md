@@ -21,6 +21,7 @@ This project uses a simple human-readable changelog while the product and archit
 - GitHub Actions CI workflow for install, Svelte/TypeScript checks, unit tests and production build.
 - `CONTRIBUTING.md` with contribution principles, validation path, commit message convention and decision-log format.
 - Typed starter checklist content for Baltic coastal departure readiness and diesel inboard pre-start checks.
+- Vitest coverage for starter checklist content identifiers, categories, assumptions and skipped-item warnings.
 
 ### Changed
 
