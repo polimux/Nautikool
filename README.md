@@ -102,7 +102,7 @@ These integrations should remain optional adapters around a useful local-first c
 
 ## Current repository status
 
-This repository now has its first runnable application foundation.
+This repository now has its first runnable application foundation and automated validation workflow.
 
 Implemented so far:
 
@@ -112,7 +112,8 @@ Implemented so far:
 - `docs/README.md`, `docs/architecture.md` and `docs/domain-model.md`,
 - a SvelteKit and TypeScript project skeleton,
 - pure checklist domain types and state-transition logic,
-- Vitest tests for checklist state semantics.
+- Vitest tests for checklist state semantics,
+- GitHub Actions CI for dependency install, Svelte/TypeScript checks, unit tests and production build.
 
 Not implemented yet:
 
@@ -121,7 +122,7 @@ Not implemented yet:
 - vessel profile UI,
 - passage planning UI,
 - offline/PWA caching,
-- production build verification in CI.
+- real onboard data integrations.
 
 ## Development setup
 
@@ -148,6 +149,14 @@ Run domain tests:
 ```sh
 npm test
 ```
+
+Build the app:
+
+```sh
+npm run build
+```
+
+The same validation path is executed by GitHub Actions on pushes and pull requests to `main`.
 
 ## Development direction
 
