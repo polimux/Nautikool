@@ -1,8 +1,10 @@
 <script lang="ts">
   import { coreChecklistTemplates, departureReadinessTemplate } from '$lib/content/checklistTemplates';
   import { turkuToParnuFamilyPassagePlan } from '$lib/content/passagePlans';
+  import { h323ElinaVesselProfile } from '$lib/content/vesselProfiles';
   import { createChecklistRun, summarizeChecklistRun } from '$lib/domain/checklists';
   import { summarizePassagePlan } from '$lib/domain/passages';
+  import { getVesselEquipmentByCategory, summarizeVesselProfile } from '$lib/domain/vessels';
 
   const run = createChecklistRun(departureReadinessTemplate, {
     id: 'checklist-run:demo',
@@ -12,6 +14,10 @@
   const starterTemplates = coreChecklistTemplates;
   const starterPassagePlan = turkuToParnuFamilyPassagePlan;
   const starterPassageSummary = summarizePassagePlan(starterPassagePlan);
+  const starterVessel = h323ElinaVesselProfile;
+  const starterVesselSummary = summarizeVesselProfile(starterVessel);
+  const navigationEquipment = getVesselEquipmentByCategory(starterVessel, 'navigation');
+  const safetyEquipment = getVesselEquipmentByCategory(starterVessel, 'safety');
 </script>
 
 <svelte:head>
@@ -64,6 +70,62 @@
         <dd>{summary.requiredSkippedItems}</dd>
       </div>
     </dl>
+  </section>
+
+  <section aria-labelledby="vessel-title">
+    <h2 id="vessel-title">Starter vessel profile</h2>
+    <p>
+      The first vessel profile models the H-323 Elina as a Baltic coastal cruiser with explicit
+      dimensions, engine checks, electronics, safety gear and assumptions about still-unverified
+      capacities.
+    </p>
+    <dl>
+      <div>
+        <dt>Vessel</dt>
+        <dd>{starterVessel.name} · {starterVessel.type}</dd>
+      </div>
+      <div>
+        <dt>Dimensions</dt>
+        <dd>
+          {starterVessel.dimensions.loaMeters} m LOA · {starterVessel.dimensions.beamMeters} m beam ·
+          {starterVessel.dimensions.draftMeters} m draft
+        </dd>
+      </div>
+      <div>
+        <dt>Engine</dt>
+        <dd>{starterVessel.engine?.make} {starterVessel.engine?.model}</dd>
+      </div>
+      <div>
+        <dt>Installed equipment</dt>
+        <dd>{starterVesselSummary.installedEquipmentCount} items recorded</dd>
+      </div>
+      <div>
+        <dt>Readiness blockers</dt>
+        <dd>{starterVesselSummary.blockerCount}</dd>
+      </div>
+      <div>
+        <dt>Assumptions</dt>
+        <dd>{starterVesselSummary.assumptionCount}</dd>
+      </div>
+    </dl>
+    <div class="equipment-list">
+      <article>
+        <p class="template-category">Navigation</p>
+        <ul>
+          {#each navigationEquipment as item}
+            <li>{item.name}</li>
+          {/each}
+        </ul>
+      </article>
+      <article>
+        <p class="template-category">Safety</p>
+        <ul>
+          {#each safetyEquipment as item}
+            <li>{item.name}</li>
+          {/each}
+        </ul>
+      </article>
+    </div>
   </section>
 
   <section aria-labelledby="templates-title">
@@ -182,13 +244,15 @@
   }
 
   .template-list,
-  .leg-list {
+  .leg-list,
+  .equipment-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 1rem;
   }
 
-  .leg-list {
+  .leg-list,
+  .equipment-list {
     margin-top: 1rem;
   }
 
