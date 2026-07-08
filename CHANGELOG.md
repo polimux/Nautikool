@@ -31,6 +31,10 @@ This project uses a simple human-readable changelog while the product and archit
 - Checklist run summary metrics for required open items, completion percentage, completion eligibility and blocker messages.
 - Typed heavy-weather departure and MOB immediate-actions checklist content.
 - Vitest coverage for checklist blockers, progress, heavy-weather content and MOB emergency content.
+- Extended vessel profile domain types for rig, engine, tanks, batteries, equipment, assumptions and readiness findings.
+- Pure vessel readiness logic for equipment lookup, missing critical equipment and profile validation.
+- Typed H-323 Elina reference vessel profile with Yanmar engine checks, Raymarine/Orca/em-trak navigation stack, safety equipment and explicit unverified-capacity assumptions.
+- Vitest coverage for vessel profile content, installed equipment, safety assumptions and readiness blockers.
 
 ### Changed
 
@@ -45,6 +49,8 @@ This project uses a simple human-readable changelog while the product and archit
 - Landing page now reads checklist template cards from the shared content registry.
 - Landing page now surfaces the first passage planner content slice and summary metrics.
 - Landing page now surfaces checklist readiness metrics and the expanded safety/emergency template registry.
+- Landing page now surfaces the first vessel profile and vessel readiness summary.
+- Domain barrel exports now include passage and vessel modules.
 
 ### Removed
 
