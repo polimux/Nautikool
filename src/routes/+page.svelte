@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { departureReadinessTemplate, enginePreStartTemplate } from '$lib/content/checklistTemplates';
+  import { coreChecklistTemplates, departureReadinessTemplate } from '$lib/content/checklistTemplates';
   import { createChecklistRun, summarizeChecklistRun } from '$lib/domain/checklists';
 
   const run = createChecklistRun(departureReadinessTemplate, {
@@ -7,7 +7,7 @@
     vesselId: 'vessel:demo'
   });
   const summary = summarizeChecklistRun(departureReadinessTemplate, run);
-  const starterTemplates = [departureReadinessTemplate, enginePreStartTemplate];
+  const starterTemplates = coreChecklistTemplates;
 </script>
 
 <svelte:head>
@@ -29,9 +29,9 @@
   <section aria-labelledby="slice-title">
     <h2 id="slice-title">First product content slice</h2>
     <p>
-      The app now includes typed starter checklist content for a Baltic coastal departure and a
-      diesel inboard pre-start check. This keeps the project moving from documentation toward
-      usable skipper workflows.
+      The app now includes typed starter checklist content for Baltic coastal departure, diesel
+      inboard pre-start and night arrival preparation. This keeps the project moving from
+      documentation toward usable skipper workflows.
     </p>
     <dl>
       <div>
