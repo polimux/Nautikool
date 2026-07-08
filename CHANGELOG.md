@@ -22,6 +22,8 @@ This project uses a simple human-readable changelog while the product and archit
 - `CONTRIBUTING.md` with contribution principles, validation path, commit message convention and decision-log format.
 - Typed starter checklist content for Baltic coastal departure readiness and diesel inboard pre-start checks.
 - Vitest coverage for starter checklist content identifiers, categories, assumptions and skipped-item warnings.
+- Typed night-arrival checklist content for Baltic guest harbour approaches.
+- Vitest coverage for night-arrival checklist category lookup, identifier lookup, high-impact assumptions and required pilotage items.
 
 ### Changed
 
@@ -33,6 +35,7 @@ This project uses a simple human-readable changelog while the product and archit
 - CI no longer enables npm dependency caching before a package lockfile exists.
 - `docs/README.md` now links the contribution guide.
 - Landing page now surfaces starter checklist templates as product content instead of only a synthetic demo checklist.
+- Landing page now reads checklist template cards from the shared content registry.
 
 ### Removed
 
