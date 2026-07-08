@@ -147,6 +147,10 @@ export interface ChecklistRunSummary {
   doneItems: number;
   skippedItems: number;
   notApplicableItems: number;
+  requiredOpenItems: number;
   requiredSkippedItems: number;
+  completionPercent: number;
+  canComplete: boolean;
   warnings: string[];
+  blockers: string[];
 }
