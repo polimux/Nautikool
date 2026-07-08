@@ -103,9 +103,72 @@ export const enginePreStartTemplate: ChecklistTemplate = {
   ]
 };
 
+export const nightArrivalTemplate: ChecklistTemplate = {
+  id: 'checklist-template:night-arrival-baltic-guest-harbour',
+  title: 'Night arrival - Baltic guest harbour',
+  category: 'night',
+  vesselSpecific: false,
+  safetyCritical: true,
+  contentVersion: '0.1.0',
+  assumptions: [
+    {
+      id: 'assumption:night-arrival-approach-identified',
+      statement: 'The destination approach, leading lights, sector lights and final berth or waiting area have been identified before darkness.',
+      source: 'user',
+      confidence: 'medium',
+      safetyImpact: 'high'
+    },
+    {
+      id: 'assumption:night-arrival-crew-fatigue-managed',
+      statement: 'The skipper has considered fatigue, watch handover quality and whether a daylight bailout harbour is safer.',
+      source: 'user',
+      confidence: 'medium',
+      safetyImpact: 'high'
+    }
+  ],
+  items: [
+    {
+      id: 'item:night-arrival-approach-brief',
+      text: 'Brief the final approach: charted hazards, leading lines, sector lights, waypoint sequence, no-go areas and abort point.',
+      helpText: 'Do the mental rehearsal before entering the harbour approach, not when lights and traffic are already competing for attention.',
+      required: true,
+      warningIfSkipped: 'Skipping the night approach brief increases the risk of wrong-light fixation, shallow-water error or late abort decisions.'
+    },
+    {
+      id: 'item:night-arrival-cockpit-light-discipline',
+      text: 'Set cockpit light discipline: dim screens, preserve night vision, keep one red/low light available and avoid headlamp glare.',
+      helpText: 'Night vision is part of situational awareness; protect it before the close-quarters phase starts.',
+      required: true,
+      warningIfSkipped: 'Skipping light discipline can reduce night vision during pilotage and harbour manoeuvres.'
+    },
+    {
+      id: 'item:night-arrival-engine-and-gear-ready',
+      text: 'Prepare engine, fenders, mooring lines, boat hook and handheld VHF before the final approach.',
+      helpText: 'At night, avoid sending crew forward late; prepare the boat while there is still room and time.',
+      required: true,
+      warningIfSkipped: 'Skipping arrival gear preparation increases deck workload and communication errors in the dark.'
+    },
+    {
+      id: 'item:night-arrival-traffic-and-vhf',
+      text: 'Check AIS, visual traffic, harbour VHF channel or phone number, and agree who watches outside versus instruments.',
+      helpText: 'The instrument watcher should support, not replace, visual lookout and skipper pilotage decisions.',
+      required: true,
+      warningIfSkipped: 'Skipping traffic and communication planning weakens situational awareness during the harbour approach.'
+    },
+    {
+      id: 'item:night-arrival-bailout-or-hold',
+      text: 'Confirm the bailout or holding option if the berth is unclear, the crew is tired, visibility drops or the approach does not match the plan.',
+      helpText: 'A safe wait outside or a simpler harbour is often better than forcing a tired night entry.',
+      required: true,
+      warningIfSkipped: 'Skipping the bailout decision can make an unsafe night arrival feel like the only option.'
+    }
+  ]
+};
+
 export const coreChecklistTemplates: ChecklistTemplate[] = [
   departureReadinessTemplate,
-  enginePreStartTemplate
+  enginePreStartTemplate,
+  nightArrivalTemplate
 ];
 
 export function listChecklistTemplatesByCategory(category: ChecklistCategory): ChecklistTemplate[] {
