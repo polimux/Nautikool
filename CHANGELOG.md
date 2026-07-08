@@ -28,6 +28,9 @@ This project uses a simple human-readable changelog while the product and archit
 - Pure passage-planning summary logic for leg hours, total distance, planned hours, open-water legs, high-severity hazards, daylight-critical legs and bailout counts.
 - Typed starter passage content for a Turku to Pärnu family H-323 route with leg distances, hazards, bailout harbours and crew notes.
 - Vitest coverage for passage summary calculations and starter passage content semantics.
+- Checklist run summary metrics for required open items, completion percentage, completion eligibility and blocker messages.
+- Typed heavy-weather departure and MOB immediate-actions checklist content.
+- Vitest coverage for checklist blockers, progress, heavy-weather content and MOB emergency content.
 
 ### Changed
 
@@ -41,6 +44,7 @@ This project uses a simple human-readable changelog while the product and archit
 - Landing page now surfaces starter checklist templates as product content instead of only a synthetic demo checklist.
 - Landing page now reads checklist template cards from the shared content registry.
 - Landing page now surfaces the first passage planner content slice and summary metrics.
+- Landing page now surfaces checklist readiness metrics and the expanded safety/emergency template registry.
 
 ### Removed
 
