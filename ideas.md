@@ -67,22 +67,22 @@ Repository state reviewed:
 - `docs/README.md` exists as the documentation index.
 - `docs/architecture.md` records the initial architecture decision.
 - `docs/domain-model.md` defines the first implementation-facing domain concepts.
-- A first SvelteKit/TypeScript skeleton now exists.
-- Pure checklist domain types and state-transition logic now exist under `src/lib/domain`.
-- Vitest tests now cover the first checklist state semantics.
+- A first SvelteKit/TypeScript skeleton exists.
+- Pure checklist domain types and state-transition logic exist under `src/lib/domain`.
+- Vitest tests cover the first checklist state semantics.
+- GitHub Actions CI now validates install, Svelte/TypeScript checks, unit tests and production build.
 
 Decision:
 
-- Move the repository from documentation-only foundation to first runnable application foundation.
-- Implement only the smallest valuable code slice: SvelteKit shell, TypeScript setup, checklist domain types, pure checklist functions and Vitest tests.
-- Avoid storage, offline caching, Markdown parsing, routing complexity and hardware integrations until the checklist domain contract is stable.
+- Add CI before adding more product surface.
+- Use the validation path `npm install`, `npm run check`, `npm test` and `npm run build` on pushes and pull requests to `main`.
+- Keep the next product feature focused on checklist template loading from Markdown/frontmatter once CI is verified.
 
 Rationale:
 
-- The previous documented next step was to create a minimal SvelteKit/TypeScript skeleton with pure domain types and checklist state-transition tests.
-- A runnable skeleton reduces project risk because future work can be type-checked and tested instead of remaining purely conceptual.
-- Checklist completion semantics are safety-relevant: skipped required items must be visible as warnings and must not be silently treated as a clean completion.
-- Starting with pure domain logic keeps the product workflow-driven rather than UI-driven.
+- The previous next best action was to run or stabilize the test/build path before adding Markdown checklist template loading.
+- CI turns future changes from trust-based commits into repeatable validation.
+- For a safety-oriented sailing tool, type checks, tests and production build must fail early before behaviour becomes complex.
 
 ## Feature backlog
 
@@ -148,6 +148,7 @@ Rationale:
 | B-008 | Checklist state | Skipped required items appear as safe completion. | Checklist completion logic distinguishes clean completion from warned completion. |
 | B-009 | Missing data | Unknown weather, route or crew data defaults to green. | Model `unknown` separately and test conservative escalation. |
 | B-010 | Domain/UI coupling | UI state becomes the source of truth. | Keep checklist logic as pure TypeScript functions with tests. |
+| B-011 | Broken main branch | New features compile locally but break tests or build. | GitHub Actions validates checks, tests and build on push/PR. |
 
 ## Roadmap
 
@@ -165,6 +166,7 @@ Tasks:
 - [x] Define first domain model.
 - [x] Create first runnable SvelteKit/TypeScript skeleton.
 - [x] Add first pure domain logic and Vitest tests.
+- [x] Add CI validation for checks, tests and production build.
 - [ ] Define contribution and decision-log format.
 
 ### Phase 1: Local-first MVP
@@ -242,6 +244,7 @@ Initial stack decision:
 - Storage: local-first IndexedDB behind a storage/repository abstraction.
 - Content: Markdown for lessons, checklists and reference material, with metadata/frontmatter.
 - Testing: Vitest for pure logic first; Playwright later for workflow coverage.
+- CI: GitHub Actions validates install, Svelte/TypeScript checks, unit tests and production build.
 - Integrations: simulators and file import/export before live hardware.
 
 See `docs/architecture.md` for the current architecture decision.
@@ -288,6 +291,7 @@ See `docs/domain-model.md` for the first implementation-facing domain model.
 | 2026-07-08 | Choose a PWA-first SvelteKit and TypeScript architecture with IndexedDB abstraction. | This supports offline-first use and rapid iteration while keeping future native, sync and hardware choices open. |
 | 2026-07-08 | Define the first domain model before code generation. | Vessel, checklist, passage, risk, assumption and freshness concepts need stable names before UI or persistence choices harden. |
 | 2026-07-08 | Add the first runnable SvelteKit/TypeScript skeleton with pure checklist domain tests. | This turns the project from documentation-only into a testable product foundation while preserving small safe increments. |
+| 2026-07-08 | Add GitHub Actions CI before adding checklist template loading. | Automated validation reduces regression risk before the app gains more content and parsing logic. |
 
 ## Changelog
 
@@ -301,14 +305,16 @@ Added:
 - Added pure checklist domain types and state-transition functions.
 - Added Vitest tests for checklist run creation, item transitions, skipped required items, completion and unknown item handling.
 - Added a minimal SvelteKit landing page that demonstrates the first checklist domain slice.
+- Added GitHub Actions CI workflow for install, Svelte/TypeScript checks, unit tests and production build.
 
 Changed:
 
 - Marked the Phase 0 initial tech stack decision as complete.
 - Marked the first domain model as complete.
 - Marked the first runnable skeleton and first domain tests as complete.
+- Marked CI validation as complete.
 - Updated current repository assessment and next best action.
-- Updated `README.md` with concrete development commands.
+- Updated `README.md` with build and CI validation details.
 
 ### 2026-07-07
 
@@ -332,6 +338,45 @@ Removed:
 - Temporary `test.txt` write-access probe from the repository.
 
 ## Working log
+
+### 2026-07-08 - CI validation foundation
+
+Role mix used: project manager, developer, tester, user and product manager.
+
+Repository review:
+
+- The repository had a SvelteKit/TypeScript skeleton, domain logic and Vitest tests.
+- `package.json` exposed `npm run check`, `npm test` and `npm run build`, but no automated validation workflow existed.
+- README still listed production build verification in CI as not implemented.
+
+Decision:
+
+- Add a GitHub Actions workflow now, before adding Markdown/frontmatter checklist loading.
+- Validate dependency installation, Svelte/TypeScript checks, unit tests and production build on push and pull request to `main`.
+
+Action taken:
+
+- Added `.github/workflows/ci.yml`.
+- Updated `README.md` to describe CI and the build command.
+- Updated `CHANGELOG.md` and this file.
+
+Testing/reasoning:
+
+- The workflow is designed to execute the same validation path a developer would run locally.
+- From a tester perspective, this prevents unchecked safety-domain changes from reaching `main` unnoticed.
+- From a developer perspective, CI is now in place before parsers, content loading and storage increase complexity.
+- From a user/product perspective, this supports trust: Nautikool should not grow features faster than its validation discipline.
+
+Next best action:
+
+- Inspect the first CI run. If it fails, fix the dependency/configuration issue. If it passes, add checklist template loading from Markdown/frontmatter with tests.
+
+Commit targets:
+
+- `ci: add Node.js validation workflow`
+- `docs: record CI workflow addition`
+- `docs: update README for CI validation`
+- `docs: log CI validation step`
 
 ### 2026-07-08 - First runnable skeleton and checklist tests
 
