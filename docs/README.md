@@ -7,6 +7,7 @@ This directory holds structured project documentation that should not overload t
 - `../CONTRIBUTING.md` - contribution principles, validation path, commit message convention, decision-log format and working-log format.
 - `architecture.md` - application shape, initial stack decision, module boundaries, local-first storage, offline implications and testing direction.
 - `domain-model.md` - first domain entities for vessel profile, checklists, passage plans, weather snapshots, risk assessments, assumptions, freshness and trip packs.
+- `product-focus.md` - implementation focus sequence: content system, checklist engine, passage planner, vessel profile, risk engine and NMEA/AIS adapter.
 
 ## Planned documents
 
