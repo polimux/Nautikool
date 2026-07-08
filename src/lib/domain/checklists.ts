@@ -87,10 +87,12 @@ export function summarizeChecklistRun(
 ): ChecklistRunSummary {
   const templateItemsById = new Map(template.items.map((item) => [item.id, item]));
   const warnings: string[] = [];
+  const blockers: string[] = [];
   let openItems = 0;
   let doneItems = 0;
   let skippedItems = 0;
   let notApplicableItems = 0;
+  let requiredOpenItems = 0;
   let requiredSkippedItems = 0;
 
   for (const itemState of run.itemStates) {
@@ -103,6 +105,11 @@ export function summarizeChecklistRun(
 
     if (itemState.status === 'open') {
       openItems += 1;
+
+      if (templateItem.required) {
+        requiredOpenItems += 1;
+        blockers.push(`Required checklist item is still open: ${templateItem.text}`);
+      }
     }
 
     if (itemState.status === 'done') {
@@ -125,8 +132,12 @@ export function summarizeChecklistRun(
     }
   }
 
+  const resolvedItems = doneItems + skippedItems + notApplicableItems;
+  const completionPercent =
+    template.items.length === 0 ? 100 : Math.round((resolvedItems / template.items.length) * 100);
+  const canComplete = openItems === 0;
   const status =
-    openItems > 0
+    !canComplete
       ? 'incomplete'
       : requiredSkippedItems > 0 || warnings.length > 0
         ? 'complete-with-warnings'
@@ -139,8 +150,12 @@ export function summarizeChecklistRun(
     doneItems,
     skippedItems,
     notApplicableItems,
+    requiredOpenItems,
     requiredSkippedItems,
-    warnings
+    completionPercent,
+    canComplete,
+    warnings,
+    blockers
   };
 }
 
@@ -151,7 +166,7 @@ export function completeChecklistRun(
 ): ChecklistRun {
   const summary = summarizeChecklistRun(template, run);
 
-  if (summary.status === 'incomplete') {
+  if (!summary.canComplete) {
     throw new Error('Cannot complete checklist while items are still open.');
   }
 
