@@ -20,6 +20,7 @@ This project uses a simple human-readable changelog while the product and archit
 - A minimal landing page that demonstrates the first checklist domain slice.
 - GitHub Actions CI workflow for install, Svelte/TypeScript checks, unit tests and production build.
 - `CONTRIBUTING.md` with contribution principles, validation path, commit message convention and decision-log format.
+- Typed starter checklist content for Baltic coastal departure readiness and diesel inboard pre-start checks.
 
 ### Changed
 
@@ -30,6 +31,7 @@ This project uses a simple human-readable changelog while the product and archit
 - Repository validation is now automated for future pushes and pull requests.
 - CI no longer enables npm dependency caching before a package lockfile exists.
 - `docs/README.md` now links the contribution guide.
+- Landing page now surfaces starter checklist templates as product content instead of only a synthetic demo checklist.
 
 ### Removed
 
