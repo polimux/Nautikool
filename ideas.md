@@ -69,21 +69,22 @@ Repository state reviewed:
 - GitHub Actions CI validates install, Svelte/TypeScript checks, unit tests and production build.
 - The starter content registry now includes departure readiness, diesel inboard pre-start and night-arrival checklist templates.
 - The landing page surfaces the checklist registry rather than maintaining a separate hard-coded template list.
+- The Passage Planner slice now has typed passage plan domain types, pure summary logic, tests and one realistic Turku to Pärnu H-323 sample route.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
-- Continue shifting from documentation-heavy foundation work toward implementation and product content.
-- Expand the Checklist Engine content slice with a safety-critical night-arrival template for Baltic guest harbour approaches.
-- Keep the increment small: typed content, tests, landing-page surfacing and product log updates only.
-- Defer Markdown/frontmatter loading until dependency locking and content parsing can be introduced cleanly.
+- Continue the 80% implementation / 20% documentation shift.
+- Start the Passage Planner with a small typed slice instead of waiting for GPX import or Markdown/frontmatter loading.
+- Add a realistic Turku to Pärnu family H-323 passage sample because it is directly product-relevant and exercises legs, distances, ETAs, hazards, bailout harbours and crew notes.
+- Keep every commit content-bearing: domain logic, tests and UI all point at real user-facing sailing content.
 
 Rationale:
 
-- Night arrival is a realistic high-risk scenario for Baltic cruising and directly supports the planned night passage prep capability.
-- The added content is user-facing and product-relevant: approach briefing, light discipline, engine/gear readiness, traffic/VHF planning and bailout/holding decisions.
-- Tests prevent the content registry from silently losing the night template or its safety assumptions.
-- Reading cards from `coreChecklistTemplates` reduces future UI drift as more templates are added.
+- Passage planning is a high-priority MVP area and connects naturally with existing checklist content.
+- A typed sample route gives the app realistic data now while leaving GPX import/export and persistence for later.
+- ETA and summary calculations are pure TypeScript and therefore testable without UI or external services.
+- The Turku to Pärnu route is a strong scenario because it combines sheltered archipelago navigation, coastal legs, one open-water crossing, family crew constraints and conservative bailout thinking.
 
 ## Feature backlog
 
@@ -92,7 +93,7 @@ Rationale:
 | ID | Feature | Description | Priority | Status |
 |---|---|---|---|---|
 | F-001 | Vessel profile | Store LOA, beam, draft, mast height, engine, batteries, safety equipment, electronics and owner notes. | High | Idea |
-| F-002 | Passage planner | Plan route legs, distances, ETAs, hazards, bailout harbours, daylight and crew notes. | High | Idea |
+| F-002 | Passage planner | Plan route legs, distances, ETAs, hazards, bailout harbours, daylight and crew notes. | High | Started |
 | F-003 | Checklist engine | Configurable departure, arrival, engine, heavy-weather, night-sailing and emergency checklists. | High | Started |
 | F-004 | Learning modules | Bite-sized nautical lessons for COLREGs, lights, buoys, VHF, anchoring, weather, navigation and sail trim. | High | Idea |
 | F-005 | Scenario trainer | Interactive decisions for crossing traffic, squalls, harbour approaches, engine alarms and MOB. | Medium | Idea |
@@ -120,7 +121,7 @@ Rationale:
 | ID | Feature | Description | Priority | Status |
 |---|---|---|---|---|
 | NAV-001 | GPX import/export | Exchange routes and tracks with chartplotters and navigation apps. | High | Idea |
-| NAV-002 | Leg table | Course, distance, ETA, hazards, bailout options and notes by leg. | High | Idea |
+| NAV-002 | Leg table | Course, distance, ETA, hazards, bailout options and notes by leg. | High | Started |
 | NAV-007 | Night passage prep | Navigation lights, watch rhythm, rest, headlamp discipline and traffic plan. | High | Started |
 | OFF-001 | Offline knowledge base | Core lessons and emergency procedures available without internet. | High | Idea |
 | OFF-002 | Offline checklists | Vessel and passage checklists cached locally. | High | Idea |
@@ -152,6 +153,7 @@ Rationale:
 | B-011 | Broken main branch | New features compile locally but break tests or build. | GitHub Actions validates checks, tests and build on push/PR. |
 | B-012 | CI dependency setup | CI fails before product checks because dependency caching assumes a missing lockfile. | Avoid npm cache until a lockfile exists; then use lockfile-backed installs. |
 | B-013 | Repository drift | Changes are made without a clear decision record, validation path or safety-sensitive review shape. | Use `CONTRIBUTING.md` and the `ideas.md` decision/working-log format for meaningful changes. |
+| B-014 | Passage distance optimism | A nominal day plan hides that one leg is too long for family crew or daylight. | Keep leg-level distances and summary tests visible; later add thresholds and warnings. |
 
 ## Roadmap
 
@@ -218,8 +220,6 @@ Scope:
 
 Goal: connect Nautikool to real or simulated onboard context.
 
-Scope:
-
 - NMEA2000 adapter concept.
 - AIS target ingest concept.
 - GPS/sensor dashboard.
@@ -270,6 +270,7 @@ See `CONTRIBUTING.md` for contribution and decision-log conventions.
 
 - Turku to Hanko coastal route preparation.
 - Hanko to Tallinn open-water leg assessment.
+- Turku to Pärnu family passage with one long open-water leg and conservative bailout notes.
 - Night arrival checklist.
 - AIS crossing target with decreasing CPA.
 - Forecast becomes stale while offline.
@@ -301,6 +302,7 @@ See `CONTRIBUTING.md` for contribution and decision-log conventions.
 | 2026-07-08 | Add a contribution and decision-log guide before expanding product features. | The project now has enough moving parts that change shape, validation and decision records should be explicit before parser, storage or UI complexity grows. |
 | 2026-07-08 | Add typed starter checklist content before Markdown/frontmatter loading. | Immediate user-facing content is more valuable than a parser abstraction before the content model stabilizes. |
 | 2026-07-08 | Add night-arrival checklist content as the next Checklist Engine slice. | Night approaches combine pilotage, fatigue, lighting, traffic and abort planning; this is a high-value Baltic cruising scenario and satisfies the rule that every commit includes product-relevant content. |
+| 2026-07-08 | Add a typed Turku to Pärnu passage plan before GPX import/export. | A real route sample turns Passage Planner into executable product content and creates a test target for distance, ETA, hazards, bailout harbours and crew notes. |
 
 ## Changelog
 
@@ -319,6 +321,9 @@ Added:
 - Added typed starter checklist content for Baltic coastal departure readiness and diesel inboard pre-start checks.
 - Added typed night-arrival checklist content for Baltic guest harbour approaches.
 - Added Vitest coverage for starter checklist identifiers, categories, assumptions, skipped-item warnings and night-arrival pilotage content.
+- Added passage plan domain types and pure passage summary logic.
+- Added typed Turku to Pärnu family H-323 passage plan content with legs, distances, hazards, bailout harbours and crew notes.
+- Added Vitest coverage for passage calculations and starter passage content.
 
 Changed:
 
@@ -328,11 +333,13 @@ Changed:
 - Marked CI validation as complete.
 - Marked contribution and decision-log format as complete.
 - Marked night passage prep as started.
+- Marked Passage Planner and leg table as started.
 - Removed npm caching from CI until a lockfile exists.
 - Updated current repository assessment and next best action.
 - Updated `README.md` with build and CI validation details.
 - Updated `docs/README.md` to link the contribution guide.
 - Updated landing page to show checklist templates from the shared content registry.
+- Updated landing page to show the first passage plan summary and leg cards.
 
 ### 2026-07-07
 
@@ -356,6 +363,53 @@ Removed:
 - Temporary `test.txt` write-access probe from the repository.
 
 ## Working log
+
+### 2026-07-08 - Passage planner route content slice
+
+Role mix used: project manager, developer, tester, user and product manager.
+
+Repository review:
+
+- The repository had a working CI foundation, typed checklist logic and starter checklist templates.
+- The product focus explicitly included Passage Planner, but the implementation still had no executable passage plan model or route content.
+- The user rule requires each commit to contain product-relevant content, not just infrastructure.
+
+Decision:
+
+- Add a first Passage Planner slice with typed route legs, hazards, bailout harbours, assumptions and summary metrics.
+- Use the Turku to Pärnu family H-323 passage as the first realistic sample plan.
+- Add pure summary logic and tests before adding persistence, GPX import/export or richer UI workflows.
+- Surface the route summary and leg cards on the landing page so the product content is visible immediately.
+
+Action taken:
+
+- Added passage plan domain types to `src/lib/domain/types.ts`.
+- Added `src/lib/domain/passages.ts` with leg-hour and passage-summary functions.
+- Added `src/lib/content/passagePlans.ts` with a Turku to Pärnu family H-323 route: Turku to Nauvo, Nauvo to Hanko, Hanko to Haapsalu and Haapsalu to Pärnu.
+- Added tests for ETA calculations, invalid distance/speed guards, route summary metrics and content semantics.
+- Updated the landing page, `CHANGELOG.md` and this file.
+
+Testing/reasoning:
+
+- From a tester perspective, the new tests check numeric summary behaviour and prevent the sample route from losing assumptions, bailout harbours or crew notes.
+- From a developer perspective, the calculations remain pure and independent from Svelte UI state.
+- From a user perspective, the content is a real family Baltic passage scenario rather than placeholder data.
+- From a product manager perspective, this is a high-value 80/20 increment: mostly domain logic, user-facing content, tests and a small UI surface.
+
+Next best action:
+
+- Add conservative threshold logic that flags route legs above a user-defined daily-distance limit, or add a Vessel Profile content slice for the H-323 / Elina so passage plans can become vessel-aware.
+
+Commit targets:
+
+- `feat: add passage plan domain types`
+- `feat: add passage plan summary logic`
+- `feat: add Baltic passage sample content`
+- `test: cover passage plan summary logic`
+- `test: cover starter passage plan content`
+- `feat: surface starter passage plan on landing page`
+- `docs: record passage planner content slice`
+- `docs: log passage planner content decision`
 
 ### 2026-07-08 - Night arrival checklist slice
 
