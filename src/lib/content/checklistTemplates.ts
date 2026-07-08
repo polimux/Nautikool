@@ -165,10 +165,136 @@ export const nightArrivalTemplate: ChecklistTemplate = {
   ]
 };
 
+export const heavyWeatherDepartureTemplate: ChecklistTemplate = {
+  id: 'checklist-template:heavy-weather-departure-defensive',
+  title: 'Heavy-weather departure - defensive go/no-go',
+  category: 'heavy-weather',
+  vesselSpecific: false,
+  safetyCritical: true,
+  contentVersion: '0.1.0',
+  assumptions: [
+    {
+      id: 'assumption:heavy-weather-latest-forecast-reviewed',
+      statement: 'The skipper has reviewed a current forecast, gust spread, sea state, trend and harbour-exit conditions immediately before deciding.',
+      source: 'user',
+      confidence: 'medium',
+      safetyImpact: 'high'
+    },
+    {
+      id: 'assumption:heavy-weather-crew-and-boat-fit',
+      statement: 'Crew fitness, seasickness risk, reefing capability, engine reliability and bailout options are known before departure.',
+      source: 'user',
+      confidence: 'medium',
+      safetyImpact: 'high'
+    }
+  ],
+  items: [
+    {
+      id: 'item:heavy-weather-no-go-thresholds',
+      text: 'State explicit no-go thresholds for sustained wind, gusts, waves, visibility, harbour exit and crew fatigue before lines are slipped.',
+      helpText: 'If the numbers are vague, the decision is not ready. Conservative thresholds are part of the plan, not a lack of courage.',
+      required: true,
+      warningIfSkipped: 'Skipping explicit no-go thresholds makes it easier to rationalize an unsafe departure.'
+    },
+    {
+      id: 'item:heavy-weather-reef-before-exit',
+      text: 'Rig the first reef, prepare the second reef if available, and confirm headsail reduction before leaving sheltered water.',
+      helpText: 'Do the reefing work while the boat is controlled; do not wait until the first exposed leg if the forecast is already marginal.',
+      required: true,
+      warningIfSkipped: 'Skipping reef preparation increases workload and broach risk after the harbour exit.'
+    },
+    {
+      id: 'item:heavy-weather-deck-secured',
+      text: 'Secure deck, cockpit, anchor, lockers, dinghy, loose lines and below-deck heavy items for knockdown-level movement.',
+      helpText: 'A small loose item can become a serious distraction when the boat is heeled, wet and noisy.',
+      required: true,
+      warningIfSkipped: 'Skipping deck and cabin securing can create avoidable hazards once conditions deteriorate.'
+    },
+    {
+      id: 'item:heavy-weather-crew-tether-plan',
+      text: 'Agree lifejacket, tether, jackline, companionway and cockpit movement rules before the crew gets wet or tired.',
+      helpText: 'Movement rules must be simple enough to follow under stress, especially with family or inexperienced crew.',
+      required: true,
+      warningIfSkipped: 'Skipping tether and movement rules weakens MOB prevention during the highest-risk phase.'
+    },
+    {
+      id: 'item:heavy-weather-turn-back-point',
+      text: 'Define a turn-back point and bailout harbour that remain reachable if the harbour exit or first exposed leg is worse than expected.',
+      helpText: 'The best heavy-weather plan usually contains a dignified way not to continue.',
+      required: true,
+      warningIfSkipped: 'Skipping a turn-back point can trap the skipper into continuing because the alternative was never prepared.'
+    }
+  ]
+};
+
+export const mobImmediateActionsTemplate: ChecklistTemplate = {
+  id: 'checklist-template:mob-immediate-actions-underway',
+  title: 'MOB immediate actions - underway',
+  category: 'emergency',
+  vesselSpecific: false,
+  safetyCritical: true,
+  contentVersion: '0.1.0',
+  assumptions: [
+    {
+      id: 'assumption:mob-equipment-location-known',
+      statement: 'Crew know where the lifebuoy, throwing line, recovery gear, VHF/DSC controls and engine controls are located.',
+      source: 'user',
+      confidence: 'medium',
+      safetyImpact: 'high'
+    },
+    {
+      id: 'assumption:mob-position-can-be-marked',
+      statement: 'The boat has a practical way to mark the MOB position using plotter, MOB button, GPS, handheld VHF or immediate written bearing/time.',
+      source: 'user',
+      confidence: 'medium',
+      safetyImpact: 'high'
+    }
+  ],
+  items: [
+    {
+      id: 'item:mob-shout-point-throw',
+      text: 'Shout "man overboard", point continuously at the person and throw flotation immediately.',
+      helpText: 'One crew member pointing is navigation data; losing visual contact is often the hardest problem to recover from.',
+      required: true,
+      warningIfSkipped: 'Skipping the shout, point and throw action can lose both visual contact and immediate flotation support.'
+    },
+    {
+      id: 'item:mob-press-mark-position',
+      text: 'Press MOB or otherwise mark position, time and approximate bearing while the person is still in sight.',
+      helpText: 'Do not wait for a perfect entry; imperfect position information is better than none.',
+      required: true,
+      warningIfSkipped: 'Skipping position marking removes a critical fallback if visual contact is lost.'
+    },
+    {
+      id: 'item:mob-control-boat',
+      text: 'Control the boat: prevent accidental gybe, start engine when safe, assign lookout and prepare recovery side.',
+      helpText: 'Keep lines clear of the propeller and avoid creating a second casualty while manoeuvring.',
+      required: true,
+      warningIfSkipped: 'Skipping boat-control setup can turn a recovery into a collision, propeller or second-MOB incident.'
+    },
+    {
+      id: 'item:mob-distress-call-decision',
+      text: 'Make an early distress or urgency call decision by DSC/VHF if recovery is not immediate and controlled.',
+      helpText: 'In cold Baltic water, delay is dangerous; outside help should be called early rather than after exhaustion sets in.',
+      required: true,
+      warningIfSkipped: 'Skipping the distress-call decision can delay rescue support beyond the useful recovery window.'
+    },
+    {
+      id: 'item:mob-recovery-and-aftercare',
+      text: 'Prepare physical recovery, hypothermia response and post-recovery medical monitoring before the person reaches the boat.',
+      helpText: 'Getting alongside is not the end of the emergency; recovery from the water is often the hardest physical step.',
+      required: true,
+      warningIfSkipped: 'Skipping recovery and aftercare preparation risks failing at the final and most physical stage of MOB response.'
+    }
+  ]
+};
+
 export const coreChecklistTemplates: ChecklistTemplate[] = [
   departureReadinessTemplate,
   enginePreStartTemplate,
-  nightArrivalTemplate
+  nightArrivalTemplate,
+  heavyWeatherDepartureTemplate,
+  mobImmediateActionsTemplate
 ];
 
 export function listChecklistTemplatesByCategory(category: ChecklistCategory): ChecklistTemplate[] {
