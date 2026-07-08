@@ -24,6 +24,10 @@ This project uses a simple human-readable changelog while the product and archit
 - Vitest coverage for starter checklist content identifiers, categories, assumptions and skipped-item warnings.
 - Typed night-arrival checklist content for Baltic guest harbour approaches.
 - Vitest coverage for night-arrival checklist category lookup, identifier lookup, high-impact assumptions and required pilotage items.
+- Passage plan domain types for legs, hazards, bailout harbours, assumptions and summary data.
+- Pure passage-planning summary logic for leg hours, total distance, planned hours, open-water legs, high-severity hazards, daylight-critical legs and bailout counts.
+- Typed starter passage content for a Turku to Pärnu family H-323 route with leg distances, hazards, bailout harbours and crew notes.
+- Vitest coverage for passage summary calculations and starter passage content semantics.
 
 ### Changed
 
@@ -36,6 +40,7 @@ This project uses a simple human-readable changelog while the product and archit
 - `docs/README.md` now links the contribution guide.
 - Landing page now surfaces starter checklist templates as product content instead of only a synthetic demo checklist.
 - Landing page now reads checklist template cards from the shared content registry.
+- Landing page now surfaces the first passage planner content slice and summary metrics.
 
 ### Removed
 
