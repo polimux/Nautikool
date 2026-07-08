@@ -36,6 +36,57 @@ export interface VesselProfile {
   audit: AuditMetadata;
 }
 
+export type PassageLegExposure = 'sheltered' | 'coastal' | 'open-water';
+
+export interface PassageBailoutHarbour {
+  name: string;
+  note: string;
+}
+
+export interface PassageHazard {
+  id: string;
+  text: string;
+  severity: 'low' | 'medium' | 'high';
+}
+
+export interface PassageLeg {
+  id: string;
+  from: string;
+  to: string;
+  distanceNm: number;
+  plannedSpeedKn: number;
+  exposure: PassageLegExposure;
+  daylightPreferred: boolean;
+  hazards: PassageHazard[];
+  bailoutHarbours: PassageBailoutHarbour[];
+  crewNotes: string[];
+}
+
+export interface PassagePlan {
+  id: string;
+  title: string;
+  vesselId?: string;
+  area: string;
+  plannedDepartureDate?: string;
+  assumptions: Assumption[];
+  legs: PassageLeg[];
+  contentVersion: string;
+}
+
+export interface PassageLegEta {
+  legId: string;
+  hours: number;
+}
+
+export interface PassagePlanSummary {
+  totalDistanceNm: number;
+  totalPlannedHours: number;
+  openWaterLegs: number;
+  highSeverityHazards: number;
+  daylightCriticalLegs: number;
+  bailoutHarbourCount: number;
+}
+
 export type ChecklistCategory =
   | 'departure'
   | 'arrival'
