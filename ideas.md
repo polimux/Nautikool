@@ -61,31 +61,29 @@ Date: 2026-07-08
 Repository state reviewed:
 
 - Repository exists and is writable.
-- `ideas.md` exists as product source of truth.
-- `README.md` exists as a useful public project entry point.
-- `CHANGELOG.md` exists as the project history file.
-- `CONTRIBUTING.md` now defines contribution principles, validation path, commit message convention, decision-log format and working-log format.
-- `docs/README.md` exists as the documentation index and links the contribution guide.
-- `docs/architecture.md` records the initial architecture decision.
-- `docs/domain-model.md` defines the first implementation-facing domain concepts.
-- A first SvelteKit/TypeScript skeleton exists.
+- `ideas.md` remains the product source of truth.
+- `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `docs/README.md`, `docs/architecture.md` and `docs/domain-model.md` exist.
+- A runnable SvelteKit/TypeScript skeleton exists.
 - Pure checklist domain types and state-transition logic exist under `src/lib/domain`.
-- Vitest tests cover the first checklist state semantics.
+- Vitest tests cover checklist state semantics and starter checklist content.
 - GitHub Actions CI validates install, Svelte/TypeScript checks, unit tests and production build.
+- The starter content registry now includes departure readiness, diesel inboard pre-start and night-arrival checklist templates.
+- The landing page surfaces the checklist registry rather than maintaining a separate hard-coded template list.
 - The repository currently has `package.json` but no committed npm lockfile.
-- CI no longer enables npm dependency caching until a lockfile exists.
 
 Decision:
 
-- Complete the Phase 0 contribution and decision-log format before adding more product surface.
-- Add a root `CONTRIBUTING.md` as the operational guide for future changes.
-- Keep the next technical step focused on generating a lockfile and hardening CI before checklist Markdown/frontmatter loading.
+- Continue shifting from documentation-heavy foundation work toward implementation and product content.
+- Expand the Checklist Engine content slice with a safety-critical night-arrival template for Baltic guest harbour approaches.
+- Keep the increment small: typed content, tests, landing-page surfacing and product log updates only.
+- Defer Markdown/frontmatter loading until dependency locking and content parsing can be introduced cleanly.
 
 Rationale:
 
-- The roadmap still had contribution and decision-log format open, and the repository is now mature enough to need a stable working protocol.
-- A safety-oriented sailing product benefits from explicit change shape, validation expectations, decision records and safety-sensitive contribution rules before adding parsers, storage or UI workflows.
-- The guide reduces future drift: small commits, explicit assumptions, visible safety reasoning and repeatable checks are now documented.
+- Night arrival is a realistic high-risk scenario for Baltic cruising and directly supports the planned night passage prep capability.
+- The added content is user-facing and product-relevant: approach briefing, light discipline, engine/gear readiness, traffic/VHF planning and bailout/holding decisions.
+- Tests prevent the content registry from silently losing the night template or its safety assumptions.
+- Reading cards from `coreChecklistTemplates` reduces future UI drift as more templates are added.
 
 ## Feature backlog
 
@@ -123,7 +121,7 @@ Rationale:
 |---|---|---|---|---|
 | NAV-001 | GPX import/export | Exchange routes and tracks with chartplotters and navigation apps. | High | Idea |
 | NAV-002 | Leg table | Course, distance, ETA, hazards, bailout options and notes by leg. | High | Idea |
-| NAV-007 | Night passage prep | Navigation lights, watch rhythm, rest, headlamp discipline and traffic plan. | High | Idea |
+| NAV-007 | Night passage prep | Navigation lights, watch rhythm, rest, headlamp discipline and traffic plan. | High | Started |
 | OFF-001 | Offline knowledge base | Core lessons and emergency procedures available without internet. | High | Idea |
 | OFF-002 | Offline checklists | Vessel and passage checklists cached locally. | High | Idea |
 | OFF-003 | Offline route pack | Save route, harbour notes, documents and weather snapshot for a trip. | High | Idea |
@@ -301,6 +299,8 @@ See `CONTRIBUTING.md` for contribution and decision-log conventions.
 | 2026-07-08 | Add GitHub Actions CI before adding checklist template loading. | Automated validation reduces regression risk before the app gains more content and parsing logic. |
 | 2026-07-08 | Remove npm caching from CI until a lockfile exists. | This avoids lockfile-related CI setup failure while keeping the validation workflow useful. |
 | 2026-07-08 | Add a contribution and decision-log guide before expanding product features. | The project now has enough moving parts that change shape, validation and decision records should be explicit before parser, storage or UI complexity grows. |
+| 2026-07-08 | Add typed starter checklist content before Markdown/frontmatter loading. | Immediate user-facing content is more valuable than a parser abstraction before the content model stabilizes. |
+| 2026-07-08 | Add night-arrival checklist content as the next Checklist Engine slice. | Night approaches combine pilotage, fatigue, lighting, traffic and abort planning; this is a high-value Baltic cruising scenario and satisfies the rule that every commit includes product-relevant content. |
 
 ## Changelog
 
@@ -316,6 +316,9 @@ Added:
 - Added a minimal SvelteKit landing page that demonstrates the first checklist domain slice.
 - Added GitHub Actions CI workflow for install, Svelte/TypeScript checks, unit tests and production build.
 - Added `CONTRIBUTING.md` with contribution principles, validation path, commit message convention and decision-log format.
+- Added typed starter checklist content for Baltic coastal departure readiness and diesel inboard pre-start checks.
+- Added typed night-arrival checklist content for Baltic guest harbour approaches.
+- Added Vitest coverage for starter checklist identifiers, categories, assumptions, skipped-item warnings and night-arrival pilotage content.
 
 Changed:
 
@@ -324,10 +327,12 @@ Changed:
 - Marked the first runnable skeleton and first domain tests as complete.
 - Marked CI validation as complete.
 - Marked contribution and decision-log format as complete.
+- Marked night passage prep as started.
 - Removed npm caching from CI until a lockfile exists.
 - Updated current repository assessment and next best action.
 - Updated `README.md` with build and CI validation details.
 - Updated `docs/README.md` to link the contribution guide.
+- Updated landing page to show checklist templates from the shared content registry.
 
 ### 2026-07-07
 
@@ -352,172 +357,56 @@ Removed:
 
 ## Working log
 
-### 2026-07-08 - Contribution and decision format
+### 2026-07-08 - Night arrival checklist slice
 
 Role mix used: project manager, developer, tester, user and product manager.
 
 Repository review:
 
-- The repository had a working product log, documentation index, CI workflow and first application skeleton.
-- Phase 0 still had one open governance item: define contribution and decision-log format.
-- The next planned technical step remains lockfile-backed CI, but that requires generating a real `package-lock.json` from npm rather than inventing one in the connector.
+- The repository had a working CI foundation, typed domain model and first checklist templates.
+- The prior content slice covered departure readiness and diesel inboard pre-start, but not yet night pilotage or arrival-specific risk.
+- The landing page still maintained a local starter template array even though a shared content registry existed.
 
 Decision:
 
-- Add `CONTRIBUTING.md` now as a repository-level guide for change shape, validation, commit messages, decision logs, working logs and safety-sensitive changes.
-- Mark the Phase 0 contribution and decision-log format complete.
-- Do not add Markdown/frontmatter checklist loading until CI dependency locking is resolved.
+- Add a typed `nightArrivalTemplate` to the checklist content registry.
+- Cover the template with Vitest assertions for category listing, identifier lookup, high-impact assumptions and required checklist items.
+- Update the landing page to render from `coreChecklistTemplates` so future content appears automatically.
+- Update `CHANGELOG.md` and `ideas.md` with the decision, progress, rationale and next best action.
 
 Action taken:
 
-- Added `CONTRIBUTING.md`.
-- Updated `docs/README.md` to link the contribution guide.
-- Updated `CHANGELOG.md`.
-- Updated this file with the decision, rationale, changelog and next best action.
-
-Testing/reasoning:
-
-- From a project manager perspective, this finishes the last visible Phase 0 stewardship task and makes future increments easier to review.
-- From a developer perspective, the guide defines validation expectations and commit message shape before more code paths are added.
-- From a tester perspective, it explicitly calls out safety-sensitive changes and unknown-data handling.
-- From a user and product manager perspective, it protects the calm co-skipper positioning: features should grow with visible assumptions, conservative wording and small validated steps.
-
-Next best action:
-
-- Generate and commit `package-lock.json`, then switch CI from `npm install` to `npm ci` and re-enable npm caching. After that, add checklist template loading from Markdown/frontmatter with tests.
-
-Commit targets:
-
-- `docs: add contribution and decision log format`
-- `docs: link contribution guide from docs index`
-- `docs: record contribution guide addition`
-- `docs: log contribution and decision format`
-
-### 2026-07-08 - CI lockfile hardening
-
-Role mix used: project manager, developer, tester, user and product manager.
-
-Repository review:
-
-- `.github/workflows/ci.yml` existed and ran install, checks, tests and build.
-- `package.json` existed, but no npm lockfile was present in the repository.
-- The CI workflow configured `actions/setup-node` with `cache: npm`, which is better paired with a committed dependency lockfile.
-
-Decision:
-
-- Remove npm cache configuration until the project has a committed package lockfile.
-- Keep `npm install` as the CI install command for the current unlocked foundation.
-- Do not add checklist Markdown/frontmatter loading until the CI foundation is less brittle.
-
-Action taken:
-
-- Updated `.github/workflows/ci.yml` to remove `cache: npm` from `actions/setup-node`.
-- Updated `CHANGELOG.md`.
-- Updated this file with the decision, rationale, changelog and next best action.
-
-Testing/reasoning:
-
-- From a tester perspective, CI must fail only for meaningful validation failures, not avoidable setup assumptions.
-- From a developer perspective, lockfile-backed caching can be reintroduced after `package-lock.json` exists.
-- From a product manager perspective, stabilizing validation is the right small increment before content parsing or UI expansion.
-- From a user perspective, this keeps the safety-related checklist foundation from accumulating unverified changes.
-
-Next best action:
-
-- Generate and commit `package-lock.json`, then switch CI from `npm install` to `npm ci` and re-enable npm caching. After that, add checklist template loading from Markdown/frontmatter with tests.
-
-Commit targets:
-
-- `ci: avoid npm cache without lockfile`
-- `docs: record CI lockfile hardening`
-- `docs: log CI lockfile hardening`
-
-### 2026-07-08 - CI validation foundation
-
-Role mix used: project manager, developer, tester, user and product manager.
-
-Repository review:
-
-- The repository had a SvelteKit/TypeScript skeleton, domain logic and Vitest tests.
-- `package.json` exposed `npm run check`, `npm test` and `npm run build`, but no automated validation workflow existed.
-- README still listed production build verification in CI as not implemented.
-
-Decision:
-
-- Add a GitHub Actions workflow now, before adding Markdown/frontmatter checklist loading.
-- Validate dependency installation, Svelte/TypeScript checks, unit tests and production build on push and pull request to `main`.
-
-Action taken:
-
-- Added `.github/workflows/ci.yml`.
-- Updated `README.md` to describe CI and the build command.
+- Added night-arrival checklist content with items for approach briefing, cockpit light discipline, engine/gear readiness, traffic/VHF planning and bailout or holding decisions.
+- Added test coverage for the expanded checklist registry.
+- Updated landing page copy and registry-driven template rendering.
 - Updated `CHANGELOG.md` and this file.
 
 Testing/reasoning:
 
-- The workflow is designed to execute the same validation path a developer would run locally.
-- From a tester perspective, this prevents unchecked safety-domain changes from reaching `main` unnoticed.
-- From a developer perspective, CI is now in place before parsers, content loading and storage increase complexity.
-- From a user/product perspective, this supports trust: Nautikool should not grow features faster than its validation discipline.
+- From a tester perspective, the new assertions protect against silent loss of the night template and enforce high-impact assumptions for night-arrival content.
+- From a developer perspective, the UI now depends on the shared content registry instead of duplicating template membership.
+- From a user perspective, the content supports a realistic, high-consequence Baltic guest harbour scenario.
+- From a product manager perspective, this is the right 80/20 increment: mostly implementation and content, with only enough documentation to preserve decision traceability.
 
 Next best action:
 
-- Inspect the first CI run. If it fails, fix the dependency/configuration issue. If it passes, add checklist template loading from Markdown/frontmatter with tests.
+- Add an arrival or heavy-weather checklist template next, or introduce a small content validation helper that checks ID uniqueness and required safety metadata across all templates.
 
 Commit targets:
 
-- `ci: add Node.js validation workflow`
-- `docs: record CI workflow addition`
-- `docs: update README for CI validation`
-- `docs: log CI validation step`
-
-### 2026-07-08 - First runnable skeleton and checklist tests
-
-Role mix used: project manager, developer, tester, user and product manager.
-
-Repository review:
-
-- `ideas.md`, `README.md`, `CHANGELOG.md`, `docs/README.md`, `docs/architecture.md` and `docs/domain-model.md` were present.
-- `docs/domain-model.md` explicitly identified a minimal SvelteKit/TypeScript skeleton with checklist state-transition tests as the next valuable improvement.
-- No `package.json`, application code or automated tests existed before this run.
-
-Decision:
-
-- Add the first runnable SvelteKit/TypeScript foundation.
-- Implement only pure checklist state logic and tests as the first application slice.
-- Do not add persistence, UI workflows, Markdown loading, offline caching or integrations yet.
-
-Action taken:
-
-- Added `package.json`, TypeScript, SvelteKit, Vite/Vitest config and `.gitignore`.
-- Added `src/app.html` and `src/routes/+page.svelte` with a minimal landing page and demo checklist summary.
-- Added `src/lib/domain/types.ts`, `src/lib/domain/checklists.ts`, `src/lib/domain/index.ts` and `src/lib/domain/checklists.test.ts`.
-- Updated `README.md`, `CHANGELOG.md` and this file.
-
-Testing/reasoning:
-
-- Tests were added but not executed in this connector run because dependencies are not installed in the repository environment.
-- The test suite is designed to run with `npm install` followed by `npm test`.
-- From a tester perspective, the key safety assertion is that skipped required checklist items produce `complete-with-warnings`, not `complete`.
-- From a developer perspective, the domain functions are pure and can be tested without browser APIs, Svelte components or storage.
-- From a product and user perspective, this is the smallest implementation that starts turning Nautikool into a usable checklist product while keeping safety semantics visible.
-
-Next best action:
-
-- Run the new test suite in a local/CI environment, fix any dependency or configuration issues, then add checklist template loading from Markdown/frontmatter.
-
-Commit targets:
-
-- `feat: add initial SvelteKit TypeScript skeleton`
-- `feat: add initial domain types`
-- `feat: add checklist state logic`
-- `test: cover checklist state transitions`
-- `docs: update README for runnable skeleton`
-- `docs: log first runnable skeleton`
-- `docs: log first runnable skeleton decision`
+- `feat: add night arrival checklist content`
+- `test: update checklist content coverage`
+- `feat: surface all checklist templates on landing page`
+- `docs: record night arrival checklist slice`
+- `docs: log night arrival checklist decision`
 
 ### Earlier working log summary
 
+- 2026-07-08: Added typed Baltic coastal departure and diesel inboard pre-start checklist content, landing-page surfacing, tests and changelog updates.
+- 2026-07-08: Added `CONTRIBUTING.md` with contribution and decision-log format.
+- 2026-07-08: Hardened CI by removing npm cache before a lockfile exists.
+- 2026-07-08: Added GitHub Actions CI validation.
+- 2026-07-08: Added the first runnable SvelteKit/TypeScript skeleton and pure checklist domain tests.
 - 2026-07-08: Added `docs/domain-model.md` with implementation-facing domain model and acceptance criteria.
 - 2026-07-08: Added `docs/architecture.md` with PWA-first SvelteKit/TypeScript architecture decision.
 - 2026-07-07: Added `CHANGELOG.md` and `docs/README.md`.
