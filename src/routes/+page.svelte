@@ -1,6 +1,8 @@
 <script lang="ts">
   import { coreChecklistTemplates, departureReadinessTemplate } from '$lib/content/checklistTemplates';
+  import { turkuToParnuFamilyPassagePlan } from '$lib/content/passagePlans';
   import { createChecklistRun, summarizeChecklistRun } from '$lib/domain/checklists';
+  import { summarizePassagePlan } from '$lib/domain/passages';
 
   const run = createChecklistRun(departureReadinessTemplate, {
     id: 'checklist-run:demo',
@@ -8,6 +10,8 @@
   });
   const summary = summarizeChecklistRun(departureReadinessTemplate, run);
   const starterTemplates = coreChecklistTemplates;
+  const starterPassagePlan = turkuToParnuFamilyPassagePlan;
+  const starterPassageSummary = summarizePassagePlan(starterPassagePlan);
 </script>
 
 <svelte:head>
@@ -65,6 +69,45 @@
             {#each template.items.slice(0, 3) as item}
               <li>{item.text}</li>
             {/each}
+          </ul>
+        </article>
+      {/each}
+    </div>
+  </section>
+
+  <section aria-labelledby="passage-title">
+    <h2 id="passage-title">Starter passage plan</h2>
+    <p>
+      A first typed passage plan sample covers the family H-323 route from Turku to Pärnu with
+      realistic leg distances, hazards, bailout harbours and crew notes.
+    </p>
+    <dl>
+      <div>
+        <dt>Plan</dt>
+        <dd>{starterPassagePlan.title}</dd>
+      </div>
+      <div>
+        <dt>Total distance</dt>
+        <dd>{starterPassageSummary.totalDistanceNm} nm</dd>
+      </div>
+      <div>
+        <dt>Planned time</dt>
+        <dd>{starterPassageSummary.totalPlannedHours} h at leg speeds</dd>
+      </div>
+      <div>
+        <dt>High-severity hazards</dt>
+        <dd>{starterPassageSummary.highSeverityHazards}</dd>
+      </div>
+    </dl>
+    <div class="leg-list">
+      {#each starterPassagePlan.legs as leg}
+        <article>
+          <p class="template-category">{leg.exposure}</p>
+          <h3>{leg.from} → {leg.to}</h3>
+          <p>{leg.distanceNm} nm · {leg.plannedSpeedKn} kn planning speed</p>
+          <ul>
+            <li>{leg.hazards[0].text}</li>
+            <li>Bailout: {leg.bailoutHarbours.map((harbour) => harbour.name).join(', ')}</li>
           </ul>
         </article>
       {/each}
@@ -129,10 +172,15 @@
     margin: 0.25rem 0 0;
   }
 
-  .template-list {
+  .template-list,
+  .leg-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 1rem;
+  }
+
+  .leg-list {
+    margin-top: 1rem;
   }
 
   article {
