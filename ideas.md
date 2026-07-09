@@ -85,32 +85,32 @@ Repository state reviewed:
 - The trip logbook slice has pure entry/summary/debrief logic plus an H-323 Elina Turku to Pärnu family-passage example.
 - The pre-departure dashboard slice aggregates checklist, risk, maintenance, spares, harbour gate, NMEA/AIS and trip-log summaries into one conservative H-323 Elina preparation card.
 - The departure skipper brief slice converts the dashboard into a printable/wet-hands route, weather, crew, boat, electronics and limitations brief.
-- The launch packet slice now converts the printable departure brief into the final cockpit handover layer: crew roles, required berth actions, open-water reassessment, paper-pack checks and emergency reference lines.
+- The launch packet slice converts the printable departure brief into the final cockpit handover layer: crew roles, required berth actions, open-water reassessment, paper-pack checks and emergency reference lines.
+- The new first-watch kickoff slice turns the launch packet into a timed underway watch-start card with crew energy, navigation, traffic, engineering, handover and safety-limitation prompts.
 - The landing page surfaces checklist, passage, vessel, maintenance, spares, trip logbook, pre-departure dashboard, risk, NMEA/AIS readiness, AIS traffic watch briefs, AIS debriefs and SRC/VHF radio call cards.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Add a Launch Packet slice as the next valuable improvement because the repository already has dashboard and printable skipper brief logic, but not yet a final "lines-off" cockpit handover artifact.
-- Keep the change pure and static: the packet must not claim live clearance, current weather, harbour availability or traffic awareness.
-- Use the H-323 Elina Turku to Pärnu family passage because crew roles, emergency references, paper backups and open-water reassessment are concrete value for the skipper, father and 15-year-old son scenario.
-- Treat a no-go departure brief as a blocked launch packet; the launch packet is the last human handover before action, not a way to override blockers.
+- Add a First-watch Kickoff slice as the next valuable improvement because Nautikool now has a launch packet, but the product still needs a bridge from "lines off" to the first 60-90 minutes underway.
+- Keep the change static and conservative: this is not live traffic, weather, harbour clearance or engine monitoring.
+- Use the H-323 Elina Turku to Pärnu family passage because the first watch is where fatigue, role clarity, AIS/visual comparison, engine confidence and bailout decisions become operational.
+- Treat a blocked launch packet as a blocked first-watch kickoff; the watch card must never be a workaround for unresolved departure blockers.
 
 Rationale:
 
-- The product has many strong preparation slices now; a launch packet makes them operational by turning them into a small cockpit ritual.
-- A skipper with wet hands needs first action, crew read-back, emergency references and paper-pack checks more than another long planning artifact.
-- The feature connects Content System, Checklist Engine, Passage Planner, Vessel Profile, Risk Engine and NMEA/AIS outcomes without creating a live-data dependency.
-- This also creates a natural future UI target: a cockpit-mode card that can be printed or read aloud before casting off.
+- The strongest current product gap is no longer planning detail, but cockpit execution immediately after departure.
+- A skipper with family crew benefits from timed prompts: first position, handheld VHF visibility, route gate, engine confidence, energy check and bailout decision.
+- This connects Content System, Passage Planner, Vessel Profile, Risk Engine and NMEA/AIS without requiring live data.
+- It creates a natural future UI target: a low-distraction first-watch card after the launch packet.
 
 Working log:
 
-- Added `src/lib/domain/launchPackets.ts` with typed launch packet inputs, actions, crew roles, status, cockpit checklist and briefing-line generation.
-- Added `src/lib/content/launchPackets.ts` with H-323 Elina Turku to Pärnu launch packet content for 26 July 2026 planning.
-- Added Vitest coverage for blocked packet behaviour, cockpit handover material, H-323 content publication and live/static limitation wording.
-- Exported the launch packet domain slice from `src/lib/domain/index.ts`.
-- Updated `CHANGELOG.md` with launch packet domain logic, H-323 content and test coverage.
+- Added `src/lib/domain/watchKickoffs.ts` with typed first-watch kickoff inputs, tasks, status, timer cards, handover lines and limitation generation.
+- Added H-323 Elina Turku to Pärnu first-watch scenario content for the 26 July 2026 family passage, including first-position logging, handheld VHF visibility, open-water gate and energy prompts.
+- Added Vitest coverage for blocked watch starts, timer cards, H-323 content publication and static/live-condition safety limitations.
+- Updated `CHANGELOG.md` with first-watch kickoff domain/content logic and test coverage.
 
 ## Feature backlog
 
@@ -139,6 +139,7 @@ Working log:
 | F-019 | Harbour departure gate | Convert harbour route packs into day-of-departure verification requirements, usable-alternate checks and read-aloud harbour gate status. | High | Started |
 | F-020 | Harbour-aware departure dashboard | Promote harbour-gate blockers and cautions into the aggregated pre-departure dashboard status, score and first action. | High | Started |
 | F-021 | Launch packet | Convert the departure brief into a final cockpit handover with crew roles, before-lines-off actions, open-water reassessment, emergency references and paper-pack checks. | High | Started |
+| F-022 | First-watch kickoff | Convert the launch packet into a timed first-watch card with energy, navigation, traffic, engineering, handover and bailout prompts. | High | Started |
 
 ### UX ideas
 
@@ -167,3 +168,4 @@ Working log:
 | UX-021 | Harbour departure gate card | Show final harbour readiness, usable alternates, missing verification topics and first harbour action before casting off. | High | Started |
 | UX-022 | Harbour-aware dashboard card | Show harbour-gate blockers inside the main departure dashboard instead of requiring the skipper to inspect a separate harbour slice. | High | Started |
 | UX-023 | Launch packet card | Show the final before-lines-off crew read-back, required actions, paper pack and emergency references as a cockpit-ready launch card. | High | Started |
+| UX-024 | First-watch kickoff card | Show timed post-departure prompts for first position, energy, traffic, engine confidence and bailout handover before fatigue accumulates. | High | Started |
