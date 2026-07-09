@@ -72,36 +72,37 @@ Repository state reviewed:
 - The Passage Planner slice has typed passage plan domain types, pure summary logic, tests and one realistic Turku to Pärnu H-323 sample route.
 - The Vessel Profile slice has richer equipment, engine, rig, battery, tank and readiness-finding types.
 - A first H-323 Elina vessel profile exists with identity data, Yanmar engine checks, Raymarine/Orca/em-trak equipment, safety equipment and explicit assumptions about unverified capacities.
-- The Risk Engine slice now has typed weather, crew, vessel, passage and traffic-light risk assessment structures.
+- The Risk Engine slice has typed weather, crew, vessel, passage and traffic-light risk assessment structures.
 - A first static Turku to Pärnu H-323 family risk scenario exists and is surfaced on the landing page.
-- The landing page now surfaces checklist, passage, vessel and risk content slices.
+- Risk Engine v1 now also models likely night/overnight legs and restricted visibility as explicit decision inputs.
+- A second static risk scenario now demonstrates the Hanko to Haapsalu night-crossing decision problem with limited visibility and no recorded night experience.
+- The landing page surfaces checklist, passage, vessel and multiple risk content slices.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Move from vessel/passsage data toward concrete decision support by implementing Risk Engine v1.
-- Treat the first risk card as conservative planning support, not a live weather recommendation.
-- Keep safety-sensitive unknowns explicit: stale or missing weather must not default to green.
-- Keep every commit content-bearing: the risk engine is linked to the real H-323 Elina, the Turku to Pärnu passage and a family-crew Baltic planning scenario.
+- Extend Risk Engine v1 before starting a new major module, because the previous risk model had an unused crew night-experience field and visibility was not yet safety-relevant.
+- Treat night crossing and restricted visibility as first-class skipper decision inputs for Baltic family passages.
+- Keep every commit content-bearing: the new logic is paired with a concrete Turku to Pärnu / Hanko to Haapsalu night-crossing rehearsal scenario.
+- Keep static scenarios clearly separated from live advice.
 
 Rationale:
 
-- The app now has the three ingredients required for a useful skipper decision: checklist readiness, route context and vessel context.
-- Risk Engine v1 creates the first clear "why green/yellow/red" product moment from those ingredients.
-- The Turku to Pärnu passage includes open-water exposure, high-severity route hazards and family-crew workload, making it a better test case than a generic marina checklist.
-- Conservative handling of stale forecasts, missing wind data, high gusts, thunderstorms, wave height, fatigue and missing critical equipment prevents false confidence.
-- The static risk scenario adds user-facing product content while avoiding the unsafe impression of live forecast advice.
+- The Hanko to Haapsalu leg is the most consequential leg in the existing passage plan: it is open-water, long, likely to involve night hours and has fewer immediate shelter options.
+- A product that records `hasNightExperience` but does not use it creates false precision; the risk engine should explain why a likely night leg becomes yellow without recorded night experience.
+- Visibility is cockpit-relevant and should not be hidden inside generic weather assumptions, especially for family crews, AIS/VHF watch discipline and harbour-entry timing.
+- Adding a second risk scenario strengthens the product demo without building a new module prematurely.
 
 Working log:
 
-- Added risk assessment domain types for weather inputs, crew inputs, findings, summaries and traffic-light levels.
-- Added pure risk engine logic for Baltic wind thresholds, stale forecast age, thunderstorm risk, wave height, open-water exposure, high route hazards, family workload, fatigue and missing critical equipment.
-- Added static Turku to Pärnu H-323 family passage risk content with moderate Baltic weather assumptions.
-- Added tests for yellow planning assessments, red wind no-go, stale forecast no-go, missing critical equipment and content linkage to `vessel:h323-elina`.
-- Updated the domain barrel export to include risk helpers.
-- Updated the landing page to display the first risk card with no-go/caution counts and first findings.
-- Updated `CHANGELOG.md` with the risk domain, content, tests and UI changes.
+- Added pure risk rules for likely night or overnight legs without recorded night experience and unknown night experience.
+- Added restricted-visibility rules: limited visibility becomes yellow; very poor visibility becomes red/no-go.
+- Added conservative missing-visibility handling for exposed or likely overnight passages.
+- Added a typed Turku to Pärnu H-323 night-crossing rehearsal scenario with limited visibility, watch-plan assumptions and static-scenario safety wording.
+- Added tests for night-experience caution, limited-visibility caution and restricted-visibility no-go.
+- Updated the landing page to render all risk cards from the shared risk assessment registry.
+- Updated `CHANGELOG.md` with the new risk rules, scenario content, tests and UI change.
 
 ## Feature backlog
 
@@ -176,6 +177,8 @@ Working log:
 | B-017 | Equipment string coupling | Features depend on UI text instead of stable equipment identifiers. | Use stable equipment IDs and tests for key navigation, communication and safety items. |
 | B-018 | False green risk | Missing or stale weather, fatigue or equipment gaps are accidentally treated as acceptable. | Risk rules escalate missing and stale inputs to yellow/red with tests. |
 | B-019 | Static scenario mistaken for live advice | Demo risk content is interpreted as current weather guidance. | Label static risk scenarios as planning examples and require explicit forecast timestamps. |
+| B-020 | Night-risk blind spot | A passage can include likely night hours while crew night experience is ignored. | Treat non-daylight legs and unknown/missing night experience as explicit risk findings. |
+| B-021 | Visibility blind spot | Fog or poor visibility is buried in weather text and does not affect departure advice. | Model visibility in nautical miles and escalate limited/restricted visibility with tests. |
 
 ## Roadmap
 
