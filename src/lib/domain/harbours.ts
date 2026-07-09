@@ -55,6 +55,30 @@ export interface HarbourNotebookSummary {
   offlineBrief: string[];
 }
 
+export interface HarbourRoutePackStop {
+  harbourId: string;
+  name: string;
+  role: HarbourNote['role'];
+  status: HarbourNoteStatus;
+  sourceFreshness: HarbourFreshness;
+  draftMarginMeters?: number;
+  nightArrival: HarbourApproachNote['nightArrival'];
+  contactRecorded: boolean;
+  blockerCount: number;
+  cautionCount: number;
+  firstAction?: string;
+}
+
+export interface HarbourRoutePack {
+  title: string;
+  status: 'ready' | 'caution' | 'blocked';
+  committedStops: HarbourRoutePackStop[];
+  alternateStops: HarbourRoutePackStop[];
+  verificationQueue: string[];
+  readAloudBrief: string[];
+  safetyLimitations: string[];
+}
+
 export function assessHarbourNote(note: HarbourNote, vesselDraftMeters: number): HarbourFinding[] {
   const findings: HarbourFinding[] = [];
 
@@ -147,5 +171,66 @@ export function summarizeHarbourNotebook(notes: HarbourNote[], vesselDraftMeters
       const contact = note.approach.vhfChannel ? `contact ${note.approach.vhfChannel}` : 'contact not recorded';
       return `${note.name}: ${status}; ${note.role}; ${contact}; ${note.approach.shelter} approach.`;
     })
+  };
+}
+
+function getDraftMargin(note: HarbourNote, vesselDraftMeters: number): number | undefined {
+  const maxDraft = note.vesselFit.maxDraftMeters ?? note.approach.depthMeters;
+
+  if (maxDraft === undefined) {
+    return undefined;
+  }
+
+  return Number((maxDraft - vesselDraftMeters).toFixed(2));
+}
+
+function toRoutePackStop(note: HarbourNote, vesselDraftMeters: number): HarbourRoutePackStop {
+  const findings = assessHarbourNote(note, vesselDraftMeters);
+
+  return {
+    harbourId: note.id,
+    name: note.name,
+    role: note.role,
+    status: getHarbourNoteStatus(note, vesselDraftMeters),
+    sourceFreshness: note.sourceFreshness,
+    draftMarginMeters: getDraftMargin(note, vesselDraftMeters),
+    nightArrival: note.approach.nightArrival,
+    contactRecorded: Boolean(note.approach.vhfChannel),
+    blockerCount: findings.filter((finding) => finding.severity === 'blocker').length,
+    cautionCount: findings.filter((finding) => finding.severity === 'caution').length,
+    firstAction: findings[0]?.skipperAction
+  };
+}
+
+export function createHarbourRoutePack(title: string, notes: HarbourNote[], vesselDraftMeters: number): HarbourRoutePack {
+  const stops = notes.map((note) => toRoutePackStop(note, vesselDraftMeters));
+  const committedStops = stops.filter((stop) => stop.role === 'home' || stop.role === 'planned-stop' || stop.role === 'destination');
+  const alternateStops = stops.filter((stop) => stop.role === 'bailout' || stop.role === 'decision-point');
+  const allFindings = notes.flatMap((note) => assessHarbourNote(note, vesselDraftMeters));
+  const blockerCount = allFindings.filter((finding) => finding.severity === 'blocker').length;
+  const status = blockerCount > 0 ? 'blocked' : allFindings.length > 0 ? 'caution' : 'ready';
+  const verificationQueue = allFindings.map((finding) => finding.skipperAction);
+  const firstCommittedBlocker = committedStops.find((stop) => stop.blockerCount > 0);
+  const weakestAlternate = alternateStops.find((stop) => stop.status === 'incomplete') ?? alternateStops.find((stop) => stop.status === 'caution');
+
+  return {
+    title,
+    status,
+    committedStops,
+    alternateStops,
+    verificationQueue,
+    readAloudBrief: [
+      `${title}: ${status}. ${committedStops.length} committed stops and ${alternateStops.length} alternates in the offline harbour pack.`,
+      firstCommittedBlocker
+        ? `First committed-stop blocker: ${firstCommittedBlocker.name}. ${firstCommittedBlocker.firstAction}`
+        : 'No committed-stop blockers recorded in the static harbour pack.',
+      weakestAlternate
+        ? `Weakest alternate: ${weakestAlternate.name}. Verify before treating it as shelter.`
+        : 'No alternate harbour notes recorded; add at least one bailout for each long leg.'
+    ],
+    safetyLimitations: [
+      'Harbour route packs are static cockpit preparation content, not live berth availability, harbour-master advice or navigation authority.',
+      'Refresh charts, notices, weather, water level, harbour contacts and crew fatigue before turning any note into a go decision.'
+    ]
   };
 }
