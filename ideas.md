@@ -66,47 +66,45 @@ Repository state reviewed:
 - A runnable SvelteKit/TypeScript skeleton exists.
 - Pure checklist domain types and state-transition logic exist under `src/lib/domain`.
 - Checklist run summaries expose progress, completion eligibility, required open items and blocker messages.
-- Vitest tests cover checklist state semantics, blocker/progress semantics and starter checklist content.
 - GitHub Actions CI validates install, Svelte/TypeScript checks, unit tests and production build.
 - The starter content registry includes departure readiness, diesel inboard pre-start, night-arrival, heavy-weather departure and MOB immediate-action checklist templates.
 - The Passage Planner slice has typed passage plan domain types, pure summary logic, tests and one realistic Turku to Pärnu H-323 sample route.
 - The Vessel Profile slice has richer equipment, engine, rig, battery, tank and readiness-finding types.
 - A first H-323 Elina vessel profile exists with identity data, Yanmar engine checks, Raymarine/Orca/em-trak equipment, safety equipment and explicit assumptions about unverified capacities.
-- The Risk Engine slice has typed weather, crew, vessel, passage and traffic-light risk assessment structures.
-- Risk Engine v1 models Baltic wind limits, stale forecasts, thunderstorms, waves, open-water exposure, fatigue, equipment gaps, night/overnight legs and restricted visibility.
+- The Risk Engine slice models Baltic wind limits, stale forecasts, thunderstorms, waves, open-water exposure, fatigue, equipment gaps, night/overnight legs and restricted visibility.
 - The NMEA/AIS slice has a typed network readiness model, skipper-facing PGN explanations, an H-323 Elina network profile, AIS traffic snapshot logic, prioritised watch actions, watch briefs and debriefs.
 - The SRC/VHF slice has typed radio call cards for distress, urgency and safety situations linked to H-323 Elina training scenarios.
 - The radio-log slice creates structured entries and a compact watch-change handover brief from H-323 Elina training and traffic-decision examples.
 - The maintenance readiness slice has pure task/finding/summary logic plus an H-323 Elina pre-passage service pack.
 - The spare readiness slice has pure requirement/finding/summary logic plus an H-323 Elina passage spare kit linked to maintenance tasks.
 - The trip logbook slice has pure entry/summary/debrief logic plus an H-323 Elina Turku to Pärnu family-passage example.
-- The pre-departure dashboard slice now aggregates checklist, risk, maintenance, spares, NMEA/AIS and trip-log summaries into one conservative H-323 Elina preparation card.
+- The pre-departure dashboard slice aggregates checklist, risk, maintenance, spares, NMEA/AIS and trip-log summaries into one conservative H-323 Elina preparation card.
+- The new departure skipper brief slice converts the dashboard into a printable/wet-hands route, weather, crew, boat, electronics and limitations brief.
 - The landing page surfaces checklist, passage, vessel, maintenance, spares, trip logbook, pre-departure dashboard, risk, NMEA/AIS readiness, AIS traffic watch briefs, AIS debriefs and SRC/VHF radio call cards.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Add Pre-departure Dashboard as the next valuable slice because the product has many useful safety slices, but the skipper still needs one integrated cockpit answer before departure.
-- Introduce pure dashboard aggregation logic for checklist, risk, maintenance, spares, NMEA/AIS and trip-log summaries with blocker/caution/info findings, readiness score, next actions and read-aloud brief lines.
-- Add H-323 Elina Turku to Pärnu dashboard content that intentionally remains no-go while checklist, maintenance, spares, network and last-leg follow-ups are unresolved.
-- Surface the dashboard at the top of the landing page so the product starts from the skipper decision, not from implementation modules.
-- Keep the implementation focused: no persistence, live weather, user-editable dashboard state or route import until the static aggregation semantics are proven.
+- Add a Departure Skipper Brief as the next valuable slice because the dashboard shows the status, but the skipper still needs a printable and read-aloud decision artifact for cockpit preparation.
+- Keep it pure TypeScript: no persistence, export UI, PDF generation or live weather ingestion yet.
+- Include user-facing H-323 Elina Turku to Pärnu family-crew content so the feature is not generic plumbing.
+- Treat the brief as a preparation artifact, not live sailing advice; make static-copy and skipper-judgement limitations part of the generated output.
 
 Rationale:
 
-- Nautikool can already answer many slice-level questions; the next product value is showing how those answers combine into a single conservative preparation posture.
-- A family Baltic passage should not appear green just because one slice is acceptable; any unresolved blocker from required checklist items, risk, maintenance, spares, NMEA/AIS or trip logs must stay visible.
-- A read-aloud dashboard brief moves the app toward wet-hands cockpit mode while keeping the logic pure and testable.
-- The implementation remains TypeScript-first and user-facing because it includes H-323 Elina scenario content, dashboard copy, tests and UI exposure.
+- The product now has many safety slices and a dashboard. The next product value is turning the dashboard into a short artifact that can be printed, marked up and read aloud.
+- This aligns with the local-first MVP and UX-008 printable mode without introducing document generation complexity too early.
+- A family Baltic passage benefits from explicit crew roles, first action, bailout framing, weather timestamps and electronics limitations.
+- The implementation remains testable and content-rich: domain logic, H-323 scenario content, tests, exports and changelog/decision-log updates.
 
 Working log:
 
-- Added `DepartureDashboardInput`, `DepartureDashboardSummary`, `DepartureDashboardFinding` and `buildDepartureDashboard`.
-- Added H-323 Elina Turku to Pärnu pre-departure dashboard content with static-scenario assumptions and conservative no-go aggregation.
-- Added Vitest coverage for green-only-when-clean behaviour, required checklist blockers, cross-slice blocker aggregation and H-323 dashboard publication.
-- Exported the dashboard domain and surfaced the dashboard at the top of the landing page with findings, readiness score, next actions and read-aloud brief lines.
-- Updated `CHANGELOG.md` with dashboard domain logic, H-323 content, tests, UI exposure and decision-record linkage.
+- Added `DepartureSkipperBriefInput`, `DepartureSkipperBrief`, `DepartureBriefSection` and `buildDepartureSkipperBrief`.
+- Added H-323 Elina Turku to Pärnu printable skipper brief content with route focus, weather checkpoints, crew assignments, boat checks, electronics checks, print notes and a conservative family-crew go/no-go question.
+- Added Vitest coverage for brief section generation, first-action propagation, static-copy limitations and H-323 content publication.
+- Exported the departure brief domain from the domain barrel.
+- Updated `CHANGELOG.md` with brief logic, H-323 content, tests and decision-record linkage.
 
 ## Feature backlog
 
@@ -128,6 +126,7 @@ Working log:
 | F-012 | Radio log | Record radio calls, traffic decisions, training rehearsals, position sources, crew actions and follow-ups. | High | Started |
 | F-013 | Spares readiness | Track passage-critical spares, quantities, stowage, failure modes and links to maintenance tasks. | High | Started |
 | F-014 | Pre-departure dashboard | Aggregate checklist, risk, maintenance, spares, NMEA/AIS and logbook state into one conservative departure posture. | High | Started |
+| F-015 | Departure skipper brief | Convert dashboard state into a printable/read-aloud route, weather, crew, boat, electronics and limitation brief. | High | Started |
 
 ### UX ideas
 
@@ -140,7 +139,7 @@ Working log:
 | UX-005 | Quick capture | One-tap notes for defects, harbour notes, maintenance needs and log entries. | Medium | Idea |
 | UX-006 | Emergency screen | MOB, mayday, DSC, position, nearest harbour and emergency checklist. | High | Idea |
 | UX-007 | Boat-specific home | Home screen starts from the user's own vessel and active passage. | High | Started |
-| UX-008 | Printable mode | Generate printable passage plans, checklists and emergency cards. | Medium | Idea |
+| UX-008 | Printable mode | Generate printable passage plans, checklists and emergency cards. | Medium | Started |
 | UX-009 | Watch handover card | Compact read-aloud handover for AIS, weather, route and crew state. | High | Started |
 | UX-010 | Scenario debrief card | Turn a drill or watch brief into what went well, what to verify and what to repeat. | High | Started |
 | UX-011 | Radio call card | Present a single wet-hands radio script with vessel identity, position, risk and requested help. | High | Started |
@@ -149,6 +148,7 @@ Working log:
 | UX-014 | Spare readiness card | Show missing, unknown and insufficient passage spares as locker-level skipper actions. | High | Started |
 | UX-015 | Trip log debrief card | Show what changed, what broke, what needs follow-up and what to brief differently next time. | High | Started |
 | UX-016 | Aggregated departure card | Show one conservative status, score, blockers and first action across all preparation slices. | High | Started |
+| UX-017 | Printable departure brief | Show a paper-friendly skipper brief with decision, route, weather, crew, boat, electronics and limitation sections. | High | Started |
 
 ### Navigation, offline and integration ideas
 
@@ -175,6 +175,7 @@ Working log:
 | MNT-001 | Maintenance readiness | Convert maintenance tasks into conservative pre-passage blocker/caution findings. | High | Started |
 | MNT-002 | Spares readiness | Convert spare requirements into conservative onboard preparation findings. | High | Started |
 | DASH-001 | Departure dashboard aggregation | Combine preparation slices into one conservative go/caution/no-go card. | High | Started |
+| DASH-002 | Departure skipper brief | Convert dashboard state into printable skipper preparation content. | High | Started |
 | WTH-001 | Forecast comparison | Compare wind, gusts, waves, rain and pressure across providers/models. | High | Idea |
 | WTH-003 | Go/no-go logic | Conservative rule-based departure support by boat, route, crew and exposure. | High | Started |
 | WTH-006 | Weather freshness warning | Make stale forecasts impossible to overlook. | High | Started |
@@ -182,7 +183,7 @@ Working log:
 ## Expected bug classes and prevention
 
 | ID | Area | Risk | Prevention |
-|---|---|---|
+|---|---|---|---|
 | B-001 | Unit conversion | Confusion between m, nm, kn, km/h and hours. | Central unit library and tests. |
 | B-002 | Time zones | ETA and weather timestamps mismatch. | Store timezone metadata; test Baltic crossings. |
 | B-003 | Offline data | Missing route/checklist content once network is gone. | Offline manifest and offline integration tests. |
@@ -192,11 +193,11 @@ Working log:
 | B-007 | Vessel-specific data | Generic checklist ignores the actual boat setup. | Vessel profile linked to checklist generation. |
 | B-008 | Checklist state | Skipped required items appear as safe completion. | Checklist completion logic distinguishes clean completion from warned completion. |
 | B-009 | Missing data | Unknown weather, route or crew data defaults to green. | Model `unknown` separately and test conservative escalation. |
-| B-010 | Domain/UI coupling | UI state becomes the source of truth. | Keep checklist logic as pure TypeScript functions with tests. |
+| B-010 | Domain/UI coupling | UI state becomes the source of truth. | Keep domain logic as pure TypeScript functions with tests. |
 | B-011 | Broken main branch | New features compile locally but break tests or build. | GitHub Actions validates checks, tests and build on push and pull request. |
 | B-012 | CI dependency setup | CI fails before product checks because dependency caching assumes a missing lockfile. | Avoid npm cache until a lockfile exists; then use lockfile-backed installs. |
 | B-013 | Repository drift | Changes are made without a clear decision record, validation path or safety-sensitive review shape. | Use `CONTRIBUTING.md` and the `ideas.md` decision/working-log format for meaningful changes. |
-| B-014 | Passage distance optimism | A nominal day plan hides that one leg is too long for family crew or daylight. | Keep leg-level distances and summary tests visible; later add thresholds and warnings. |
+| B-014 | Passage distance optimism | A nominal day plan hides that one leg is too long for family crew or daylight. | Keep leg-level distances and summary tests visible; add thresholds and warnings. |
 | B-015 | False checklist readiness | A checklist with required open items looks nearly complete and encourages departure. | Expose required-open blockers, completion eligibility and progress separately. |
 | B-016 | Vessel false precision | Unknown tank or battery capacities are guessed and then reused in range or risk logic. | Store unknown capacities explicitly and test that unverified values remain undefined. |
 | B-017 | Equipment string coupling | Features depend on UI text instead of stable equipment identifiers. | Use stable equipment IDs and tests for key navigation, communication and safety items. |
@@ -217,6 +218,7 @@ Working log:
 | B-032 | Spares false green | A maintenance plan exists but critical parts are missing, unknown or too few onboard. | Model spare priority, quantity and status separately; convert critical gaps into blocker findings with tests. |
 | B-033 | Trip debrief false confidence | A successful arrival hides missing positions, unresolved blockers or next-leg follow-ups. | Model log positions, severity, engine hours and follow-ups explicitly; expose debrief lines and test that blockers remain visible. |
 | B-034 | Dashboard false green | One clean slice hides blockers in another preparation area. | Aggregate blockers conservatively and test that any critical slice keeps the dashboard no-go. |
+| B-035 | Printout false confidence | A tidy printed brief is mistaken for current live readiness after weather, crew, equipment or harbour facts change. | Include generated/static labels, live-condition caveats and re-marking prompts in the brief output and tests. |
 
 ## Roadmap
 
@@ -252,6 +254,7 @@ Scope:
 - Spares readiness card.
 - Trip logbook and debrief card.
 - Aggregated pre-departure dashboard card.
+- Printable departure skipper brief.
 
 Success criteria:
 
