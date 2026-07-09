@@ -77,33 +77,34 @@ Repository state reviewed:
 - Risk Engine v1 also models likely night/overnight legs and restricted visibility as explicit decision inputs.
 - A second static risk scenario demonstrates the Hanko to Haapsalu night-crossing decision problem with limited visibility and no recorded night experience.
 - The NMEA/AIS slice now has a typed network readiness model, skipper-facing PGN explanations, an H-323 Elina network profile and tests.
-- The NMEA/AIS slice now also has static AIS traffic snapshot logic and a Hanko approach training scenario.
+- The NMEA/AIS slice now also has static AIS traffic snapshot logic, a Hanko approach training scenario and prioritised watch actions.
+- A second Tallinn ferry-lane AIS drill now demonstrates family-crew cockpit instructions for urgent ferry traffic, close small craft and stale symbols.
 - The landing page surfaces checklist, passage, vessel, risk, NMEA/AIS readiness and AIS traffic-drill content slices.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Extend the NMEA/AIS Adapter from static network inventory into a first offline traffic-snapshot evaluator before attempting live parsing.
-- Keep the implementation pure and deterministic: typed AIS target snapshots in, skipper-facing summary findings out.
-- Pair the logic with a Hanko approach scenario so the feature teaches realistic watchkeeping: stale targets, close CPA, fast commercial traffic and missing CPA/TCPA.
-- Keep safety language conservative: AIS is a decision aid, not a lookout replacement or a negotiation mechanism.
+- Extend the NMEA/AIS Adapter from traffic diagnosis into a first action layer: AIS target snapshots should produce ordered watch actions, not only findings.
+- Keep the implementation pure and deterministic: typed AIS target snapshots in, skipper-facing findings and watch instructions out.
+- Add a Tallinn ferry-lane scenario because the most valuable next training use case is busy Baltic commercial traffic with family crew and limited attention.
+- Keep safety language conservative: AIS actions are cockpit prompts for visual lookout, COLREG decisions and early skipper intervention, not live navigation advice.
 
 Rationale:
 
-- The prior network readiness model tells whether the onboard data path is plausible, but not how the product would reason about AIS targets once data exists.
-- A static traffic-snapshot evaluator is a useful intermediate layer between content, future NMEA ingestion and future collision/CPA scenario training.
-- Stale AIS symbols and missing CPA/TCPA are common false-confidence traps for small-yacht skippers and deserve first-class tests.
-- A Hanko/Gulf of Finland approach drill aligns with the existing Baltic H-323 product focus and provides user-facing training content in the same commit slice.
+- The previous AIS slice identified stale targets, close CPA and missing CPA/TCPA, but the product still did not answer the fourth core question: what should I do next?
+- Watch actions create a bridge from future NMEA/AIS ingestion toward cockpit mode, scenario training and family-crew task assignment.
+- Prioritisation matters: a fast ferry with close CPA should be above a stale harbour symbol or a general Class A monitor note.
+- The Tallinn ferry-lane drill adds new user-facing Baltic content while staying offline, deterministic and testable.
 
 Working log:
 
-- Added AIS traffic snapshot domain types for target class, MMSI, range, COG/SOG, CPA/TCPA, data age and notes.
-- Added pure AIS traffic summary logic for stale targets, close CPA, fast-closing blockers, close targets without CPA/TCPA and nearby Class A traffic information.
-- Added a typed H-323 Elina Hanko approach AIS drill with a ferry example, small-craft target and stale fishing target.
-- Added Vitest coverage for target summary counts, stale-target warnings, fast-closing close-CPA blockers and missing CPA/TCPA warnings.
-- Updated the landing page with an AIS traffic drill card and target-level training notes.
-- Updated `CHANGELOG.md` with the new AIS traffic logic, content, tests and UI change.
+- Added `AisWatchAction` domain types with `immediate`, `soon` and `monitor` priorities.
+- Extended `summarizeAisTraffic` to emit sorted watch actions for stale targets, fast close CPA, close targets without CPA/TCPA and nearby Class A traffic.
+- Added a typed H-323 Elina Tallinn ferry-lane AIS watch drill with fast ferry, RoPax, close yacht and stale workboat targets.
+- Added Vitest coverage for prioritised watch actions and the new family-crew training scenario.
+- Updated the landing page to surface multiple AIS drills with target counts, close/stale metrics and top watch actions.
+- Updated `CHANGELOG.md` with the AIS watch action logic, new content, tests and UI change.
 
 ## Feature backlog
 
@@ -115,7 +116,7 @@ Working log:
 | F-002 | Passage planner | Plan route legs, distances, ETAs, hazards, bailout harbours, daylight and crew notes. | High | Started |
 | F-003 | Checklist engine | Configurable departure, arrival, engine, heavy-weather, night-sailing and emergency checklists. | High | Started |
 | F-004 | Learning modules | Bite-sized nautical lessons for COLREGs, lights, buoys, VHF, anchoring, weather, navigation and sail trim. | High | Idea |
-| F-005 | Scenario trainer | Interactive decisions for crossing traffic, squalls, harbour approaches, engine alarms and MOB. | Medium | Idea |
+| F-005 | Scenario trainer | Interactive decisions for crossing traffic, squalls, harbour approaches, engine alarms and MOB. | Medium | Started |
 | F-006 | Boat systems notebook | Document seacocks, fuel, engine, electrics, NMEA network, spares and known defects. | High | Started |
 | F-007 | Maintenance log | Track engine hours, oil changes, filters, batteries, rig checks, extinguishers and liferaft service. | Medium | Idea |
 | F-008 | Trip logbook | Capture trip, crew, weather, sail setup, incidents, lessons learned and engine hours. | Medium | Idea |
@@ -138,7 +139,7 @@ Working log:
 ### Navigation, offline and integration ideas
 
 | ID | Feature | Description | Priority | Status |
-|---|---|---|---|---|
+|---|---|---|---|
 | NAV-001 | GPX import/export | Exchange routes and tracks with chartplotters and navigation apps. | High | Idea |
 | NAV-002 | Leg table | Course, distance, ETA, hazards, bailout options and notes by leg. | High | Started |
 | NAV-007 | Night passage prep | Navigation lights, watch rhythm, rest, headlamp discipline and traffic plan. | High | Started |
@@ -150,6 +151,7 @@ Working log:
 | N2K-005 | Simulator input | Provide mock NMEA2000 data for development and tests. | High | Started |
 | AIS-002 | AIS learning mode | Explain CPA, TCPA, MMSI, COG, SOG and class A/B. | High | Started |
 | AIS-003 | Collision scenario trainer | Use simulated AIS traffic for crossing, overtaking and head-on exercises. | High | Started |
+| AIS-004 | Watch action queue | Convert AIS findings into ordered cockpit instructions for skipper and crew. | High | Started |
 | AIS-005 | Stale target warning | Mark AIS targets as stale when updates stop. | High | Started |
 | WTH-001 | Forecast comparison | Compare wind, gusts, waves, rain and pressure across providers/models. | High | Idea |
 | WTH-003 | Go/no-go logic | Conservative rule-based departure support by boat, route, crew and exposure. | High | Started |
@@ -182,6 +184,7 @@ Working log:
 | B-021 | Visibility blind spot | Fog or poor visibility is buried in weather text and does not affect departure advice. | Model visibility in nautical miles and escalate limited/restricted visibility with tests. |
 | B-022 | Network false confidence | A plotter shows some data, but GNSS source, AIS target path, DSC position or backbone health is unknown. | Model network devices, PGNs, power injection and terminators explicitly with warnings/blockers. |
 | B-023 | AIS false confidence | A stale target, missing CPA/TCPA or close fast ferry is displayed without urgency or context. | Summarize AIS target age, CPA/TCPA and Class A proximity with conservative findings and tests. |
+| B-024 | AIS action overload | Too many simultaneous AIS notes bury the urgent ferry or close-quarters decision. | Generate prioritised watch actions and test that immediate close-CPA actions sort before monitor notes. |
 
 ## Roadmap
 
