@@ -8,6 +8,11 @@
   } from '$lib/content/nmeaNetworks';
   import { turkuToParnuFamilyPassagePlan } from '$lib/content/passagePlans';
   import { coreRadioCallCards, srcTrainingNotes } from '$lib/content/radioCallCards';
+  import {
+    h323ElinaRadioLogExamples,
+    h323ElinaRadioLogFollowUps,
+    h323ElinaRadioLogSummary
+  } from '$lib/content/radioLogs';
   import { coreRiskAssessments } from '$lib/content/riskAssessments';
   import { h323ElinaVesselProfile } from '$lib/content/vesselProfiles';
   import { createChecklistRun, summarizeChecklistRun } from '$lib/domain/checklists';
@@ -32,6 +37,9 @@
   const starterAisDebriefs = coreAisWatchDebriefs;
   const starterRadioCallCards = coreRadioCallCards;
   const starterRadioCallSummary = summarizeRadioCallDrills(starterRadioCallCards, srcTrainingNotes);
+  const starterRadioLogEntries = h323ElinaRadioLogExamples;
+  const starterRadioLogSummary = h323ElinaRadioLogSummary;
+  const starterRadioLogFollowUps = h323ElinaRadioLogFollowUps;
   const navigationEquipment = getVesselEquipmentByCategory(starterVessel, 'navigation');
   const safetyEquipment = getVesselEquipmentByCategory(starterVessel, 'safety');
 </script>
@@ -289,6 +297,51 @@
             {#each card.readAloud.slice(0, 4) as line}
               <li>{line}</li>
             {/each}
+          </ul>
+        </article>
+      {/each}
+    </div>
+  </section>
+
+  <section aria-labelledby="radio-log-title">
+    <h2 id="radio-log-title">Radio log and handover entries</h2>
+    <p>
+      Radio call cards now feed a small log layer so training, traffic decisions and safety broadcasts
+      can leave a cockpit handover trail: what was said, where the boat was, what action followed and
+      what still needs follow-up.
+    </p>
+    <dl>
+      <div>
+        <dt>Log entries</dt>
+        <dd>{starterRadioLogSummary.entryCount}</dd>
+      </div>
+      <div>
+        <dt>Sent / decision / training</dt>
+        <dd>
+          {starterRadioLogSummary.sentCalls} / {starterRadioLogSummary.decisionNotes} /
+          {starterRadioLogSummary.trainingNotes}
+        </dd>
+      </div>
+      <div>
+        <dt>Follow-ups</dt>
+        <dd>{starterRadioLogFollowUps.length}</dd>
+      </div>
+      <div>
+        <dt>Read-back prompt</dt>
+        <dd>{starterRadioLogSummary.readBackChecklist[3]}</dd>
+      </div>
+    </dl>
+    <div class="network-list">
+      {#each starterRadioLogEntries as entry}
+        <article>
+          <p class="template-category">{entry.entryType} · {entry.urgency}</p>
+          <h3>{entry.situationTitle}</h3>
+          <p>{entry.summary}</p>
+          <ul>
+            <li>{entry.actionTaken}</li>
+            {#if entry.followUpAt}
+              <li>Follow-up: {entry.followUpAt}</li>
+            {/if}
           </ul>
         </article>
       {/each}
