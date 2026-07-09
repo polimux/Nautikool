@@ -8,6 +8,9 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Added
 
+- Maintenance readiness domain logic for vessel-specific service tasks, date/hour due checks, findings and departure summaries.
+- Typed H-323 Elina maintenance readiness content covering Yanmar lubrication, raw-water cooling, fuel, liferaft, fire extinguishers, Ray90 DSC position, batteries and rig checks.
+- Vitest coverage for maintenance status inference, engine-hour due windows, H-323 blocker logic, unknown safety items and conservative non-green summaries.
 - `ideas.md` as the product backlog, roadmap, decision log and working log.
 - Expanded `README.md` as the public project entry point.
 - `CHANGELOG.md` to separate project history from product discovery notes.
@@ -72,6 +75,8 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Changed
 
+- Landing page now surfaces H-323 maintenance readiness with blockers, cautions, covered systems and skipper actions.
+- Domain barrel exports now include the maintenance readiness module.
 - The repository has moved from documentation-only foundation to the first runnable application foundation.
 - The initial technical direction is now documented as an architecture decision rather than only a backlog bias.
 - The documentation index now lists the domain model as an active document instead of a planned document.
@@ -100,6 +105,7 @@ This project uses a simple human-readable changelog while the product and archit
 - `ideas.md` now records the radio-card UI integration decision, rationale, working log and hidden-safety-content risk.
 - `ideas.md` now records the radio-log handover decision, rationale, working log and log-without-position risk.
 - `ideas.md` now records the radio handover brief decision, rationale, working log and false-confidence risk.
+- `ideas.md` now records the maintenance readiness decision, rationale, working log and maintenance false-green risk.
 
 ### Removed
 
