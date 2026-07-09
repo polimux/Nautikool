@@ -80,32 +80,33 @@ Repository state reviewed:
 - The NMEA/AIS slice now also has static AIS traffic snapshot logic, a Hanko approach training scenario, prioritised watch actions and compact watch briefs.
 - A third fog-bank AIS drill now demonstrates restricted-visibility cockpit handover with immediate, soon and stale-target priorities.
 - The NMEA/AIS slice now adds AIS watch debrief logic that converts watch briefs into teachable lessons, positive signals, follow-up drills and safety notes.
+- The SRC/VHF slice now adds typed radio call cards for distress, urgency and safety situations linked to H-323 Elina training scenarios.
 - The landing page surfaces checklist, passage, vessel, risk, NMEA/AIS readiness, AIS traffic watch briefs and AIS debrief content slices.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Extend the NMEA/AIS Adapter from cockpit handover into scenario training: each AIS watch brief should produce a post-watch debrief.
-- Keep the implementation pure and deterministic: static scenario plus watch brief in, lessons/positive signals/follow-up drill out.
-- Add debrief content for the restricted-visibility fog-bank scenario because this is where learning value is highest: stale targets, close traffic, limited attention and conservative fallback decisions.
-- Keep safety language conservative: debriefs are training artefacts and must not imply that AIS alone proves a manoeuvre was safe, legal or sufficient.
+- Add an SRC/VHF radio-call-card layer because the AIS and risk slices can identify urgent situations, but a tired skipper still needs short, structured words for the radio.
+- Keep the implementation pure and deterministic: radio situation in, read-aloud call card and skipper prompts out.
+- Add H-323 Elina Baltic scenarios for MOB distress, Tallinn ferry-lane urgency and Hanko fog-bank safety broadcast rehearsal.
+- Keep safety language conservative: training cards must warn against live practice of emergency phrases and must not replace COLREG action, lookout or boat handling.
 
 Rationale:
 
-- The previous AIS watch brief answered what to read aloud before the next decision point; the product still needed a way to learn from that drill afterwards.
-- A debrief layer moves Nautikool toward the Scenario Trainer and Learning Modules without requiring live NMEA ingestion.
-- Debriefs create a clean product loop: snapshot → findings → actions → watch brief → learning review.
-- The fog-bank scenario adds user-facing Baltic training material while staying offline, deterministic and testable.
+- The previous AIS debrief work improved learning after a watch; the next cockpit value is helping the skipper communicate during a real or rehearsed escalation.
+- SRC preparation is one of the stated product-focus areas and fits the local-first knowledge-base wedge.
+- Radio cards connect Vessel Profile identity data, Risk Engine scenarios, Checklist emergency content and AIS watch situations without requiring live NMEA ingestion.
+- The new content is user-facing, Baltic-specific and immediately useful for offline training.
 
 Working log:
 
-- Added `AisWatchDebrief` domain types with lessons, positive signals, follow-up drill and safety note.
-- Added `buildAisWatchDebrief` to convert AIS watch briefs into skipper-facing learning reviews.
-- Added typed fog-bank debrief scenario notes for stale AIS, fresh commercial traffic, visual bearings and conservative fallback decisions.
-- Added Vitest coverage for AIS debrief construction, data-quality prompts, COLREG safety wording and debrief registry linkage.
-- Updated the landing page to surface AIS scenario debrief cards with lesson counts, positive signals and follow-up drills.
-- Updated `CHANGELOG.md` with the AIS debrief logic, content, tests and UI change.
+- Added `RadioCallSituation` and `RadioCallCard` domain types with urgency levels, channel guidance, read-aloud lines, skipper prompts and limitations.
+- Added `getRadioCallPrefix`, `buildRadioCallCard` and urgency sorting for deterministic SRC call-card generation.
+- Added typed H-323 Elina training cards for MOB distress, Tallinn ferry-lane urgency and Hanko fog-bank safety broadcasts.
+- Added SRC training notes that explicitly prohibit practising emergency phrases as live transmissions.
+- Added Vitest coverage for urgency prefixes, MOB read-aloud content, card sorting and conservative safety wording.
+- Exported the radio-call domain module and updated `CHANGELOG.md`.
 
 ## Feature backlog
 
@@ -123,6 +124,7 @@ Working log:
 | F-008 | Trip logbook | Capture trip, crew, weather, sail setup, incidents, lessons learned and engine hours. | Medium | Idea |
 | F-009 | Harbour notebook | Store harbour notes, berth details, fees, VHF channels, fuel, groceries, sauna and approach notes. | Medium | Idea |
 | F-010 | Risk card | Generate green/yellow/red departure assessment from weather, route, crew and boat readiness. | High | Started |
+| F-011 | Radio call cards | Generate short SRC/VHF read-aloud cards for distress, urgency, safety and routine harbour calls. | High | Started |
 
 ### UX ideas
 
@@ -138,6 +140,7 @@ Working log:
 | UX-008 | Printable mode | Generate printable passage plans, checklists and emergency cards. | Medium | Idea |
 | UX-009 | Watch handover card | Compact read-aloud handover for AIS, weather, route and crew state. | High | Started |
 | UX-010 | Scenario debrief card | Turn a drill or watch brief into what went well, what to verify and what to repeat. | High | Started |
+| UX-011 | Radio call card | Present a single wet-hands radio script with vessel identity, position, risk and requested help. | High | Started |
 
 ### Navigation, offline and integration ideas
 
@@ -158,6 +161,7 @@ Working log:
 | AIS-005 | Stale target warning | Mark AIS targets as stale when updates stop. | High | Started |
 | AIS-006 | Watch brief builder | Convert AIS scenario summaries into compact read-aloud cockpit handovers. | High | Started |
 | AIS-007 | Watch debrief builder | Convert AIS watch briefs into training lessons, safety prompts and repeat drills. | High | Started |
+| VHF-001 | SRC call cards | Convert emergency and traffic situations into conservative VHF read-aloud scripts. | High | Started |
 | WTH-001 | Forecast comparison | Compare wind, gusts, waves, rain and pressure across providers/models. | High | Idea |
 | WTH-003 | Go/no-go logic | Conservative rule-based departure support by boat, route, crew and exposure. | High | Started |
 | WTH-006 | Weather freshness warning | Make stale forecasts impossible to overlook. | High | Started |
@@ -192,6 +196,7 @@ Working log:
 | B-024 | AIS action overload | Too many simultaneous AIS notes bury the urgent ferry or close-quarters decision. | Generate prioritised watch actions and test that immediate close-CPA actions sort before monitor notes. |
 | B-025 | Watch handover overload | A useful action list is still too verbose to read aloud in rain, fog or fatigue. | Build compact watch briefs with grouped actions, short handover lines and explicit limitations. |
 | B-026 | Debrief false certainty | A training debrief sounds like proof that an AIS-based manoeuvre was correct. | Keep debrief safety notes explicit and test that COLREG/lookout limitations remain visible. |
+| B-027 | Radio call false authority | A scripted training card is mistaken for permission to make a live emergency transmission or to delay boat handling. | Keep live-transmission limits, urgency wording and boat-handling caveats in every card and test for them. |
 
 ## Roadmap
 
@@ -229,27 +234,3 @@ Success criteria:
 - A skipper can prepare a weekend passage without live integrations.
 - Core content is available offline.
 - The app creates value before hardware integration exists.
-
-### Phase 2: Navigation and weather planning
-
-Goal: practical passage planning assistant.
-
-Scope:
-
-- GPX import/export.
-- Route leg table.
-- Weather briefing template.
-- Risk assessment card.
-- Harbour notes.
-
-### Phase 3: Training and scenario engine
-
-Goal: make Nautikool genuinely educational.
-
-Scope:
-
-- Learning modules.
-- Scenario trainer.
-- AIS/COLREG exercises.
-- Skill-level explanations.
-- Progress tracking.
