@@ -71,7 +71,8 @@ Repository state reviewed:
 - The Passage Planner slice has typed passage plan domain types, pure summary logic, tests and one realistic Turku to Pärnu H-323 sample route.
 - The passage workload slice flags over-long family legs, likely daylight workload, exposed open-water legs, bailout coverage gaps and missing crew notes.
 - The passage split recommendation slice turns workload blockers into concrete conservative split decisions and read-aloud briefs.
-- The Harbour Notebook slice now models static route-pack harbour notes, freshness, VHF/contact gaps, draft margin, night-arrival suitability and offline brief lines.
+- The Harbour Notebook slice models static route-pack harbour notes, freshness, VHF/contact gaps, draft margin, night-arrival suitability and offline brief lines.
+- The Harbour Route Pack slice now separates committed stops from bailout/decision alternatives, computes a blocked/caution/ready status and produces a verification queue plus read-aloud cockpit brief.
 - The Vessel Profile slice has richer equipment, engine, rig, battery, tank and readiness-finding types.
 - A first H-323 Elina vessel profile exists with identity data, Yanmar engine checks, Raymarine/Orca/em-trak equipment, safety equipment and explicit assumptions about unverified capacities.
 - The Risk Engine slice models Baltic wind limits, stale forecasts, thunderstorms, waves, open-water exposure, fatigue, equipment gaps, night/overnight legs and restricted visibility.
@@ -89,26 +90,25 @@ Repository state reviewed:
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Add Harbour Notebook as the next valuable slice because passage split recommendations now name harbour decisions, but the app needs to distinguish a verified offline stop from a vague or stale harbour label.
-- Keep it pure TypeScript and content-backed: harbour notes are static preparation content, not live berth, weather, notice-to-mariners or harbour-master advice.
-- Use the H-323 Elina Turku to Pärnu plan as the first route pack because it contains home, planned stops, bailout options, decision areas and a destination.
-- Treat named harbour notes as verification prompts that must be refreshed with current charts, harbour facts, weather and crew state.
+- Add Harbour Route Pack as the next valuable improvement because the Harbour Notebook had good per-harbour checks, but the skipper still needed a route-level view of which stops are committed and which are only alternates.
+- Keep it pure TypeScript and content-backed: the route pack is static preparation material that should produce a cockpit verification queue, not live harbour guidance.
+- Use the H-323 Elina Turku to Pärnu plan as the first route-pack scenario because it contains home, planned stops, bailout options, decision areas and a destination.
+- Treat blockers in committed stops as a route-pack no-go until current harbour facts, approach depth, contact method, night-arrival posture and weather fit are refreshed.
 
 Rationale:
 
-- Route splitting is only useful if the skipper can assess whether a named stop is actually fit for the vessel and family crew.
-- Harbour freshness, draft margin, contact details and night-arrival suitability are safety-relevant offline preparation details.
-- The slice strengthens the Passage Planner and Offline Route Pack direction without requiring external live harbour data.
-- Explicit limitations reduce the risk that demo harbour content is mistaken for live harbour availability or navigation advice.
+- A harbour notebook is useful only when it drives a skipper decision: can we rely on this stop, or is it just a stale name on the chart?
+- The next product value is grouping harbour facts into committed stops and alternates so the pre-departure workflow can surface the first harbour action quickly.
+- The change strengthens Passage Planner, Harbour Notebook and Risk Engine alignment without depending on external harbour APIs.
+- Explicit route-pack limitations reduce the risk that static demo content is mistaken for live berth availability, harbour-master advice or navigation authority.
 
 Working log:
 
-- Added `HarbourNote`, `HarbourFacility`, `HarbourApproachNote`, `HarbourFinding` and `HarbourNotebookSummary` domain types.
-- Added `assessHarbourNote`, `getHarbourNoteStatus` and `summarizeHarbourNotebook` pure domain logic.
-- Added H-323 Elina Turku to Pärnu harbour-note content for Turku, Nauvo, Hanko, Dirhami, Kärdla, Haapsalu, Virtsu/Muhu and Pärnu.
-- Added Vitest coverage for complete notes, stale/unknown source blockers, night-arrival blockers, H-323 content publication and offline brief lines.
-- Exported the harbour notebook domain from the domain barrel.
-- Updated `CHANGELOG.md` with harbour notebook logic, H-323 content and test coverage.
+- Added `HarbourRoutePackStop` and `HarbourRoutePack` domain types.
+- Added `createHarbourRoutePack` pure logic for committed stops, alternate stops, verification queues, read-aloud brief lines and static safety limitations.
+- Added `h323ElinaTurkuParnuHarbourRoutePack` content derived from the H-323 Elina harbour notebook.
+- Added Vitest coverage for clean route packs, H-323 blocked route-pack publication, committed/alternate grouping and limitation wording.
+- Updated `CHANGELOG.md` with harbour route-pack logic, H-323 content and test coverage.
 
 ## Feature backlog
 
@@ -133,6 +133,7 @@ Working log:
 | F-015 | Departure skipper brief | Convert dashboard state into a printable/read-aloud route, weather, crew, boat, electronics and limitation brief. | High | Started |
 | F-016 | Passage workload analysis | Convert passage legs into family-crew workload findings for distance, duration, daylight, exposure and bailout coverage. | High | Started |
 | F-017 | Passage split recommendations | Turn workload blockers into named split-harbour decisions, read-aloud route alternatives and safety limitations. | High | Started |
+| F-018 | Harbour route pack | Turn harbour notebook entries into committed stops, alternates, verification queues and read-aloud route-pack status. | High | Started |
 
 ### UX ideas
 
@@ -158,124 +159,3 @@ Working log:
 | UX-018 | Leg workload warnings | Show which passage legs exceed family crew distance, duration, daylight, exposure or bailout limits. | High | Started |
 | UX-019 | Route split card | Show named conservative split options, decision points and limitation copy for difficult passage legs. | High | Started |
 | UX-020 | Harbour route-pack card | Show harbour freshness, draft margin, contact gaps and night-arrival status for planned/bailout stops. | High | Started |
-
-### Navigation, offline and integration ideas
-
-| ID | Feature | Description | Priority | Status |
-|---|---|---|---|---|
-| NAV-001 | GPX import/export | Exchange routes and tracks with chartplotters and navigation apps. | High | Idea |
-| NAV-002 | Leg table | Course, distance, ETA, hazards, bailout options and notes by leg. | High | Started |
-| NAV-007 | Night passage prep | Navigation lights, watch rhythm, rest, headlamp discipline and traffic plan. | High | Started |
-| NAV-008 | Passage workload policy | Apply skipper/vessel/crew policy limits to leg distance, duration, daylight and exposure. | High | Started |
-| NAV-009 | Route split recommendations | Convert over-long or exposed legs into named fallback/split decisions with read-aloud briefs. | High | Started |
-| NAV-010 | Harbour notebook readiness | Assess static harbour notes for freshness, contact gaps, draft fit, night-arrival suitability and offline route-pack brief lines. | High | Started |
-| OFF-001 | Offline knowledge base | Core lessons and emergency procedures available without internet. | High | Idea |
-| OFF-002 | Offline checklists | Vessel and passage checklists cached locally. | High | Idea |
-| OFF-003 | Offline route pack | Save route, harbour notes, documents and weather snapshot for a trip. | High | Started |
-| OFF-004 | Freshness labels | Show when downloaded forecasts or harbour info were last updated. | High | Started |
-| N2K-001 | Network inventory | Document devices, PGNs, power injection, terminators and adapter cables. | High | Started |
-| N2K-005 | Simulator input | Provide mock NMEA2000 data for development and tests. | High | Started |
-| AIS-002 | AIS learning mode | Explain CPA, TCPA, MMSI, COG, SOG and class A/B. | High | Started |
-| AIS-003 | Collision scenario trainer | Use simulated AIS traffic for crossing, overtaking and head-on exercises. | High | Started |
-| AIS-004 | Watch action queue | Convert AIS findings into ordered cockpit instructions for skipper and crew. | High | Started |
-| AIS-005 | Stale target warning | Mark AIS targets as stale when updates stop. | High | Started |
-| AIS-006 | Watch brief builder | Convert AIS scenario summaries into compact read-aloud cockpit handovers. | High | Started |
-| AIS-007 | Watch debrief builder | Convert AIS watch briefs into training lessons, safety prompts and repeat drills. | High | Started |
-| VHF-001 | SRC call cards | Convert emergency and traffic situations into conservative VHF read-aloud scripts. | High | Started |
-| VHF-002 | Radio log handover | Convert radio-call cards and watch events into structured log entries and follow-up prompts. | High | Started |
-| LOG-001 | Trip log debrief | Convert sailed legs into summary metrics, follow-ups and next-leg learning prompts. | High | Started |
-| MNT-001 | Maintenance readiness | Convert maintenance tasks into conservative pre-passage blocker/caution findings. | High | Started |
-| MNT-002 | Spares readiness | Convert spare requirements into conservative onboard preparation findings. | High | Started |
-| DASH-001 | Departure dashboard aggregation | Combine preparation slices into one conservative go/caution/no-go card. | High | Started |
-| DASH-002 | Departure skipper brief | Convert dashboard state into printable skipper preparation content. | High | Started |
-| WTH-001 | Forecast comparison | Compare wind, gusts, waves, rain and pressure across providers/models. | High | Idea |
-| WTH-003 | Go/no-go logic | Conservative rule-based departure support by boat, route, crew and exposure. | High | Started |
-| WTH-006 | Weather freshness warning | Make stale forecasts impossible to overlook. | High | Started |
-
-## Expected bug classes and prevention
-
-| ID | Area | Risk | Prevention |
-|---|---|---|---|
-| B-001 | Unit conversion | Confusion between m, nm, kn, km/h and hours. | Central unit library and tests. |
-| B-002 | Time zones | ETA and weather timestamps mismatch. | Store timezone metadata; test Baltic crossings. |
-| B-003 | Offline data | Missing route/checklist content once network is gone. | Offline manifest and offline integration tests. |
-| B-004 | AIS parsing | Wrong target sorting or stale targets shown as current. | Timestamp validation and simulator tests. |
-| B-005 | Weather freshness | Old forecast displayed as current. | Expiry rules and prominent freshness banner. |
-| B-006 | Safety language | Overconfident or unsafe recommendation wording. | Conservative copy, assumptions and red/yellow escalation. |
-| B-007 | Vessel-specific data | Generic checklist ignores the actual boat setup. | Vessel profile linked to checklist generation. |
-| B-008 | Checklist state | Skipped required items appear as safe completion. | Checklist completion logic distinguishes clean completion from warned completion. |
-| B-009 | Missing data | Unknown weather, route or crew data defaults to green. | Model `unknown` separately and test conservative escalation. |
-| B-010 | Domain/UI coupling | UI state becomes the source of truth. | Keep domain logic as pure TypeScript functions with tests. |
-| B-011 | Broken main branch | New features compile locally but break tests or build. | GitHub Actions validates checks, tests and build on push and pull request. |
-| B-012 | CI dependency setup | CI fails before product checks because dependency caching assumes a missing lockfile. | Avoid npm cache until a lockfile exists; then use lockfile-backed installs. |
-| B-013 | Repository drift | Changes are made without a clear decision record, validation path or safety-sensitive review shape. | Use `CONTRIBUTING.md` and the `ideas.md` decision/working-log format for meaningful changes. |
-| B-014 | Passage distance optimism | A nominal day plan hides that one leg is too long for family crew or daylight. | Keep leg-level distances and summary tests visible; add thresholds and warnings. |
-| B-015 | False checklist readiness | A checklist with required open items looks nearly complete and encourages departure. | Expose required-open blockers, completion eligibility and progress separately. |
-| B-016 | Vessel false precision | Unknown tank or battery capacities are guessed and then reused in range or risk logic. | Store unknown capacities explicitly and test that unverified values remain undefined. |
-| B-017 | Equipment string coupling | Features depend on UI text instead of stable equipment identifiers. | Use stable equipment IDs and tests for key navigation, communication and safety items. |
-| B-018 | False green risk | Missing or stale weather, fatigue or equipment gaps are accidentally treated as acceptable. | Risk rules escalate missing and stale inputs to yellow/red with tests. |
-| B-019 | Static scenario mistaken for live advice | Demo risk content is interpreted as current weather guidance. | Label static risk scenarios as planning examples and require explicit forecast timestamps. |
-| B-020 | Night-risk blind spot | A passage can include likely night hours while crew night experience is ignored. | Treat non-daylight legs and unknown/missing night experience as explicit risk findings. |
-| B-021 | Visibility blind spot | Fog or poor visibility is buried in weather text and does not affect departure advice. | Model visibility in nautical miles and escalate limited/restricted visibility with tests. |
-| B-022 | Network false confidence | A plotter shows some data, but GNSS source, AIS target path, DSC position or backbone health is unknown. | Model network devices, PGNs, power injection and terminators explicitly with warnings/blockers. |
-| B-023 | AIS false confidence | A stale target, missing CPA/TCPA or close fast ferry is displayed without urgency or context. | Summarize AIS target age, CPA/TCPA and Class A proximity with conservative findings and tests. |
-| B-024 | AIS action overload | Too many simultaneous AIS notes bury the urgent ferry or close-quarters decision. | Generate prioritised watch actions and test that immediate close-CPA actions sort before monitor notes. |
-| B-025 | Watch handover overload | A useful action list is still too verbose to read aloud in rain, fog or fatigue. | Build compact watch briefs with grouped actions, short handover lines and explicit limitations. |
-| B-026 | Debrief false certainty | A training debrief sounds like proof that an AIS-based manoeuvre was correct. | Keep debrief safety notes explicit and test that COLREG/lookout limitations remain visible. |
-| B-027 | Radio call false authority | A scripted training card is mistaken for permission to make a live emergency transmission or to delay boat handling. | Keep live-transmission limits, urgency wording and boat-handling caveats in every card and test for them. |
-| B-028 | Hidden safety content | Correct emergency/radio content exists in code but is not visible to a skipper preparing offline. | Surface drill summaries and read-aloud lines on the product page, then later move them into cockpit/printable mode. |
-| B-029 | Radio log without position | A radio/traffic log records that something happened but omits the position source or action taken. | Make position source, action taken, crew roles and follow-up prompts first-class fields with tests and UI exposure. |
-| B-030 | Radio handover false confidence | A tidy radio-log handover sounds like permission to transmit from memory or stop looking out. | Keep current-position copying, live-judgement limits and boat-handling priority visible in every handover brief. |
-| B-031 | Maintenance false green | Unknown or overdue safety/engine service state is treated as acceptable because the boat profile exists. | Model maintenance unknown/due/overdue states and convert critical unknowns into blocker findings with tests. |
-| B-032 | Spares false green | A maintenance plan exists but critical parts are missing, unknown or too few onboard. | Model spare priority, quantity and status separately; convert critical gaps into blocker findings with tests. |
-| B-033 | Trip debrief false confidence | A successful arrival hides missing positions, unresolved blockers or next-leg follow-ups. | Model log positions, severity, engine hours and follow-ups explicitly; expose debrief lines and test that blockers remain visible. |
-| B-034 | Dashboard false green | One clean slice hides blockers in another preparation area. | Aggregate blockers conservatively and test that any critical slice keeps the dashboard no-go. |
-| B-035 | Printout false confidence | A tidy printed brief is mistaken for current live readiness after weather, crew, equipment or harbour facts change. | Include generated/static labels, live-condition caveats and re-marking prompts in the brief output and tests. |
-| B-036 | Family workload false green | A plan with realistic total distance hides one leg that is too long, too exposed or too weakly supported by bailout options. | Analyze workload per leg with target and hard limits; test H-323 route blockers and bailout cautions. |
-| B-037 | Split-route false safety | A named split harbour sounds like live permission to continue or divert without checking current facts. | Keep split recommendations static, require skipper verification and test that harbour/weather limitations remain visible. |
-| B-038 | Harbour-note false safety | A named harbour note is stale, too vague or unfit for draft/night arrival but still appears as a safe stop. | Assess harbour freshness, draft margin, contact gaps and night-arrival suitability with blocker/caution findings. |
-
-## Roadmap
-
-### Phase 0: Repository foundation
-
-Goal: make the repository understandable and ready for implementation.
-
-Tasks:
-
-- [x] Add `ideas.md`.
-- [x] Add `README.md` with product pitch, target user and planned modules.
-- [x] Add `CHANGELOG.md`.
-- [x] Add `/docs` structure.
-- [x] Decide initial tech stack.
-- [x] Define first domain model.
-- [x] Create first runnable SvelteKit/TypeScript skeleton.
-- [x] Add first pure domain logic and Vitest tests.
-- [x] Add CI validation for checks, tests and production build.
-- [x] Define contribution and decision-log format.
-
-### Phase 1: Local-first MVP
-
-Goal: useful offline skipper notebook and checklist tool.
-
-Scope:
-
-- Vessel profile.
-- Checklist engine.
-- Static knowledge base.
-- Trip preparation pack.
-- Printable/exportable passage plan.
-- Passage workload warnings.
-- Passage split recommendations.
-- Harbour notebook readiness.
-- Maintenance readiness card.
-- Spares readiness card.
-- Trip logbook and debrief card.
-- Aggregated pre-departure dashboard card.
-- Printable departure skipper brief.
-
-Success criteria:
-
-- A skipper can prepare a weekend passage without live integrations.
-- Core content is available offline.
-- The app creates value before hardware integration exists.
