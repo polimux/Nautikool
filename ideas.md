@@ -76,31 +76,34 @@ Repository state reviewed:
 - Risk Engine v1 models Baltic wind limits, stale forecasts, thunderstorms, waves, open-water exposure, fatigue, equipment gaps, night/overnight legs and restricted visibility.
 - The NMEA/AIS slice has a typed network readiness model, skipper-facing PGN explanations, an H-323 Elina network profile, AIS traffic snapshot logic, prioritised watch actions, watch briefs and debriefs.
 - The SRC/VHF slice has typed radio call cards for distress, urgency and safety situations linked to H-323 Elina training scenarios.
-- The radio-log slice now creates structured entries and a compact watch-change handover brief from H-323 Elina training and traffic-decision examples.
-- The landing page surfaces checklist, passage, vessel, risk, NMEA/AIS readiness, AIS traffic watch briefs, AIS debriefs and SRC/VHF radio call cards.
+- The radio-log slice creates structured entries and a compact watch-change handover brief from H-323 Elina training and traffic-decision examples.
+- The maintenance readiness slice now has pure task/finding/summary logic plus an H-323 Elina pre-passage service pack.
+- The landing page surfaces checklist, passage, vessel, maintenance, risk, NMEA/AIS readiness, AIS traffic watch briefs, AIS debriefs and SRC/VHF radio call cards.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Extend the SRC/VHF work from raw radio-log entries into a watch-change handover brief.
-- Add pure radio-log handover logic that prioritises critical entries, preserves position-source prompts, exposes follow-up lines and carries conservative live-transmission limitations.
-- Add an H-323 Elina family-crew handover brief using the existing MOB, Tallinn ferry-lane and Hanko fog-bank radio-log examples.
-- Keep the implementation focused: no persistence UI, no live VHF integration, no regulatory wizard and no external dependency.
+- Add Maintenance Readiness as the next valuable slice because it directly improves Vessel Profile, Checklist Engine and Passage Planner value before adding more live adapters.
+- Introduce pure maintenance task logic for date-based, engine-hour-based and unknown-status checks.
+- Add H-323 Elina pre-passage maintenance content for engine oil, raw-water cooling, fuel, liferaft, extinguishers, Ray90 DSC position, batteries and rig checks.
+- Surface maintenance blockers and cautions on the landing page as skipper actions, not just hidden fixture data.
+- Keep the implementation focused: no persistence database, no reminder scheduler and no manufacturer-specific service intervals beyond explicit sample content.
 
 Rationale:
 
-- A structured log is useful, but a tired incoming watch needs a short read-aloud summary rather than a list of entries.
-- Radio handover is the natural bridge between SRC training, AIS watch discipline, cockpit roles and later trip-log/offline-pack work.
-- The implementation remains pure TypeScript and testable while adding product-relevant H-323 scenario content immediately.
-- Safety-sensitive logs must not imply that a training entry or remembered script replaces current position copying, lookout, boat handling or live judgement.
+- The current product already knows the boat, route, risk and radio/AIS scenarios, but it does not yet answer the practical question: "What boat-system jobs must be closed before we cast off?"
+- A maintenance readiness card is more valuable for the local-first MVP than another narrow radio increment because it turns vessel data into a concrete pre-passage decision.
+- The implementation remains pure TypeScript and testable while adding user-facing content immediately.
+- Unknown service state must not collapse into green readiness; liferaft service and DSC position input are intentionally blocker-grade until verified.
 
 Working log:
 
-- Added `RadioLogHandoverBrief`, `buildRadioLogHandoverBrief`, critical-line generation, position prompts, follow-up lines, crew-role aggregation and explicit handover limitations.
-- Added H-323 Elina radio watch handover content for a family-crew watch change before the next Baltic approach.
-- Added Vitest coverage for critical handover ordering, position-source prompts, follow-up prompts, crew-role visibility and conservative safety wording.
-- Updated `CHANGELOG.md` with the radio-log handover brief logic, H-323 content and tests.
+- Added `MaintenanceTask`, `MaintenanceFinding`, `MaintenanceReadinessSummary`, `inferMaintenanceStatus`, `assessMaintenanceTasks` and `summarizeMaintenanceReadiness`.
+- Added H-323 Elina maintenance content for Yanmar 2GM15/gearbox checks, raw-water impeller, fuel filter, liferaft service, extinguishers, Ray90 DSC position, 12 V batteries and standing rigging.
+- Added Vitest coverage for overdue/due-soon/unknown/done inference, engine-hour windows, H-323 blocker logic, unknown safety tasks and non-green maintenance summaries.
+- Exported the maintenance domain and surfaced the H-323 maintenance readiness card on the landing page.
+- Updated `CHANGELOG.md` with maintenance logic, H-323 content, tests, UI exposure and decision-record linkage.
 
 ## Feature backlog
 
@@ -114,7 +117,7 @@ Working log:
 | F-004 | Learning modules | Bite-sized nautical lessons for COLREGs, lights, buoys, VHF, anchoring, weather, navigation and sail trim. | High | Idea |
 | F-005 | Scenario trainer | Interactive decisions for crossing traffic, squalls, harbour approaches, engine alarms and MOB. | Medium | Started |
 | F-006 | Boat systems notebook | Document seacocks, fuel, engine, electrics, NMEA network, spares and known defects. | High | Started |
-| F-007 | Maintenance log | Track engine hours, oil changes, filters, batteries, rig checks, extinguishers and liferaft service. | Medium | Idea |
+| F-007 | Maintenance log | Track engine hours, oil changes, filters, batteries, rig checks, extinguishers and liferaft service. | High | Started |
 | F-008 | Trip logbook | Capture trip, crew, weather, sail setup, incidents, lessons learned and engine hours. | Medium | Idea |
 | F-009 | Harbour notebook | Store harbour notes, berth details, fees, VHF channels, fuel, groceries, sauna and approach notes. | Medium | Idea |
 | F-010 | Risk card | Generate green/yellow/red departure assessment from weather, route, crew and boat readiness. | High | Started |
@@ -126,7 +129,7 @@ Working log:
 | ID | UX idea | Description | Priority | Status |
 |---|---|---|---|---|
 | UX-001 | Cockpit mode | High-contrast, large-button, low-distraction interface for underway use. | High | Idea |
-| UX-002 | Pre-departure dashboard | One screen for weather, route risk, boat readiness, crew readiness and open checklist items. | High | Idea |
+| UX-002 | Pre-departure dashboard | One screen for weather, route risk, boat readiness, maintenance, crew readiness and open checklist items. | High | Started |
 | UX-003 | Traffic-light decisions | Green/yellow/red decisions with short explanation and assumptions. | High | Started |
 | UX-004 | Skill-aware explanations | Beginner, competent crew, skipper and instructor explanation levels. | Medium | Idea |
 | UX-005 | Quick capture | One-tap notes for defects, harbour notes, maintenance needs and log entries. | Medium | Idea |
@@ -137,6 +140,7 @@ Working log:
 | UX-010 | Scenario debrief card | Turn a drill or watch brief into what went well, what to verify and what to repeat. | High | Started |
 | UX-011 | Radio call card | Present a single wet-hands radio script with vessel identity, position, risk and requested help. | High | Started |
 | UX-012 | Radio log handover | Show recent radio calls, decisions, position sources and follow-ups during watch change. | High | Started |
+| UX-013 | Maintenance readiness card | Show overdue, due-soon and unknown service items as skipper actions. | High | Started |
 
 ### Navigation, offline and integration ideas
 
@@ -159,6 +163,7 @@ Working log:
 | AIS-007 | Watch debrief builder | Convert AIS watch briefs into training lessons, safety prompts and repeat drills. | High | Started |
 | VHF-001 | SRC call cards | Convert emergency and traffic situations into conservative VHF read-aloud scripts. | High | Started |
 | VHF-002 | Radio log handover | Convert radio-call cards and watch events into structured log entries and follow-up prompts. | High | Started |
+| MNT-001 | Maintenance readiness | Convert maintenance tasks into conservative pre-passage blocker/caution findings. | High | Started |
 | WTH-001 | Forecast comparison | Compare wind, gusts, waves, rain and pressure across providers/models. | High | Idea |
 | WTH-003 | Go/no-go logic | Conservative rule-based departure support by boat, route, crew and exposure. | High | Started |
 | WTH-006 | Weather freshness warning | Make stale forecasts impossible to overlook. | High | Started |
@@ -197,6 +202,7 @@ Working log:
 | B-028 | Hidden safety content | Correct emergency/radio content exists in code but is not visible to a skipper preparing offline. | Surface drill summaries and read-aloud lines on the product page, then later move them into cockpit/printable mode. |
 | B-029 | Radio log without position | A radio/traffic log records that something happened but omits the position source or action taken. | Make position source, action taken, crew roles and follow-up prompts first-class fields with tests and UI exposure. |
 | B-030 | Radio handover false confidence | A tidy radio-log handover sounds like permission to transmit from memory or stop looking out. | Keep current-position copying, live-judgement limits and boat-handling priority visible in every handover brief. |
+| B-031 | Maintenance false green | Unknown or overdue safety/engine service state is treated as acceptable because the boat profile exists. | Model maintenance unknown/due/overdue states and convert critical unknowns into blocker findings with tests. |
 
 ## Roadmap
 
@@ -228,6 +234,7 @@ Scope:
 - Static knowledge base.
 - Trip preparation pack.
 - Printable/exportable passage plan.
+- Maintenance readiness card.
 
 Success criteria:
 
