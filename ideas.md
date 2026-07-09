@@ -69,7 +69,8 @@ Repository state reviewed:
 - GitHub Actions CI validates install, Svelte/TypeScript checks, unit tests and production build.
 - The starter content registry includes departure readiness, diesel inboard pre-start, night-arrival, heavy-weather departure and MOB immediate-action checklist templates.
 - The Passage Planner slice has typed passage plan domain types, pure summary logic, tests and one realistic Turku to Pärnu H-323 sample route.
-- The new passage workload slice flags over-long family legs, likely daylight workload, exposed open-water legs, bailout coverage gaps and missing crew notes.
+- The passage workload slice flags over-long family legs, likely daylight workload, exposed open-water legs, bailout coverage gaps and missing crew notes.
+- The new passage split recommendation slice turns workload blockers into concrete conservative split decisions and read-aloud briefs.
 - The Vessel Profile slice has richer equipment, engine, rig, battery, tank and readiness-finding types.
 - A first H-323 Elina vessel profile exists with identity data, Yanmar engine checks, Raymarine/Orca/em-trak equipment, safety equipment and explicit assumptions about unverified capacities.
 - The Risk Engine slice models Baltic wind limits, stale forecasts, thunderstorms, waves, open-water exposure, fatigue, equipment gaps, night/overnight legs and restricted visibility.
@@ -87,25 +88,25 @@ Repository state reviewed:
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Add Passage Workload Analysis as the next valuable slice because the route planner has distances and hazards, but not yet a clear family-crew workload judgment per leg.
-- Keep it pure TypeScript and content-backed: analyze static plan legs against a configurable workload policy without live weather, tides, current, traffic or harbour availability.
-- Use the H-323 Elina Turku to Pärnu plan as the first scenario because it contains exactly the useful tension: short archipelago start, a near-target Nauvo to Hanko day, an over-long Hanko to Haapsalu open-water crossing, and a long final coastal leg.
-- Treat workload output as a planning gate, not as permission to sail; live weather and crew state still override static policy.
+- Add Passage Split Recommendations as the next valuable slice because workload analysis can identify a leg that is too long, but the skipper still needs a concrete conservative alternative to brief before departure.
+- Keep it pure TypeScript and content-backed: a split recommendation is static planning content, not live harbour, weather or traffic advice.
+- Use the H-323 Elina Turku to Pärnu plan as the first scenario because the route contains a direct Hanko to Haapsalu open-water blocker, a long Haapsalu to Pärnu coastal day and a Nauvo to Hanko fatigue fallback.
+- Treat named stops as decision prompts that must be verified with current charts, harbour facts, weather and crew state.
 
 Rationale:
 
-- The user-facing product already shows a passage plan, risk cards, dashboard and printable brief. The next gap is making the leg table itself less optimistic.
-- A skipper planning with a 50 nm family day target needs automatic highlighting when a leg is above target, above a hard limit, likely to consume the full day, or weakly supported by bailout harbours.
-- This strengthens the Passage Planner and Risk Engine without adding UI complexity or external dependencies.
-- The implementation remains testable and content-rich: domain logic, H-323 workload policy content, realistic tests, domain export and changelog/decision-log updates.
+- The user-facing product already flags that the Hanko to Haapsalu leg is too optimistic for a normal family day. The next product value is converting "split the leg" into named, briefable options.
+- Route splitting strengthens both the Passage Planner and Risk Engine without adding external data dependencies.
+- Read-aloud split briefs support wet-hands cockpit use and printable preparation.
+- Explicit limitations reduce the risk that demo content is mistaken for live harbour or navigation advice.
 
 Working log:
 
-- Added `PassageWorkloadPolicy`, `PassageLegWorkloadFinding`, `PassageLegWorkload` and `analyzePassageWorkload`.
-- Added H-323 Elina Baltic family workload policy content with 50 nm target, 65 nm hard limit, exposed-leg watch-plan requirement and static-plan limitations.
-- Added Vitest coverage for green short-hop workload, hard-limit blockers, bailout cautions and H-323 Turku to Pärnu workload publication.
-- Exported the passage workload domain from the domain barrel.
-- Updated `CHANGELOG.md` with workload logic, H-323 content, tests and decision-record linkage.
+- Added `PassageSplitScenario`, `PassageSplitStop`, `PassageSplitRecommendation` and `recommendPassageSplits`.
+- Added H-323 Elina Turku to Pärnu split content for Dirhami, Kärdla, Virtsu/Muhu decision area and Kasnäs.
+- Added Vitest coverage for route split blockers, safety limitations, H-323 content publication and unknown leg errors.
+- Exported the route split recommendation domain from the domain barrel.
+- Updated `CHANGELOG.md` with split recommendation logic, H-323 content and test coverage.
 
 ## Feature backlog
 
@@ -129,6 +130,7 @@ Working log:
 | F-014 | Pre-departure dashboard | Aggregate checklist, risk, maintenance, spares, NMEA/AIS and logbook state into one conservative departure posture. | High | Started |
 | F-015 | Departure skipper brief | Convert dashboard state into a printable/read-aloud route, weather, crew, boat, electronics and limitation brief. | High | Started |
 | F-016 | Passage workload analysis | Convert passage legs into family-crew workload findings for distance, duration, daylight, exposure and bailout coverage. | High | Started |
+| F-017 | Passage split recommendations | Turn workload blockers into named split-harbour decisions, read-aloud route alternatives and safety limitations. | High | Started |
 
 ### UX ideas
 
@@ -152,6 +154,7 @@ Working log:
 | UX-016 | Aggregated departure card | Show one conservative status, score, blockers and first action across all preparation slices. | High | Started |
 | UX-017 | Printable departure brief | Show a paper-friendly skipper brief with decision, route, weather, crew, boat, electronics and limitation sections. | High | Started |
 | UX-018 | Leg workload warnings | Show which passage legs exceed family crew distance, duration, daylight, exposure or bailout limits. | High | Started |
+| UX-019 | Route split card | Show named conservative split options, decision points and limitation copy for difficult passage legs. | High | Started |
 
 ### Navigation, offline and integration ideas
 
@@ -161,6 +164,7 @@ Working log:
 | NAV-002 | Leg table | Course, distance, ETA, hazards, bailout options and notes by leg. | High | Started |
 | NAV-007 | Night passage prep | Navigation lights, watch rhythm, rest, headlamp discipline and traffic plan. | High | Started |
 | NAV-008 | Passage workload policy | Apply skipper/vessel/crew policy limits to leg distance, duration, daylight and exposure. | High | Started |
+| NAV-009 | Route split recommendations | Convert over-long or exposed legs into named fallback/split decisions with read-aloud briefs. | High | Started |
 | OFF-001 | Offline knowledge base | Core lessons and emergency procedures available without internet. | High | Idea |
 | OFF-002 | Offline checklists | Vessel and passage checklists cached locally. | High | Idea |
 | OFF-003 | Offline route pack | Save route, harbour notes, documents and weather snapshot for a trip. | High | Idea |
@@ -187,7 +191,7 @@ Working log:
 ## Expected bug classes and prevention
 
 | ID | Area | Risk | Prevention |
-|---|---|---|---|
+|---|---|---|
 | B-001 | Unit conversion | Confusion between m, nm, kn, km/h and hours. | Central unit library and tests. |
 | B-002 | Time zones | ETA and weather timestamps mismatch. | Store timezone metadata; test Baltic crossings. |
 | B-003 | Offline data | Missing route/checklist content once network is gone. | Offline manifest and offline integration tests. |
@@ -224,6 +228,7 @@ Working log:
 | B-034 | Dashboard false green | One clean slice hides blockers in another preparation area. | Aggregate blockers conservatively and test that any critical slice keeps the dashboard no-go. |
 | B-035 | Printout false confidence | A tidy printed brief is mistaken for current live readiness after weather, crew, equipment or harbour facts change. | Include generated/static labels, live-condition caveats and re-marking prompts in the brief output and tests. |
 | B-036 | Family workload false green | A plan with realistic total distance hides one leg that is too long, too exposed or too weakly supported by bailout options. | Analyze workload per leg with target and hard limits; test H-323 route blockers and bailout cautions. |
+| B-037 | Split-route false safety | A named split harbour sounds like live permission to continue or divert without checking current facts. | Keep split recommendations static, require skipper verification and test that harbour/weather limitations remain visible. |
 
 ## Roadmap
 
@@ -256,6 +261,7 @@ Scope:
 - Trip preparation pack.
 - Printable/exportable passage plan.
 - Passage workload warnings.
+- Passage split recommendations.
 - Maintenance readiness card.
 - Spares readiness card.
 - Trip logbook and debrief card.
