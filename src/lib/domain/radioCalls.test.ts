@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { coreRadioCallCards, h323ElinaMobRadioSituation, srcTrainingNotes } from '$lib/content/radioCallCards';
-import { buildRadioCallCard, getRadioCallPrefix, sortRadioCallCardsByUrgency } from './radioCalls';
+import {
+  buildRadioCallCard,
+  getRadioCallPrefix,
+  sortRadioCallCardsByUrgency,
+  summarizeRadioCallDrills
+} from './radioCalls';
 
 describe('radio call cards', () => {
   it('uses recognised SRC urgency prefixes', () => {
@@ -34,5 +39,17 @@ describe('radio call cards', () => {
     expect(allLimitations).toContain('not legal advice');
     expect(allLimitations).toContain('do not practise live emergency phrases on air');
     expect(srcTrainingNotes.join(' ')).toContain('not as a live transmission');
+  });
+
+  it('summarizes the H-323 Elina SRC drill pack for cockpit display', () => {
+    const summary = summarizeRadioCallDrills(coreRadioCallCards, srcTrainingNotes);
+
+    expect(summary.cardCount).toBe(3);
+    expect(summary.distressCards).toBe(1);
+    expect(summary.urgencyCards).toBe(1);
+    expect(summary.safetyCards).toBe(1);
+    expect(summary.highestUrgency).toBe('distress');
+    expect(summary.firstReadAloudLine).toBe('MAYDAY MAYDAY MAYDAY');
+    expect(summary.mustNotTransmitLiveEmergencyPractice).toBe(true);
   });
 });
