@@ -81,32 +81,31 @@ Repository state reviewed:
 - A third fog-bank AIS drill now demonstrates restricted-visibility cockpit handover with immediate, soon and stale-target priorities.
 - The NMEA/AIS slice now adds AIS watch debrief logic that converts watch briefs into teachable lessons, positive signals, follow-up drills and safety notes.
 - The SRC/VHF slice now adds typed radio call cards for distress, urgency and safety situations linked to H-323 Elina training scenarios.
-- The landing page surfaces checklist, passage, vessel, risk, NMEA/AIS readiness, AIS traffic watch briefs and AIS debrief content slices.
+- The landing page now surfaces checklist, passage, vessel, risk, NMEA/AIS readiness, AIS traffic watch briefs, AIS debriefs and SRC/VHF radio call cards.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Add an SRC/VHF radio-call-card layer because the AIS and risk slices can identify urgent situations, but a tired skipper still needs short, structured words for the radio.
-- Keep the implementation pure and deterministic: radio situation in, read-aloud call card and skipper prompts out.
-- Add H-323 Elina Baltic scenarios for MOB distress, Tallinn ferry-lane urgency and Hanko fog-bank safety broadcast rehearsal.
-- Keep safety language conservative: training cards must warn against live practice of emergency phrases and must not replace COLREG action, lookout or boat handling.
+- Extend the SRC/VHF slice from hidden content registry to visible product UI because radio scripts only create user value if they are easy to find, read and rehearse.
+- Add a pure radio drill summary function so cockpit/home UI can display card counts, highest urgency and safety constraints without hard-coding those values in Svelte.
+- Keep the implementation focused: no live radio workflow, no regulatory wizard and no new external dependency.
+- Preserve conservative safety wording by making the live-transmission warning visible both in domain summary tests and on the landing page.
 
 Rationale:
 
-- The previous AIS debrief work improved learning after a watch; the next cockpit value is helping the skipper communicate during a real or rehearsed escalation.
-- SRC preparation is one of the stated product-focus areas and fits the local-first knowledge-base wedge.
-- Radio cards connect Vessel Profile identity data, Risk Engine scenarios, Checklist emergency content and AIS watch situations without requiring live NMEA ingestion.
-- The new content is user-facing, Baltic-specific and immediately useful for offline training.
+- The previous SRC/VHF work created useful call cards, but they were not surfaced on the main product page.
+- The next valuable improvement is therefore implementation-heavy integration: domain summary logic, tests and user-facing UI exposure.
+- This links Product Manager and User views: the feature becomes demonstrable, reviewable and useful for offline SRC practice.
+- It also creates a clearer next path toward printable emergency/radio cards without prematurely building export infrastructure.
 
 Working log:
 
-- Added `RadioCallSituation` and `RadioCallCard` domain types with urgency levels, channel guidance, read-aloud lines, skipper prompts and limitations.
-- Added `getRadioCallPrefix`, `buildRadioCallCard` and urgency sorting for deterministic SRC call-card generation.
-- Added typed H-323 Elina training cards for MOB distress, Tallinn ferry-lane urgency and Hanko fog-bank safety broadcasts.
-- Added SRC training notes that explicitly prohibit practising emergency phrases as live transmissions.
-- Added Vitest coverage for urgency prefixes, MOB read-aloud content, card sorting and conservative safety wording.
-- Exported the radio-call domain module and updated `CHANGELOG.md`.
+- Added `RadioCallDrillSummary` and `summarizeRadioCallDrills` for deterministic cockpit display metrics.
+- Added Vitest coverage for H-323 Elina SRC drill counts, urgency ordering and the live-emergency-practice warning.
+- Updated the landing page to surface SRC/VHF radio call cards with urgency, area, channel guidance and first read-aloud lines.
+- Kept the training-card copy explicitly conservative: call cards support preparation but must not delay lookout, COLREG action or boat handling.
+- Updated `CHANGELOG.md` with the radio summary logic, tests and landing-page change.
 
 ## Feature backlog
 
@@ -197,6 +196,7 @@ Working log:
 | B-025 | Watch handover overload | A useful action list is still too verbose to read aloud in rain, fog or fatigue. | Build compact watch briefs with grouped actions, short handover lines and explicit limitations. |
 | B-026 | Debrief false certainty | A training debrief sounds like proof that an AIS-based manoeuvre was correct. | Keep debrief safety notes explicit and test that COLREG/lookout limitations remain visible. |
 | B-027 | Radio call false authority | A scripted training card is mistaken for permission to make a live emergency transmission or to delay boat handling. | Keep live-transmission limits, urgency wording and boat-handling caveats in every card and test for them. |
+| B-028 | Hidden safety content | Correct emergency/radio content exists in code but is not visible to a skipper preparing offline. | Surface drill summaries and read-aloud lines on the product page, then later move them into cockpit/printable mode. |
 
 ## Roadmap
 
