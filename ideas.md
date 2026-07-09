@@ -56,7 +56,7 @@ Nautikool should help answer four cockpit-relevant questions:
 
 ## Current repository assessment
 
-Date: 2026-07-09
+Date: 2026-07-10
 
 Repository state reviewed:
 
@@ -83,36 +83,34 @@ Repository state reviewed:
 - The maintenance readiness slice has pure task/finding/summary logic plus an H-323 Elina pre-passage service pack.
 - The spare readiness slice has pure requirement/finding/summary logic plus an H-323 Elina passage spare kit linked to maintenance tasks.
 - The trip logbook slice has pure entry/summary/debrief logic plus an H-323 Elina Turku to Pärnu family-passage example.
-- The pre-departure dashboard slice aggregates checklist, risk, maintenance, spares, NMEA/AIS and trip-log summaries into one conservative H-323 Elina preparation card.
-- The dashboard now also accepts harbour departure gates, so harbour readiness can affect the same conservative go/caution/no-go status as boat, crew, risk and network readiness.
+- The pre-departure dashboard slice aggregates checklist, risk, maintenance, spares, harbour gate, NMEA/AIS and trip-log summaries into one conservative H-323 Elina preparation card.
 - The departure skipper brief slice converts the dashboard into a printable/wet-hands route, weather, crew, boat, electronics and limitations brief.
+- The launch packet slice now converts the printable departure brief into the final cockpit handover layer: crew roles, required berth actions, open-water reassessment, paper-pack checks and emergency reference lines.
 - The landing page surfaces checklist, passage, vessel, maintenance, spares, trip logbook, pre-departure dashboard, risk, NMEA/AIS readiness, AIS traffic watch briefs, AIS debriefs and SRC/VHF radio call cards.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Add harbour-gate aggregation to the Pre-departure Dashboard as the next valuable improvement because Harbour Departure Gate now produces a skipper-facing status, but the dashboard previously ignored harbour readiness.
-- Keep the change pure and product-relevant: the dashboard should not fetch live harbour data or imply berth certainty; it should only make static harbour blockers visible in the same go/caution/no-go decision model.
-- Use the H-323 Elina Turku to Pärnu scenario because committed-stop contacts, depth/draft margin, daylight posture and named bailout verification are material to a family passage.
-- Treat a blocked harbour gate as a dashboard no-go and a caution harbour gate as a skipper-review caution.
+- Add a Launch Packet slice as the next valuable improvement because the repository already has dashboard and printable skipper brief logic, but not yet a final "lines-off" cockpit handover artifact.
+- Keep the change pure and static: the packet must not claim live clearance, current weather, harbour availability or traffic awareness.
+- Use the H-323 Elina Turku to Pärnu family passage because crew roles, emergency references, paper backups and open-water reassessment are concrete value for the skipper, father and 15-year-old son scenario.
+- Treat a no-go departure brief as a blocked launch packet; the launch packet is the last human handover before action, not a way to override blockers.
 
 Rationale:
 
-- A pre-departure dashboard is only credible if it includes the route’s harbour assumptions, not just boat systems and general risk cards.
-- Harbour readiness is one of the most practical user-facing decisions before a Baltic family passage: where can we stop, reject, call, arrive in daylight and fit with 1.45 m draft?
-- Keeping harbour-gate data optional avoids over-coupling the dashboard to the harbour notebook while still allowing route packs to participate when available.
-- Explicit aggregation makes the first action more useful: a skipper can see that the blocker is not abstract risk but a concrete harbour verification task.
+- The product has many strong preparation slices now; a launch packet makes them operational by turning them into a small cockpit ritual.
+- A skipper with wet hands needs first action, crew read-back, emergency references and paper-pack checks more than another long planning artifact.
+- The feature connects Content System, Checklist Engine, Passage Planner, Vessel Profile, Risk Engine and NMEA/AIS outcomes without creating a live-data dependency.
+- This also creates a natural future UI target: a cockpit-mode card that can be printed or read aloud before casting off.
 
 Working log:
 
-- Added optional `harbourGate` input to the departure dashboard domain model.
-- Added `harbour` as a dashboard finding source.
-- Added dashboard aggregation for blocked and caution harbour gates, including first harbour action propagation into dashboard next actions.
-- Wired the H-323 Elina Turku to Pärnu harbour departure gate into the H-323 pre-departure dashboard content.
-- Added Vitest coverage for clean, blocked and caution harbour-gate dashboard behaviour plus H-323 publication coverage.
-- Exported the harbour departure-gate domain slice from `src/lib/domain/index.ts`.
-- Updated `CHANGELOG.md` with harbour-dashboard domain logic, H-323 content and test coverage.
+- Added `src/lib/domain/launchPackets.ts` with typed launch packet inputs, actions, crew roles, status, cockpit checklist and briefing-line generation.
+- Added `src/lib/content/launchPackets.ts` with H-323 Elina Turku to Pärnu launch packet content for 26 July 2026 planning.
+- Added Vitest coverage for blocked packet behaviour, cockpit handover material, H-323 content publication and live/static limitation wording.
+- Exported the launch packet domain slice from `src/lib/domain/index.ts`.
+- Updated `CHANGELOG.md` with launch packet domain logic, H-323 content and test coverage.
 
 ## Feature backlog
 
@@ -140,6 +138,7 @@ Working log:
 | F-018 | Harbour route pack | Turn harbour notebook entries into committed stops, alternates, verification queues and read-aloud route-pack status. | High | Started |
 | F-019 | Harbour departure gate | Convert harbour route packs into day-of-departure verification requirements, usable-alternate checks and read-aloud harbour gate status. | High | Started |
 | F-020 | Harbour-aware departure dashboard | Promote harbour-gate blockers and cautions into the aggregated pre-departure dashboard status, score and first action. | High | Started |
+| F-021 | Launch packet | Convert the departure brief into a final cockpit handover with crew roles, before-lines-off actions, open-water reassessment, emergency references and paper-pack checks. | High | Started |
 
 ### UX ideas
 
@@ -167,3 +166,4 @@ Working log:
 | UX-020 | Harbour route-pack card | Show harbour freshness, draft margin, contact gaps and night-arrival status for planned/bailout stops. | High | Started |
 | UX-021 | Harbour departure gate card | Show final harbour readiness, usable alternates, missing verification topics and first harbour action before casting off. | High | Started |
 | UX-022 | Harbour-aware dashboard card | Show harbour-gate blockers inside the main departure dashboard instead of requiring the skipper to inspect a separate harbour slice. | High | Started |
+| UX-023 | Launch packet card | Show the final before-lines-off crew read-back, required actions, paper pack and emergency references as a cockpit-ready launch card. | High | Started |
