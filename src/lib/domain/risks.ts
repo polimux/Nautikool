@@ -26,10 +26,15 @@ function finding(
   return { id, severity, level, text, recommendation };
 }
 
+function hasLikelyNightOrOvernightLeg(input: RiskAssessmentInput): boolean {
+  return input.passage.legs.some((leg) => !leg.daylightPreferred);
+}
+
 export function assessPassageRisk(input: RiskAssessmentInput): RiskAssessment {
   const passageSummary = summarizePassagePlan(input.passage);
   const missingCritical = missingCriticalEquipment(input.vessel);
   const findings: RiskRuleFinding[] = [];
+  const likelyNightOrOvernightLeg = hasLikelyNightOrOvernightLeg(input);
 
   if (input.weather.forecastAgeHours === undefined) {
     findings.push(
@@ -87,6 +92,40 @@ export function assessPassageRisk(input: RiskAssessmentInput): RiskAssessment {
     }
   }
 
+  if (input.weather.visibilityNm !== undefined) {
+    if (input.weather.visibilityNm < 2) {
+      findings.push(
+        finding(
+          'risk:restricted-visibility-no-go',
+          'no-go',
+          'red',
+          `Visibility is restricted to ${input.weather.visibilityNm} nautical miles.`,
+          'Do not depart a family coastal or open-water leg in restricted visibility; wait for a clearer window.'
+        )
+      );
+    } else if (input.weather.visibilityNm < 5) {
+      findings.push(
+        finding(
+          'risk:restricted-visibility-caution',
+          'caution',
+          'yellow',
+          `Visibility is limited to ${input.weather.visibilityNm} nautical miles.`,
+          'Brief radar/AIS limitations, sound signals, lookout duties and harbour-entry alternatives before departure.'
+        )
+      );
+    }
+  } else if (likelyNightOrOvernightLeg || passageSummary.openWaterLegs > 0) {
+    findings.push(
+      finding(
+        'risk:visibility-data-missing',
+        'caution',
+        'yellow',
+        'Visibility data is missing for an exposed or likely overnight passage.',
+        'Check visibility, fog risk and local warnings before committing to the leg.'
+      )
+    );
+  }
+
   if (input.weather.thunderstormRisk === 'moderate' || input.weather.thunderstormRisk === 'high') {
     findings.push(
       finding(
@@ -141,6 +180,28 @@ export function assessPassageRisk(input: RiskAssessmentInput): RiskAssessment {
         'yellow',
         `Passage contains ${passageSummary.highSeverityHazards} high-severity hazard(s).`,
         'Review hazards leg by leg and avoid compressing decisions into a single all-day go decision.'
+      )
+    );
+  }
+
+  if (likelyNightOrOvernightLeg && input.crew.hasNightExperience === false) {
+    findings.push(
+      finding(
+        'risk:night-leg-without-night-experience',
+        'caution',
+        'yellow',
+        'The passage includes a likely night or overnight leg, but night experience is not recorded for the skipper/crew setup.',
+        'Use a daylight alternative, add experienced crew or run a dedicated night-approach briefing and watch plan.'
+      )
+    );
+  } else if (likelyNightOrOvernightLeg && input.crew.hasNightExperience === undefined) {
+    findings.push(
+      finding(
+        'risk:night-experience-unknown',
+        'caution',
+        'yellow',
+        'The passage includes a likely night or overnight leg, but night experience is unknown.',
+        'Record crew night experience and define watch, lighting, lookout and harbour-entry discipline before departure.'
       )
     );
   }
