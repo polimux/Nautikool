@@ -3,10 +3,12 @@ import {
   getHarbourNoteById,
   h323ElinaHarbourFindings,
   h323ElinaHarbourSummary,
-  h323ElinaTurkuParnuHarbourNotes
+  h323ElinaTurkuParnuHarbourNotes,
+  h323ElinaTurkuParnuHarbourRoutePack
 } from '$lib/content/harbourNotes';
 import {
   assessHarbourNote,
+  createHarbourRoutePack,
   getHarbourNoteStatus,
   summarizeHarbourNotebook,
   type HarbourNote
@@ -98,5 +100,23 @@ describe('harbour notebook', () => {
     expect(summary.offlineBrief[0]).toContain('Turku');
     expect(summary.offlineBrief.join(' ')).toContain('contact not recorded');
     expect(h323ElinaHarbourFindings.some((finding) => finding.skipperAction.includes('daylight'))).toBe(true);
+  });
+
+  it('builds a harbour route pack with committed stops and alternates', () => {
+    const pack = createHarbourRoutePack('Test route pack', [baseHarbour, { ...baseHarbour, id: 'harbour:bailout', name: 'Bailout Cove', role: 'bailout' }], 1.45);
+
+    expect(pack.status).toBe('ready');
+    expect(pack.committedStops).toHaveLength(1);
+    expect(pack.alternateStops).toHaveLength(1);
+    expect(pack.readAloudBrief[0]).toContain('1 committed stops and 1 alternates');
+    expect(pack.safetyLimitations.join(' ')).toContain('not live berth availability');
+  });
+
+  it('publishes the H-323 Elina Turku to Pärnu harbour route pack as blocked until verified', () => {
+    expect(h323ElinaTurkuParnuHarbourRoutePack.status).toBe('blocked');
+    expect(h323ElinaTurkuParnuHarbourRoutePack.committedStops.map((stop) => stop.name)).toContain('Pärnu');
+    expect(h323ElinaTurkuParnuHarbourRoutePack.alternateStops.map((stop) => stop.name)).toContain('Dirhami');
+    expect(h323ElinaTurkuParnuHarbourRoutePack.verificationQueue[0]).toContain('Verify');
+    expect(h323ElinaTurkuParnuHarbourRoutePack.readAloudBrief.join(' ')).toContain('First committed-stop blocker');
   });
 });
