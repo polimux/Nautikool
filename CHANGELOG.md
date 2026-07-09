@@ -8,6 +8,9 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Added
 
+- Departure skipper brief domain logic that converts the pre-departure dashboard into printable/wet-hands sections for decision, route, weather, crew, boat, electronics, checklist and safety limitations.
+- Typed H-323 Elina Turku to Pärnu printable skipper brief content with family-crew route focus, weather checkpoints, crew role assignments, boat checks, electronics checks and conservative go/no-go question.
+- Vitest coverage for departure brief section generation, first-action visibility, static-copy safety limitations and H-323 Elina family-passage brief publication.
 - Pre-departure dashboard domain logic that aggregates checklist, risk, maintenance, spares, NMEA/AIS and trip-log summaries into one conservative go/caution/no-go preparation card.
 - Typed H-323 Elina Turku to Pärnu pre-departure dashboard content with explicit static-scenario assumptions and read-aloud cockpit brief lines.
 - Vitest coverage for dashboard green-only-when-clean behaviour, required-checklist blockers, cross-slice blocker aggregation and H-323 dashboard publication.
@@ -84,6 +87,8 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Changed
 
+- Domain barrel exports now include the departure skipper brief module.
+- `ideas.md` now records the departure skipper brief decision, rationale, working log and printout false-confidence risk.
 - Landing page now surfaces the H-323 pre-departure dashboard with aggregated blockers, cautions, readiness score, source-level findings and read-aloud preparation brief.
 - Domain barrel exports now include the departure dashboard module.
 - Landing page now surfaces the H-323 trip logbook with engine-hour delta, caution/blocker counts, follow-ups and debrief lines.
