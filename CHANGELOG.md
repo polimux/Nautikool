@@ -61,6 +61,8 @@ This project uses a simple human-readable changelog while the product and archit
 - SRC/VHF radio call card domain logic for distress, urgency, safety and routine call prefixes, read-aloud lines and skipper prompts.
 - Typed H-323 Elina radio-call training cards for MOB distress, Tallinn ferry-lane urgency and Hanko fog-bank safety broadcasts.
 - Vitest coverage for radio-call urgency prefixes, read-aloud MOB content, urgency sorting and conservative live-transmission limitations.
+- SRC/VHF radio-call drill summary logic for card counts, highest urgency, first read-aloud line and live-emergency-practice warning visibility.
+- Vitest coverage for the H-323 Elina SRC drill pack summary and training safety constraints.
 
 ### Changed
 
@@ -86,6 +88,8 @@ This project uses a simple human-readable changelog while the product and archit
 - Landing page now surfaces AIS watch briefs with compact handover lines instead of only watch-action lists.
 - Landing page now surfaces AIS scenario debrief cards with lessons, positive signals and follow-up drills.
 - Domain barrel exports now include the SRC/VHF radio call card module.
+- Landing page now surfaces SRC/VHF radio call cards with urgency, channel guidance and read-aloud training lines.
+- `ideas.md` now records the radio-card UI integration decision, rationale, working log and hidden-safety-content risk.
 
 ### Removed
 
