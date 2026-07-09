@@ -1,6 +1,7 @@
 export * from './checklists';
 export * from './passages';
 export * from './passageWorkload';
+export * from './passageSplitRecommendations';
 export * from './risks';
 export * from './vessels';
 export * from './nmea';
