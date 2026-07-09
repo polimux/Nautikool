@@ -15,4 +15,5 @@ export * from './tripLogs';
 export * from './departureDashboard';
 export * from './departureBrief';
 export * from './launchPackets';
+export * from './watchKickoffs';
 export * from './types';
