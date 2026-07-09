@@ -55,7 +55,7 @@ export const h323ElinaTurkuParnuLaunchPacketInput: LaunchPacketInput = {
       required: true
     },
     {
-      id: 'launch-action:vfh-ais-crosscheck',
+      id: 'launch-action:vhf-ais-crosscheck',
       label: 'Confirm Ray90 DSC position, AIS target path and paper fallback before using electronics as traffic support',
       owner: 'Skipper',
       due: 'before-open-water',
