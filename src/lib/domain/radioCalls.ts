@@ -28,6 +28,18 @@ export interface RadioCallCard {
   limitations: string[];
 }
 
+export interface RadioCallDrillSummary {
+  cardCount: number;
+  distressCards: number;
+  urgencyCards: number;
+  safetyCards: number;
+  routineCards: number;
+  highestUrgency: RadioCallUrgency;
+  firstReadAloudLine: string;
+  trainingNotes: string[];
+  mustNotTransmitLiveEmergencyPractice: boolean;
+}
+
 const urgencyRank: Record<RadioCallUrgency, number> = {
   routine: 0,
   safety: 1,
@@ -83,4 +95,23 @@ export function buildRadioCallCard(situation: RadioCallSituation): RadioCallCard
 
 export function sortRadioCallCardsByUrgency(cards: RadioCallCard[]): RadioCallCard[] {
   return [...cards].sort((left, right) => urgencyRank[right.urgency] - urgencyRank[left.urgency]);
+}
+
+export function summarizeRadioCallDrills(cards: RadioCallCard[], trainingNotes: string[] = []): RadioCallDrillSummary {
+  const sortedCards = sortRadioCallCardsByUrgency(cards);
+  const highestUrgency = sortedCards[0]?.urgency ?? 'routine';
+  const allSafetyText = [...trainingNotes, ...cards.flatMap((card) => card.limitations)].join(' ').toLowerCase();
+
+  return {
+    cardCount: cards.length,
+    distressCards: cards.filter((card) => card.urgency === 'distress').length,
+    urgencyCards: cards.filter((card) => card.urgency === 'urgency').length,
+    safetyCards: cards.filter((card) => card.urgency === 'safety').length,
+    routineCards: cards.filter((card) => card.urgency === 'routine').length,
+    highestUrgency,
+    firstReadAloudLine: sortedCards[0]?.readAloud[0] ?? 'No radio card available',
+    trainingNotes,
+    mustNotTransmitLiveEmergencyPractice:
+      allSafetyText.includes('do not practise live emergency phrases') || allSafetyText.includes('not as a live transmission')
+  };
 }
