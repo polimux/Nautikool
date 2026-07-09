@@ -117,3 +117,32 @@ For changes that affect checklist completion, risk cards, weather freshness, eme
 - model unknown data separately instead of treating it as safe,
 - keep user responsibility visible,
 - prefer yellow/red escalation when critical data is missing or stale.
+
+---
+
+## Automated agent for external pushes
+
+To assist repository stewardship, a lightweight automation "agent" runs when a push is made by someone other than the repository automation account (the project uses `copilot` for automated edits). The agent performs a small set of stewardship tasks (create a run issue with the push summary so maintainers can triage, optionally run extra checks in a later workflow).
+
+Location: `.github/workflows/agent-on-external-push.yml` (committed alongside this file).
+
+Behaviour:
+
+- The workflow is triggered on every `push` event.
+- It does not run for pushes made by the `copilot` automation account (the workflow uses `if: github.actor != 'copilot'`).
+- When triggered it creates a lightweight issue labelled `agent-run` with the pusher, ref, commit and a short list of changed files to aid quick triage.
+
+Opt-out / maintenance:
+
+- If the automation should not create issues for a particular push, include `[skip agent]` in the commit message.
+- To disable the workflow entirely, remove or rename the workflow file under `.github/workflows`.
+- If you prefer the agent to perform other tasks (run a specific script, trigger a deployment, or open a different kind of tracker), edit the workflow or open an issue describing the desired behaviour.
+
+Security notes:
+
+- The workflow uses the repository `GITHUB_TOKEN` to create issues; it does not use or require additional secrets.
+- Keep the agent's actions minimal and review changes to `.github/workflows/` in code review.
+
+---
+
+Thanks for contributing — when you push changes the agent will post a short run issue to help keep stewardship visible and consistent.
