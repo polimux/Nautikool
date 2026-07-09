@@ -66,6 +66,9 @@ This project uses a simple human-readable changelog while the product and archit
 - Radio log domain logic for structured sent, received, decision and training entries with position, crew-role, follow-up and read-back prompts.
 - Typed H-323 Elina radio log examples for MOB rehearsal, Tallinn ferry-lane decision logging and Hanko fog-bank Securite practice.
 - Vitest coverage for radio log creation, summary counts, critical-entry selection, missing-position prompts and follow-up filtering.
+- Radio log handover brief domain logic for prioritised critical lines, position-source prompts, follow-up lines, crew-role aggregation and conservative handover limitations.
+- Typed H-323 Elina family-crew radio watch handover content for MOB rehearsal, Tallinn traffic decision and Hanko restricted-visibility Securite practice.
+- Vitest coverage for radio handover critical ordering, position prompts, follow-up prompts, crew roles and safety limitation wording.
 
 ### Changed
 
@@ -96,6 +99,7 @@ This project uses a simple human-readable changelog while the product and archit
 - Landing page now surfaces radio log and handover examples with action taken, follow-ups and position read-back prompts.
 - `ideas.md` now records the radio-card UI integration decision, rationale, working log and hidden-safety-content risk.
 - `ideas.md` now records the radio-log handover decision, rationale, working log and log-without-position risk.
+- `ideas.md` now records the radio handover brief decision, rationale, working log and false-confidence risk.
 
 ### Removed
 
