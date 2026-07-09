@@ -77,34 +77,33 @@ Repository state reviewed:
 - Risk Engine v1 also models likely night/overnight legs and restricted visibility as explicit decision inputs.
 - A second static risk scenario demonstrates the Hanko to Haapsalu night-crossing decision problem with limited visibility and no recorded night experience.
 - The NMEA/AIS slice now has a typed network readiness model, skipper-facing PGN explanations, an H-323 Elina network profile and tests.
-- The landing page surfaces checklist, passage, vessel, risk and NMEA/AIS content slices.
+- The NMEA/AIS slice now also has static AIS traffic snapshot logic and a Hanko approach training scenario.
+- The landing page surfaces checklist, passage, vessel, risk, NMEA/AIS readiness and AIS traffic-drill content slices.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Move from repeated Risk Engine refinements into the NMEA/AIS Adapter foundation, because the product thesis explicitly depends on onboard context but the repository had no network model yet.
-- Keep the first adapter slice offline and static: document network readiness, devices, protocols and PGN meanings before ingesting live NMEA data.
-- Pair domain logic with H-323 Elina content so the feature is immediately useful for the target Baltic cruiser and not merely an abstract integration layer.
-- Keep safety language conservative: AIS/NMEA data are advisory inputs and must not replace lookout, VHF watch or skipper judgement.
+- Extend the NMEA/AIS Adapter from static network inventory into a first offline traffic-snapshot evaluator before attempting live parsing.
+- Keep the implementation pure and deterministic: typed AIS target snapshots in, skipper-facing summary findings out.
+- Pair the logic with a Hanko approach scenario so the feature teaches realistic watchkeeping: stale targets, close CPA, fast commercial traffic and missing CPA/TCPA.
+- Keep safety language conservative: AIS is a decision aid, not a lookout replacement or a negotiation mechanism.
 
 Rationale:
 
-- The first useful NMEA/AIS step is not parsing live data; it is knowing whether the boat has a trustworthy position source, AIS target path, DSC position feed, backbone power and termination.
-- This slice supports the existing Vessel Profile, Risk Engine and future AIS learning mode without requiring hardware access during development.
-- Skipper-facing PGN explanations make technical network data understandable enough for a cockpit preparation workflow.
-- Missing network power documentation is a realistic failure mode on small yachts and should be visible before departure.
+- The prior network readiness model tells whether the onboard data path is plausible, but not how the product would reason about AIS targets once data exists.
+- A static traffic-snapshot evaluator is a useful intermediate layer between content, future NMEA ingestion and future collision/CPA scenario training.
+- Stale AIS symbols and missing CPA/TCPA are common false-confidence traps for small-yacht skippers and deserve first-class tests.
+- A Hanko/Gulf of Finland approach drill aligns with the existing Baltic H-323 product focus and provides user-facing training content in the same commit slice.
 
 Working log:
 
-- Added a pure NMEA/AIS network readiness domain model for devices, protocols, PGN capabilities, backbone state, findings and summaries.
-- Added conservative readiness findings for invalid backbone termination, unknown network power injection, missing GNSS position source, missing AIS data path and missing critical network devices.
-- Added skipper-facing PGN reference content for GNSS position, AIS Class A/B reports and COG/SOG updates.
-- Added a typed H-323 Elina SeaTalkNG/NMEA2000 profile covering em-trak B953, Ray90, Axiom+ 9 and Orca Core 2 integration assumptions.
-- Added Vitest coverage for network summaries, power-injection warnings, terminator blockers, missing GNSS blockers and skipper-facing AIS explanations.
-- Exported the NMEA/AIS module from the domain barrel.
-- Updated the landing page with a NMEA/AIS readiness card and device-level PGN explanations.
-- Updated `CHANGELOG.md` with the new NMEA/AIS domain logic, content, tests and UI change.
+- Added AIS traffic snapshot domain types for target class, MMSI, range, COG/SOG, CPA/TCPA, data age and notes.
+- Added pure AIS traffic summary logic for stale targets, close CPA, fast-closing blockers, close targets without CPA/TCPA and nearby Class A traffic information.
+- Added a typed H-323 Elina Hanko approach AIS drill with a ferry example, small-craft target and stale fishing target.
+- Added Vitest coverage for target summary counts, stale-target warnings, fast-closing close-CPA blockers and missing CPA/TCPA warnings.
+- Updated the landing page with an AIS traffic drill card and target-level training notes.
+- Updated `CHANGELOG.md` with the new AIS traffic logic, content, tests and UI change.
 
 ## Feature backlog
 
@@ -148,10 +147,10 @@ Working log:
 | OFF-003 | Offline route pack | Save route, harbour notes, documents and weather snapshot for a trip. | High | Idea |
 | OFF-004 | Freshness labels | Show when downloaded forecasts or harbour info were last updated. | High | Idea |
 | N2K-001 | Network inventory | Document devices, PGNs, power injection, terminators and adapter cables. | High | Started |
-| N2K-005 | Simulator input | Provide mock NMEA2000 data for development and tests. | High | Idea |
-| AIS-002 | AIS learning mode | Explain CPA, TCPA, MMSI, COG, SOG and class A/B. | High | Idea |
-| AIS-003 | Collision scenario trainer | Use simulated AIS traffic for crossing, overtaking and head-on exercises. | High | Idea |
-| AIS-005 | Stale target warning | Mark AIS targets as stale when updates stop. | High | Idea |
+| N2K-005 | Simulator input | Provide mock NMEA2000 data for development and tests. | High | Started |
+| AIS-002 | AIS learning mode | Explain CPA, TCPA, MMSI, COG, SOG and class A/B. | High | Started |
+| AIS-003 | Collision scenario trainer | Use simulated AIS traffic for crossing, overtaking and head-on exercises. | High | Started |
+| AIS-005 | Stale target warning | Mark AIS targets as stale when updates stop. | High | Started |
 | WTH-001 | Forecast comparison | Compare wind, gusts, waves, rain and pressure across providers/models. | High | Idea |
 | WTH-003 | Go/no-go logic | Conservative rule-based departure support by boat, route, crew and exposure. | High | Started |
 | WTH-006 | Weather freshness warning | Make stale forecasts impossible to overlook. | High | Started |
@@ -159,7 +158,7 @@ Working log:
 ## Expected bug classes and prevention
 
 | ID | Area | Risk | Prevention |
-|---|---|---|---|
+|---|---|---|
 | B-001 | Unit conversion | Confusion between m, nm, kn, km/h and hours. | Central unit library and tests. |
 | B-002 | Time zones | ETA and weather timestamps mismatch. | Store timezone metadata; test Baltic crossings. |
 | B-003 | Offline data | Missing route/checklist content once network is gone. | Offline manifest and offline integration tests. |
@@ -182,6 +181,7 @@ Working log:
 | B-020 | Night-risk blind spot | A passage can include likely night hours while crew night experience is ignored. | Treat non-daylight legs and unknown/missing night experience as explicit risk findings. |
 | B-021 | Visibility blind spot | Fog or poor visibility is buried in weather text and does not affect departure advice. | Model visibility in nautical miles and escalate limited/restricted visibility with tests. |
 | B-022 | Network false confidence | A plotter shows some data, but GNSS source, AIS target path, DSC position or backbone health is unknown. | Model network devices, PGNs, power injection and terminators explicitly with warnings/blockers. |
+| B-023 | AIS false confidence | A stale target, missing CPA/TCPA or close fast ferry is displayed without urgency or context. | Summarize AIS target age, CPA/TCPA and Class A proximity with conservative findings and tests. |
 
 ## Roadmap
 
