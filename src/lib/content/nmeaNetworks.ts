@@ -213,11 +213,98 @@ export const h323ElinaHankoApproachAisScenario: AisTrafficScenario = {
   contentVersion: '2026-07-09.ais-hanko-approach-v1'
 };
 
+export const h323ElinaTallinnFerryLaneAisScenario: AisTrafficScenario = {
+  id: 'ais-scenario:h323-elina-tallinn-ferry-lane-watch',
+  title: 'H-323 Elina Tallinn ferry-lane AIS watch drill',
+  vesselId: 'vessel:h323-elina',
+  area: 'Gulf of Finland / Tallinn traffic lane approach',
+  description:
+    'A static family-passage drill for prioritising AIS watch actions when a small yacht approaches busy ferry traffic with one urgent CPA, one watch-list ferry and one close small craft.',
+  targets: [
+    {
+      mmsi: '276999101',
+      name: 'Tallinn Fast Ferry Example',
+      targetClass: 'class-a',
+      rangeNm: 3.8,
+      bearingDegrees: 110,
+      cogDegrees: 350,
+      sogKn: 27.0,
+      cpaNm: 0.22,
+      tcpaMinutes: 9,
+      ageSeconds: 18,
+      notes: [
+        'Fast ferry target deliberately creates an immediate skipper action rather than a passive watch note.',
+        'Teaching point: decide early and make course changes obvious; do not negotiate the first move by VHF.'
+      ]
+    },
+    {
+      mmsi: '276999102',
+      name: 'Northbound RoPax Example',
+      targetClass: 'class-a',
+      rangeNm: 6.4,
+      bearingDegrees: 75,
+      cogDegrees: 15,
+      sogKn: 19.5,
+      cpaNm: 0.9,
+      tcpaMinutes: 27,
+      ageSeconds: 32,
+      notes: [
+        'Outside the close-CPA threshold but important enough to include in the watch picture.',
+        'Use it to teach that the next ferry matters before the current target is fully past.'
+      ]
+    },
+    {
+      mmsi: '276999103',
+      name: 'Local Sailing Yacht Example',
+      targetClass: 'class-b',
+      rangeNm: 1.3,
+      bearingDegrees: 42,
+      cogDegrees: 210,
+      sogKn: 6.1,
+      ageSeconds: 50,
+      notes: [
+        'Close yacht target without CPA/TCPA reinforces visual bearings and cockpit communication.',
+        'Small craft may not keep a continuous AIS or VHF watch.'
+      ]
+    },
+    {
+      mmsi: '276999104',
+      name: 'Old Workboat Symbol Example',
+      targetClass: 'class-b',
+      rangeNm: 2.8,
+      bearingDegrees: 160,
+      cogDegrees: 80,
+      sogKn: 0.2,
+      cpaNm: 1.8,
+      tcpaMinutes: 44,
+      ageSeconds: 360,
+      notes: [
+        'Stale harbour workboat symbol teaches that old AIS can distract from the real ferry-lane priority.',
+        'Crew should mark it unreliable and then return attention to visual traffic.'
+      ]
+    }
+  ],
+  assumptions: [
+    'This is training content for prioritising watch actions, not a real traffic snapshot.',
+    'A family crew should hear short, concrete instructions: who looks out, who steers, who confirms bearings, and when the skipper takes over.',
+    'AIS watch actions are prompts for seamanship; they do not replace COLREG judgement or a proper lookout.'
+  ],
+  contentVersion: '2026-07-09.ais-tallinn-ferry-lane-v1'
+};
+
 export const h323ElinaNmeaNetworkSummary = summarizeNmeaNetwork(h323ElinaNmeaNetworkProfile);
 export const h323ElinaHankoApproachAisSummary = summarizeAisTraffic(h323ElinaHankoApproachAisScenario);
+export const h323ElinaTallinnFerryLaneAisSummary = summarizeAisTraffic(h323ElinaTallinnFerryLaneAisScenario);
 
 export const coreNmeaNetworkProfiles: NmeaNetworkProfile[] = [h323ElinaNmeaNetworkProfile];
-export const coreAisTrafficScenarios: AisTrafficScenario[] = [h323ElinaHankoApproachAisScenario];
+export const coreAisTrafficScenarios: AisTrafficScenario[] = [
+  h323ElinaHankoApproachAisScenario,
+  h323ElinaTallinnFerryLaneAisScenario
+];
+export const coreAisTrafficDrills = coreAisTrafficScenarios.map((scenario) => ({
+  scenario,
+  summary: summarizeAisTraffic(scenario)
+}));
 
 export function getNmeaNetworkProfileById(id: string): NmeaNetworkProfile | undefined {
   return coreNmeaNetworkProfiles.find((profile) => profile.id === id);
