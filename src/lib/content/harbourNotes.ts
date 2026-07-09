@@ -1,6 +1,7 @@
 import { h323ElinaVesselProfile } from './vesselProfiles';
 import {
   assessHarbourNote,
+  createHarbourRoutePack,
   summarizeHarbourNotebook,
   type HarbourNote
 } from '$lib/domain/harbours';
@@ -123,7 +124,7 @@ export const h323ElinaTurkuParnuHarbourNotes: HarbourNote[] = [
     sourceFreshness: 'unknown',
     approach: {
       pilotage: 'Possible conservative landfall instead of continuing toward Haapsalu, but only if charts, weather and harbour facts are current.',
-      hazards: ['unknown berth availability', 'shallower local waters', ' lee-shore risk depending on wind'],
+      hazards: ['unknown berth availability', 'shallower local waters', 'lee-shore risk depending on wind'],
       nightArrival: 'avoid',
       depthMeters: 1.8,
       shelter: 'coastal'
@@ -288,6 +289,12 @@ export const h323ElinaHarbourFindings = h323ElinaTurkuParnuHarbourNotes.flatMap(
 );
 
 export const h323ElinaHarbourSummary = summarizeHarbourNotebook(
+  h323ElinaTurkuParnuHarbourNotes,
+  h323ElinaVesselProfile.dimensions.draftMeters
+);
+
+export const h323ElinaTurkuParnuHarbourRoutePack = createHarbourRoutePack(
+  'H-323 Elina Turku to Pärnu harbour route pack',
   h323ElinaTurkuParnuHarbourNotes,
   h323ElinaVesselProfile.dimensions.draftMeters
 );
