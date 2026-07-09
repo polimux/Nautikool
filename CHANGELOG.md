@@ -8,6 +8,9 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Added
 
+- Harbour route-pack domain logic that separates committed stops from bailout/decision alternatives, computes status from harbour blockers, creates verification queues and cockpit read-aloud brief lines.
+- H-323 Elina Turku to Pärnu harbour route-pack content derived from the static harbour notebook, including committed stops, alternates, verification prompts and explicit live-data limitations.
+- Vitest coverage for harbour route-pack committed/alternate grouping, blocked H-323 publication, verification queue output and static harbour safety limitations.
 - Harbour notebook domain logic for static route-pack harbour notes, freshness, contact gaps, draft margin, night-arrival suitability and cockpit-readable offline brief lines.
 - Typed H-323 Elina Turku to Pärnu harbour-note content for Turku, Nauvo, Hanko, Dirhami, Kärdla, Haapsalu, Virtsu/Muhu and Pärnu.
 - Vitest coverage for harbour-note readiness, stale/unknown information, night-arrival blockers, H-323 route-pack content and offline brief generation.
@@ -78,9 +81,3 @@ This project uses a simple human-readable changelog while the product and archit
 - Vitest coverage for prioritised AIS watch actions and the Tallinn ferry-lane family-crew training scenario.
 - AIS watch brief domain logic that turns target snapshots and watch actions into compact cockpit handover lines.
 - Typed H-323 Elina fog-bank AIS watch brief drill for restricted-visibility cockpit handover.
-- Vitest coverage for AIS watch briefs, restricted-visibility drill content and the watch-brief drill registry.
-- AIS watch debrief domain logic that converts watch briefs into lessons, positive signals, follow-up drills and conservative safety notes.
-- Typed fog-bank debrief scenario notes for family-crew AIS training.
-- Vitest coverage for AIS debrief lessons, data-quality prompts, practical fog-bank follow-up drills and the debrief registry.
-- SRC/VHF radio call card domain logic for distress, urgency, safety and routine call prefixes, read-aloud lines and skipper prompts.
-- Typed H-323 Elina radio-call training cards for MOB distress, Tallinn ferry-lane urgency and Hanko fog-bank safety broadcasts.
