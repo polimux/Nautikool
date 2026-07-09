@@ -1,5 +1,6 @@
 <script lang="ts">
   import { coreAisWatchBriefDrills } from '$lib/content/aisWatchBriefs';
+  import { coreAisWatchDebriefs } from '$lib/content/aisDebriefs';
   import { coreChecklistTemplates, departureReadinessTemplate } from '$lib/content/checklistTemplates';
   import {
     h323ElinaNmeaNetworkProfile,
@@ -26,6 +27,7 @@
   const starterNmeaNetwork = h323ElinaNmeaNetworkProfile;
   const starterNmeaSummary = h323ElinaNmeaNetworkSummary;
   const starterAisDrills = coreAisWatchBriefDrills;
+  const starterAisDebriefs = coreAisWatchDebriefs;
   const navigationEquipment = getVesselEquipmentByCategory(starterVessel, 'navigation');
   const safetyEquipment = getVesselEquipmentByCategory(starterVessel, 'safety');
 </script>
@@ -211,6 +213,39 @@
               <li>{line}</li>
             {/each}
           </ul>
+        </article>
+      {/each}
+    </div>
+  </section>
+
+  <section aria-labelledby="ais-debrief-title">
+    <h2 id="ais-debrief-title">AIS scenario debriefs</h2>
+    <p>
+      Watch briefs now feed a debrief layer for scenario training: what required skipper ownership,
+      what overloaded the handover, which AIS symbols needed distrust, and what drill should be repeated.
+    </p>
+    <div class="network-list">
+      {#each starterAisDebriefs as drill}
+        <article>
+          <p class="template-category">{drill.debrief.area}</p>
+          <h3>{drill.debrief.title}</h3>
+          <p>{drill.debrief.headline}</p>
+          <dl>
+            <div>
+              <dt>Lessons</dt>
+              <dd>{drill.debrief.lessons.length}</dd>
+            </div>
+            <div>
+              <dt>Positive signals</dt>
+              <dd>{drill.debrief.positiveSignals.length}</dd>
+            </div>
+          </dl>
+          <ul>
+            {#each drill.debrief.lessons.slice(0, 2) as lesson}
+              <li>{lesson.title}: {lesson.skipperQuestion}</li>
+            {/each}
+          </ul>
+          <p>{drill.debrief.followUpDrill}</p>
         </article>
       {/each}
     </div>
