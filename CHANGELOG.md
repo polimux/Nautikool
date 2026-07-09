@@ -46,6 +46,9 @@ This project uses a simple human-readable changelog while the product and archit
 - Skipper-facing PGN reference content for GNSS position, AIS Class A/B reports and COG/SOG updates.
 - Typed H-323 Elina SeaTalkNG/NMEA2000 network profile covering em-trak B953, Ray90, Axiom+ 9 and Orca Core 2 integration assumptions.
 - Vitest coverage for NMEA network summaries, power-injection warnings, terminator blockers, missing GNSS blockers and skipper-facing AIS explanations.
+- AIS traffic snapshot domain logic for stale targets, close CPA, fast-closing targets and close targets without CPA/TCPA.
+- Typed H-323 Elina Hanko approach AIS traffic drill with ferry, small-craft and stale-target examples.
+- Vitest coverage for AIS target summary counts, stale-target warnings, fast-closing close-CPA blockers and missing CPA/TCPA warnings.
 
 ### Changed
 
@@ -66,6 +69,7 @@ This project uses a simple human-readable changelog while the product and archit
 - Landing page now surfaces multiple risk scenarios instead of a single hard-coded risk assessment.
 - Landing page now surfaces the first NMEA/AIS network readiness card and device-level PGN explanations.
 - Domain barrel exports now include the NMEA/AIS readiness module.
+- Landing page now surfaces the static AIS traffic drill and target-level training notes.
 
 ### Removed
 
