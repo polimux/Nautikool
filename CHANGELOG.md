@@ -8,6 +8,9 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Added
 
+- Harbour departure-gate domain logic that converts a harbour route pack into a day-of-departure verification gate with committed-stop blockers, usable-alternate counts, required verification coverage and read-aloud cockpit lines.
+- H-323 Elina Turku to Pärnu harbour departure-gate content covering committed-stop contacts, draft/depth margin, daylight arrival posture, named bailout harbour verification and Pärnu destination logistics.
+- Vitest scenario coverage for green harbour gates, committed-stop blockers, unusable alternates and the blocked H-323 Elina Turku to Pärnu harbour gate publication.
 - Harbour route-pack domain logic that separates committed stops from bailout/decision alternatives, computes status from harbour blockers, creates verification queues and cockpit read-aloud brief lines.
 - H-323 Elina Turku to Pärnu harbour route-pack content derived from the static harbour notebook, including committed stops, alternates, verification prompts and explicit live-data limitations.
 - Vitest coverage for harbour route-pack committed/alternate grouping, blocked H-323 publication, verification queue output and static harbour safety limitations.
