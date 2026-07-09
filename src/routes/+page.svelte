@@ -24,6 +24,11 @@
     h323ElinaSpareRequirements,
     h323ElinaSpareSummary
   } from '$lib/content/spareRequirements';
+  import {
+    h323ElinaTripLogDebrief,
+    h323ElinaTripLogSummary,
+    h323ElinaTurkuParnuTripLog
+  } from '$lib/content/tripLogs';
   import { h323ElinaVesselProfile } from '$lib/content/vesselProfiles';
   import { createChecklistRun, summarizeChecklistRun } from '$lib/domain/checklists';
   import { summarizePassagePlan } from '$lib/domain/passages';
@@ -56,6 +61,9 @@
   const starterSpareRequirements = h323ElinaSpareRequirements;
   const starterSpareFindings = h323ElinaSpareFindings;
   const starterSpareSummary = h323ElinaSpareSummary;
+  const starterTripLogEntries = h323ElinaTurkuParnuTripLog;
+  const starterTripLogSummary = h323ElinaTripLogSummary;
+  const starterTripLogDebrief = h323ElinaTripLogDebrief;
   const navigationEquipment = getVesselEquipmentByCategory(starterVessel, 'navigation');
   const safetyEquipment = getVesselEquipmentByCategory(starterVessel, 'safety');
 </script>
@@ -269,6 +277,32 @@
         </article>
       {/each}
     </div>
+  </section>
+
+  <section aria-labelledby="trip-log-title">
+    <h2 id="trip-log-title">Trip logbook and debrief</h2>
+    <p>
+      The trip-log slice converts a sailed leg into learning data: passage-plan deviations, weather reality,
+      engine hours, maintenance follow-ups and family-crew lessons for the next departure decision.
+    </p>
+    <dl>
+      <div><dt>Log entries</dt><dd>{starterTripLogSummary.entryCount}</dd></div>
+      <div><dt>Incidents / maintenance / lessons</dt><dd>{starterTripLogSummary.incidentCount} / {starterTripLogSummary.maintenanceNotes} / {starterTripLogSummary.lessonCount}</dd></div>
+      <div><dt>Cautions / blockers</dt><dd>{starterTripLogSummary.cautionEntries} / {starterTripLogSummary.blockerEntries}</dd></div>
+      <div><dt>Engine-hour delta</dt><dd>{starterTripLogSummary.engineHoursDelta} h</dd></div>
+      <div><dt>First review item</dt><dd>{starterTripLogSummary.firstCriticalEntry}</dd></div>
+    </dl>
+    <div class="network-list">
+      {#each starterTripLogEntries as entry}
+        <article>
+          <p class="template-category">{entry.entryType} · {entry.severity}</p>
+          <h3>{entry.title}</h3>
+          <p>{entry.summary}</p>
+          {#if entry.followUp}<p><strong>Follow-up:</strong> {entry.followUp}</p>{/if}
+        </article>
+      {/each}
+    </div>
+    <p class="small-note">Debrief: {starterTripLogDebrief.join(' ')}</p>
   </section>
 
   <section aria-labelledby="risk-title">
