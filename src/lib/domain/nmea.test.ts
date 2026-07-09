@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  coreAisWatchBriefDrills,
+  h323ElinaFogBankAisBrief,
+  h323ElinaFogBankAisScenario,
+  h323ElinaFogBankAisSummary
+} from '$lib/content/aisWatchBriefs';
+import {
   h323ElinaHankoApproachAisScenario,
   h323ElinaHankoApproachAisSummary,
   h323ElinaNmeaNetworkProfile,
@@ -7,8 +13,7 @@ import {
   h323ElinaTallinnFerryLaneAisScenario,
   h323ElinaTallinnFerryLaneAisSummary
 } from '$lib/content/nmeaNetworks';
-import { summarizeAisTraffic, summarizeNmeaNetwork } from './nmea';
-
+import { buildAisWatchBrief, summarizeAisTraffic, summarizeNmeaNetwork } from './nmea';
 
 describe('NMEA/AIS network readiness', () => {
   it('summarizes the H-323 Elina network profile for cockpit readiness', () => {
@@ -121,5 +126,32 @@ describe('NMEA/AIS network readiness', () => {
     expect(h323ElinaTallinnFerryLaneAisSummary.watchActions[0]?.priority).toBe('immediate');
     expect(h323ElinaTallinnFerryLaneAisSummary.watchActions[0]?.crewInstruction).toContain('Skipper takes the watch');
     expect(h323ElinaTallinnFerryLaneAisScenario.assumptions.join(' ')).toContain('family crew');
+  });
+
+  it('builds a compact AIS watch brief from prioritised actions', () => {
+    const brief = buildAisWatchBrief(h323ElinaHankoApproachAisScenario);
+
+    expect(brief.headline).toContain('immediate AIS action');
+    expect(brief.immediateActions[0]?.label).toBe('Resolve close CPA now');
+    expect(brief.watchHandover[0]).toContain('Traffic picture');
+    expect(brief.watchHandover.join(' ')).toContain('Confirm the traffic picture visually');
+    expect(brief.limitations.join(' ')).toContain('not live traffic advice');
+  });
+
+  it('adds a restricted-visibility fog-bank AIS brief with handover-safe wording', () => {
+    expect(h323ElinaFogBankAisScenario.title).toContain('fog-bank');
+    expect(h323ElinaFogBankAisSummary.targetCount).toBe(3);
+    expect(h323ElinaFogBankAisSummary.fastClosingTargets).toBe(1);
+    expect(h323ElinaFogBankAisBrief.headline).toContain('skipper takes the watch');
+    expect(h323ElinaFogBankAisBrief.watchHandover.join(' ')).toContain('AIS is a prompt');
+    expect(h323ElinaFogBankAisScenario.assumptions.join(' ')).toContain('restricted-visibility');
+  });
+
+  it('collects all AIS watch brief drills for the landing page', () => {
+    expect(coreAisWatchBriefDrills.length).toBeGreaterThanOrEqual(3);
+    expect(coreAisWatchBriefDrills.map((drill) => drill.brief.scenarioId)).toContain(
+      'ais-scenario:h323-elina-fog-bank-watch-brief'
+    );
+    expect(coreAisWatchBriefDrills.every((drill) => drill.brief.watchHandover.length >= 2)).toBe(true);
   });
 });
