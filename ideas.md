@@ -74,35 +74,37 @@ Repository state reviewed:
 - A first H-323 Elina vessel profile exists with identity data, Yanmar engine checks, Raymarine/Orca/em-trak equipment, safety equipment and explicit assumptions about unverified capacities.
 - The Risk Engine slice has typed weather, crew, vessel, passage and traffic-light risk assessment structures.
 - A first static Turku to Pärnu H-323 family risk scenario exists and is surfaced on the landing page.
-- Risk Engine v1 now also models likely night/overnight legs and restricted visibility as explicit decision inputs.
-- A second static risk scenario now demonstrates the Hanko to Haapsalu night-crossing decision problem with limited visibility and no recorded night experience.
-- The landing page surfaces checklist, passage, vessel and multiple risk content slices.
+- Risk Engine v1 also models likely night/overnight legs and restricted visibility as explicit decision inputs.
+- A second static risk scenario demonstrates the Hanko to Haapsalu night-crossing decision problem with limited visibility and no recorded night experience.
+- The NMEA/AIS slice now has a typed network readiness model, skipper-facing PGN explanations, an H-323 Elina network profile and tests.
+- The landing page surfaces checklist, passage, vessel, risk and NMEA/AIS content slices.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Extend Risk Engine v1 before starting a new major module, because the previous risk model had an unused crew night-experience field and visibility was not yet safety-relevant.
-- Treat night crossing and restricted visibility as first-class skipper decision inputs for Baltic family passages.
-- Keep every commit content-bearing: the new logic is paired with a concrete Turku to Pärnu / Hanko to Haapsalu night-crossing rehearsal scenario.
-- Keep static scenarios clearly separated from live advice.
+- Move from repeated Risk Engine refinements into the NMEA/AIS Adapter foundation, because the product thesis explicitly depends on onboard context but the repository had no network model yet.
+- Keep the first adapter slice offline and static: document network readiness, devices, protocols and PGN meanings before ingesting live NMEA data.
+- Pair domain logic with H-323 Elina content so the feature is immediately useful for the target Baltic cruiser and not merely an abstract integration layer.
+- Keep safety language conservative: AIS/NMEA data are advisory inputs and must not replace lookout, VHF watch or skipper judgement.
 
 Rationale:
 
-- The Hanko to Haapsalu leg is the most consequential leg in the existing passage plan: it is open-water, long, likely to involve night hours and has fewer immediate shelter options.
-- A product that records `hasNightExperience` but does not use it creates false precision; the risk engine should explain why a likely night leg becomes yellow without recorded night experience.
-- Visibility is cockpit-relevant and should not be hidden inside generic weather assumptions, especially for family crews, AIS/VHF watch discipline and harbour-entry timing.
-- Adding a second risk scenario strengthens the product demo without building a new module prematurely.
+- The first useful NMEA/AIS step is not parsing live data; it is knowing whether the boat has a trustworthy position source, AIS target path, DSC position feed, backbone power and termination.
+- This slice supports the existing Vessel Profile, Risk Engine and future AIS learning mode without requiring hardware access during development.
+- Skipper-facing PGN explanations make technical network data understandable enough for a cockpit preparation workflow.
+- Missing network power documentation is a realistic failure mode on small yachts and should be visible before departure.
 
 Working log:
 
-- Added pure risk rules for likely night or overnight legs without recorded night experience and unknown night experience.
-- Added restricted-visibility rules: limited visibility becomes yellow; very poor visibility becomes red/no-go.
-- Added conservative missing-visibility handling for exposed or likely overnight passages.
-- Added a typed Turku to Pärnu H-323 night-crossing rehearsal scenario with limited visibility, watch-plan assumptions and static-scenario safety wording.
-- Added tests for night-experience caution, limited-visibility caution and restricted-visibility no-go.
-- Updated the landing page to render all risk cards from the shared risk assessment registry.
-- Updated `CHANGELOG.md` with the new risk rules, scenario content, tests and UI change.
+- Added a pure NMEA/AIS network readiness domain model for devices, protocols, PGN capabilities, backbone state, findings and summaries.
+- Added conservative readiness findings for invalid backbone termination, unknown network power injection, missing GNSS position source, missing AIS data path and missing critical network devices.
+- Added skipper-facing PGN reference content for GNSS position, AIS Class A/B reports and COG/SOG updates.
+- Added a typed H-323 Elina SeaTalkNG/NMEA2000 profile covering em-trak B953, Ray90, Axiom+ 9 and Orca Core 2 integration assumptions.
+- Added Vitest coverage for network summaries, power-injection warnings, terminator blockers, missing GNSS blockers and skipper-facing AIS explanations.
+- Exported the NMEA/AIS module from the domain barrel.
+- Updated the landing page with a NMEA/AIS readiness card and device-level PGN explanations.
+- Updated `CHANGELOG.md` with the new NMEA/AIS domain logic, content, tests and UI change.
 
 ## Feature backlog
 
@@ -115,7 +117,7 @@ Working log:
 | F-003 | Checklist engine | Configurable departure, arrival, engine, heavy-weather, night-sailing and emergency checklists. | High | Started |
 | F-004 | Learning modules | Bite-sized nautical lessons for COLREGs, lights, buoys, VHF, anchoring, weather, navigation and sail trim. | High | Idea |
 | F-005 | Scenario trainer | Interactive decisions for crossing traffic, squalls, harbour approaches, engine alarms and MOB. | Medium | Idea |
-| F-006 | Boat systems notebook | Document seacocks, fuel, engine, electrics, NMEA network, spares and known defects. | High | Idea |
+| F-006 | Boat systems notebook | Document seacocks, fuel, engine, electrics, NMEA network, spares and known defects. | High | Started |
 | F-007 | Maintenance log | Track engine hours, oil changes, filters, batteries, rig checks, extinguishers and liferaft service. | Medium | Idea |
 | F-008 | Trip logbook | Capture trip, crew, weather, sail setup, incidents, lessons learned and engine hours. | Medium | Idea |
 | F-009 | Harbour notebook | Store harbour notes, berth details, fees, VHF channels, fuel, groceries, sauna and approach notes. | Medium | Idea |
@@ -145,7 +147,7 @@ Working log:
 | OFF-002 | Offline checklists | Vessel and passage checklists cached locally. | High | Idea |
 | OFF-003 | Offline route pack | Save route, harbour notes, documents and weather snapshot for a trip. | High | Idea |
 | OFF-004 | Freshness labels | Show when downloaded forecasts or harbour info were last updated. | High | Idea |
-| N2K-001 | Network inventory | Document devices, PGNs, power injection, terminators and adapter cables. | High | Idea |
+| N2K-001 | Network inventory | Document devices, PGNs, power injection, terminators and adapter cables. | High | Started |
 | N2K-005 | Simulator input | Provide mock NMEA2000 data for development and tests. | High | Idea |
 | AIS-002 | AIS learning mode | Explain CPA, TCPA, MMSI, COG, SOG and class A/B. | High | Idea |
 | AIS-003 | Collision scenario trainer | Use simulated AIS traffic for crossing, overtaking and head-on exercises. | High | Idea |
@@ -179,6 +181,7 @@ Working log:
 | B-019 | Static scenario mistaken for live advice | Demo risk content is interpreted as current weather guidance. | Label static risk scenarios as planning examples and require explicit forecast timestamps. |
 | B-020 | Night-risk blind spot | A passage can include likely night hours while crew night experience is ignored. | Treat non-daylight legs and unknown/missing night experience as explicit risk findings. |
 | B-021 | Visibility blind spot | Fog or poor visibility is buried in weather text and does not affect departure advice. | Model visibility in nautical miles and escalate limited/restricted visibility with tests. |
+| B-022 | Network false confidence | A plotter shows some data, but GNSS source, AIS target path, DSC position or backbone health is unknown. | Model network devices, PGNs, power injection and terminators explicitly with warnings/blockers. |
 
 ## Roadmap
 
