@@ -8,6 +8,10 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Added
 
+- Departure dashboard harbour-gate aggregation so harbour blockers and cautions now affect the conservative go/caution/no-go preparation card.
+- H-323 Elina Turku to Pärnu dashboard content now includes the harbour departure gate and explicitly treats harbour-gate blockers as dashboard no-go inputs.
+- Vitest coverage for clean harbour gates, blocked harbour gates, caution harbour gates and the H-323 Elina dashboard publication with harbour-gate findings.
+- Public domain exports for the harbour departure-gate slice.
 - Harbour departure-gate domain logic that converts a harbour route pack into a day-of-departure verification gate with committed-stop blockers, usable-alternate counts, required verification coverage and read-aloud cockpit lines.
 - H-323 Elina Turku to Pärnu harbour departure-gate content covering committed-stop contacts, draft/depth margin, daylight arrival posture, named bailout harbour verification and Pärnu destination logistics.
 - Vitest scenario coverage for green harbour gates, committed-stop blockers, unusable alternates and the blocked H-323 Elina Turku to Pärnu harbour gate publication.
