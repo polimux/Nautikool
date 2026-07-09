@@ -51,10 +51,62 @@ export const turkuToParnuModerateRiskInput: RiskAssessmentInput = {
   ]
 };
 
-export const turkuToParnuModerateRiskAssessment = assessPassageRisk(turkuToParnuModerateRiskInput);
+export const turkuToParnuNightCrossingRiskInput: RiskAssessmentInput = {
+  id: 'risk-input:turku-to-parnu-night-crossing-rehearsal',
+  title: 'Turku to Pärnu family passage - night crossing rehearsal scenario',
+  passage: turkuToParnuFamilyPassagePlan,
+  vessel: h323ElinaVesselProfile,
+  weather: {
+    sustainedWindKn: 12,
+    gustKn: 17,
+    waveHeightMeters: 0.8,
+    visibilityNm: 3.5,
+    thunderstormRisk: 'none',
+    forecastAgeHours: 3
+  },
+  crew: {
+    skipperExperienceNm: 1500,
+    hasNightExperience: false,
+    crewCount: 3,
+    minorsOnBoard: 1,
+    fatigueLevel: 'low'
+  },
+  assumptions: [
+    {
+      id: 'assumption:risk-night-crossing-static-scenario',
+      statement:
+        'This scenario models the Hanko to Haapsalu open-water leg as a likely overnight decision and is not live weather advice.',
+      source: 'default',
+      confidence: 'high',
+      safetyImpact: 'high'
+    },
+    {
+      id: 'assumption:risk-night-watch-plan-required',
+      statement:
+        'A night crossing requires an explicit watch plan, lighting discipline, AIS/VHF monitoring and a rested harbour-entry lead.',
+      source: 'default',
+      confidence: 'high',
+      safetyImpact: 'high'
+    },
+    {
+      id: 'assumption:risk-limited-visibility-training-value',
+      statement:
+        'Limited visibility is included to force conservative discussion of lookout duties, collision avoidance and bailout timing.',
+      source: 'default',
+      confidence: 'medium',
+      safetyImpact: 'high'
+    }
+  ]
+};
 
-export const coreRiskAssessmentInputs: RiskAssessmentInput[] = [turkuToParnuModerateRiskInput];
-export const coreRiskAssessments = [turkuToParnuModerateRiskAssessment];
+export const turkuToParnuModerateRiskAssessment = assessPassageRisk(turkuToParnuModerateRiskInput);
+export const turkuToParnuNightCrossingRiskAssessment = assessPassageRisk(turkuToParnuNightCrossingRiskInput);
+
+export const coreRiskAssessmentInputs: RiskAssessmentInput[] = [
+  turkuToParnuModerateRiskInput,
+  turkuToParnuNightCrossingRiskInput
+];
+export const coreRiskAssessments = [turkuToParnuModerateRiskAssessment, turkuToParnuNightCrossingRiskAssessment];
 
 export function getRiskAssessmentInputById(id: string): RiskAssessmentInput | undefined {
   return coreRiskAssessmentInputs.find((input) => input.id === id);
