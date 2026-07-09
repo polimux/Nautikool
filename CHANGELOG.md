@@ -63,6 +63,9 @@ This project uses a simple human-readable changelog while the product and archit
 - Vitest coverage for radio-call urgency prefixes, read-aloud MOB content, urgency sorting and conservative live-transmission limitations.
 - SRC/VHF radio-call drill summary logic for card counts, highest urgency, first read-aloud line and live-emergency-practice warning visibility.
 - Vitest coverage for the H-323 Elina SRC drill pack summary and training safety constraints.
+- Radio log domain logic for structured sent, received, decision and training entries with position, crew-role, follow-up and read-back prompts.
+- Typed H-323 Elina radio log examples for MOB rehearsal, Tallinn ferry-lane decision logging and Hanko fog-bank Securite practice.
+- Vitest coverage for radio log creation, summary counts, critical-entry selection, missing-position prompts and follow-up filtering.
 
 ### Changed
 
@@ -89,7 +92,10 @@ This project uses a simple human-readable changelog while the product and archit
 - Landing page now surfaces AIS scenario debrief cards with lessons, positive signals and follow-up drills.
 - Domain barrel exports now include the SRC/VHF radio call card module.
 - Landing page now surfaces SRC/VHF radio call cards with urgency, channel guidance and read-aloud training lines.
+- Domain barrel exports now include the radio log and handover module.
+- Landing page now surfaces radio log and handover examples with action taken, follow-ups and position read-back prompts.
 - `ideas.md` now records the radio-card UI integration decision, rationale, working log and hidden-safety-content risk.
+- `ideas.md` now records the radio-log handover decision, rationale, working log and log-without-position risk.
 
 ### Removed
 
