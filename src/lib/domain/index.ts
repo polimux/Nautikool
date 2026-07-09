@@ -4,4 +4,5 @@ export * from './risks';
 export * from './vessels';
 export * from './nmea';
 export * from './radioCalls';
+export * from './radioLogs';
 export * from './types';
