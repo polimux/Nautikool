@@ -1,5 +1,5 @@
-import type { NmeaNetworkProfile } from '$lib/domain/nmea';
-import { summarizeNmeaNetwork } from '$lib/domain/nmea';
+import type { AisTrafficScenario, NmeaNetworkProfile } from '$lib/domain/nmea';
+import { summarizeAisTraffic, summarizeNmeaNetwork } from '$lib/domain/nmea';
 
 export const h323ElinaNmeaNetworkProfile: NmeaNetworkProfile = {
   id: 'nmea-network:h323-elina-seatalkng',
@@ -150,10 +150,79 @@ export const h323ElinaNmeaNetworkProfile: NmeaNetworkProfile = {
   contentVersion: '2026-07-09.nmea-elina-v1'
 };
 
+export const h323ElinaHankoApproachAisScenario: AisTrafficScenario = {
+  id: 'ais-scenario:h323-elina-hanko-approach-traffic',
+  title: 'H-323 Elina Hanko approach AIS traffic drill',
+  vesselId: 'vessel:h323-elina',
+  area: 'Hanko approach / Gulf of Finland edge',
+  description:
+    'A static training snapshot for discussing how a small Baltic cruiser should treat AIS during an approach with commercial traffic, small craft and one stale target.',
+  targets: [
+    {
+      mmsi: '230999001',
+      name: 'Baltic Ferry Example',
+      targetClass: 'class-a',
+      rangeNm: 4.2,
+      bearingDegrees: 82,
+      cogDegrees: 255,
+      sogKn: 18.5,
+      cpaNm: 0.3,
+      tcpaMinutes: 14,
+      ageSeconds: 28,
+      notes: [
+        'Fast commercial target used to force early COLREG and visual-bearing discussion.',
+        'The correct product behaviour is to treat the close CPA as urgent, not as a panic instruction.'
+      ]
+    },
+    {
+      mmsi: '230999002',
+      name: 'Archipelago Yacht Example',
+      targetClass: 'class-b',
+      rangeNm: 1.7,
+      bearingDegrees: 34,
+      cogDegrees: 190,
+      sogKn: 5.2,
+      ageSeconds: 45,
+      notes: [
+        'Close small-craft target without CPA/TCPA to teach that AIS can be incomplete.',
+        'Watch should use visual bearing trend and avoid assuming the target has seen Elina.'
+      ]
+    },
+    {
+      mmsi: '230999003',
+      name: 'Old Fishing Target Example',
+      targetClass: 'class-b',
+      rangeNm: 3.6,
+      bearingDegrees: 140,
+      cogDegrees: 15,
+      sogKn: 0.4,
+      cpaNm: 1.4,
+      tcpaMinutes: 38,
+      ageSeconds: 420,
+      notes: [
+        'Stale target included to prevent false confidence from old AIS positions.',
+        'Training value: keep visual lookout even when the symbol looks harmless.'
+      ]
+    }
+  ],
+  assumptions: [
+    'This is a static AIS training scenario, not live traffic information.',
+    'CPA and TCPA are advisory; COLREG decisions require visual lookout, compass-bearing trend and early, obvious action.',
+    'Small-craft AIS data may be delayed, absent, incorrectly configured or not monitored by the other vessel.'
+  ],
+  contentVersion: '2026-07-09.ais-hanko-approach-v1'
+};
+
 export const h323ElinaNmeaNetworkSummary = summarizeNmeaNetwork(h323ElinaNmeaNetworkProfile);
+export const h323ElinaHankoApproachAisSummary = summarizeAisTraffic(h323ElinaHankoApproachAisScenario);
 
 export const coreNmeaNetworkProfiles: NmeaNetworkProfile[] = [h323ElinaNmeaNetworkProfile];
+export const coreAisTrafficScenarios: AisTrafficScenario[] = [h323ElinaHankoApproachAisScenario];
 
 export function getNmeaNetworkProfileById(id: string): NmeaNetworkProfile | undefined {
   return coreNmeaNetworkProfiles.find((profile) => profile.id === id);
+}
+
+export function getAisTrafficScenarioById(id: string): AisTrafficScenario | undefined {
+  return coreAisTrafficScenarios.find((scenario) => scenario.id === id);
 }
