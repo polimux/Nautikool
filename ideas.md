@@ -72,7 +72,8 @@ Repository state reviewed:
 - The passage workload slice flags over-long family legs, likely daylight workload, exposed open-water legs, bailout coverage gaps and missing crew notes.
 - The passage split recommendation slice turns workload blockers into concrete conservative split decisions and read-aloud briefs.
 - The Harbour Notebook slice models static route-pack harbour notes, freshness, VHF/contact gaps, draft margin, night-arrival suitability and offline brief lines.
-- The Harbour Route Pack slice now separates committed stops from bailout/decision alternatives, computes a blocked/caution/ready status and produces a verification queue plus read-aloud cockpit brief.
+- The Harbour Route Pack slice separates committed stops from bailout/decision alternatives, computes a blocked/caution/ready status and produces a verification queue plus read-aloud cockpit brief.
+- The Harbour Departure Gate slice converts the harbour route pack into day-of-departure verification requirements, usable-alternate counts, blocker/caution findings and read-aloud gate lines.
 - The Vessel Profile slice has richer equipment, engine, rig, battery, tank and readiness-finding types.
 - A first H-323 Elina vessel profile exists with identity data, Yanmar engine checks, Raymarine/Orca/em-trak equipment, safety equipment and explicit assumptions about unverified capacities.
 - The Risk Engine slice models Baltic wind limits, stale forecasts, thunderstorms, waves, open-water exposure, fatigue, equipment gaps, night/overnight legs and restricted visibility.
@@ -90,25 +91,25 @@ Repository state reviewed:
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Add Harbour Route Pack as the next valuable improvement because the Harbour Notebook had good per-harbour checks, but the skipper still needed a route-level view of which stops are committed and which are only alternates.
-- Keep it pure TypeScript and content-backed: the route pack is static preparation material that should produce a cockpit verification queue, not live harbour guidance.
-- Use the H-323 Elina Turku to Pärnu plan as the first route-pack scenario because it contains home, planned stops, bailout options, decision areas and a destination.
-- Treat blockers in committed stops as a route-pack no-go until current harbour facts, approach depth, contact method, night-arrival posture and weather fit are refreshed.
+- Add Harbour Departure Gate as the next valuable improvement because Harbour Route Pack now identifies planned and alternate harbours, but the skipper still needs a final day-of-departure gate that says what must be verified before casting off.
+- Keep the slice pure TypeScript and content-backed: it should produce a conservative checklist and cockpit brief from static route-pack data, not pretend to know live harbour availability.
+- Use the H-323 Elina Turku to Pärnu route as the first scenario because it has committed stops, uncertain alternates, shallow/draft-sensitive approaches and destination logistics.
+- Treat unresolved committed-stop blockers as a no-go until the skipper verifies current harbour contacts, depth/draft margin, daylight posture, named bailout harbour and Pärnu arrival logistics.
 
 Rationale:
 
-- A harbour notebook is useful only when it drives a skipper decision: can we rely on this stop, or is it just a stale name on the chart?
-- The next product value is grouping harbour facts into committed stops and alternates so the pre-departure workflow can surface the first harbour action quickly.
-- The change strengthens Passage Planner, Harbour Notebook and Risk Engine alignment without depending on external harbour APIs.
-- Explicit route-pack limitations reduce the risk that static demo content is mistaken for live berth availability, harbour-master advice or navigation authority.
+- The harbour notebook and route pack are useful preparation material, but they become more actionable when converted into explicit departure-gate requirements.
+- A gate-level model makes it easier to plug harbour readiness into the existing pre-departure dashboard later without mixing live data and static notes.
+- Usable alternates are a different product question from merely having alternates listed: a bailout needs at least zero blockers and a contact method before it is a realistic family-crew option.
+- Explicit safety limitations reduce the risk that a static route-pack note is mistaken for current berth availability, official pilotage advice or a harbour-master instruction.
 
 Working log:
 
-- Added `HarbourRoutePackStop` and `HarbourRoutePack` domain types.
-- Added `createHarbourRoutePack` pure logic for committed stops, alternate stops, verification queues, read-aloud brief lines and static safety limitations.
-- Added `h323ElinaTurkuParnuHarbourRoutePack` content derived from the H-323 Elina harbour notebook.
-- Added Vitest coverage for clean route packs, H-323 blocked route-pack publication, committed/alternate grouping and limitation wording.
-- Updated `CHANGELOG.md` with harbour route-pack logic, H-323 content and test coverage.
+- Added `HarbourDepartureGate` domain types, requirements, findings and checklist item output.
+- Added `createHarbourDepartureGate` pure logic for committed-stop blockers, usable alternate counts, verification coverage and read-aloud cockpit lines.
+- Added `h323ElinaTurkuParnuHarbourDepartureGate` content with concrete verification requirements for contacts, draft/depth, daylight, bailout and Pärnu logistics.
+- Added Vitest scenario coverage for green harbour gates, blocked committed stops, caution-only unusable alternates and the H-323 Elina Turku to Pärnu publication.
+- Updated `CHANGELOG.md` with harbour departure-gate logic, H-323 content and test coverage.
 
 ## Feature backlog
 
@@ -134,6 +135,7 @@ Working log:
 | F-016 | Passage workload analysis | Convert passage legs into family-crew workload findings for distance, duration, daylight, exposure and bailout coverage. | High | Started |
 | F-017 | Passage split recommendations | Turn workload blockers into named split-harbour decisions, read-aloud route alternatives and safety limitations. | High | Started |
 | F-018 | Harbour route pack | Turn harbour notebook entries into committed stops, alternates, verification queues and read-aloud route-pack status. | High | Started |
+| F-019 | Harbour departure gate | Convert harbour route packs into day-of-departure verification requirements, usable-alternate checks and read-aloud harbour gate status. | High | Started |
 
 ### UX ideas
 
@@ -159,3 +161,4 @@ Working log:
 | UX-018 | Leg workload warnings | Show which passage legs exceed family crew distance, duration, daylight, exposure or bailout limits. | High | Started |
 | UX-019 | Route split card | Show named conservative split options, decision points and limitation copy for difficult passage legs. | High | Started |
 | UX-020 | Harbour route-pack card | Show harbour freshness, draft margin, contact gaps and night-arrival status for planned/bailout stops. | High | Started |
+| UX-021 | Harbour departure gate card | Show final harbour readiness, usable alternates, missing verification topics and first harbour action before casting off. | High | Started |
