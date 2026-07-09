@@ -39,6 +39,9 @@ This project uses a simple human-readable changelog while the product and archit
 - Pure conservative risk engine for Baltic wind limits, stale forecasts, thunderstorms, wave height, open-water legs, crew fatigue and missing critical equipment.
 - Typed Turku to Pärnu H-323 family passage risk scenario with moderate Baltic weather assumptions.
 - Vitest coverage for yellow planning assessments, red no-go wind limits, stale forecasts, missing critical equipment and linked H-323 passage content.
+- Night-leg and restricted-visibility risk rules for exposed or likely overnight Baltic passage planning.
+- Typed Turku to Pärnu H-323 night crossing rehearsal scenario with watch-plan, visibility and static-scenario assumptions.
+- Vitest coverage for night-experience cautions, limited-visibility cautions and red no-go restricted visibility.
 
 ### Changed
 
@@ -56,6 +59,7 @@ This project uses a simple human-readable changelog while the product and archit
 - Landing page now surfaces the first vessel profile and vessel readiness summary.
 - Landing page now surfaces a first traffic-light risk card for the Turku to Pärnu family passage.
 - Domain barrel exports now include passage, vessel and risk modules.
+- Landing page now surfaces multiple risk scenarios instead of a single hard-coded risk assessment.
 
 ### Removed
 
