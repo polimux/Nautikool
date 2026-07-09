@@ -76,33 +76,31 @@ Repository state reviewed:
 - Risk Engine v1 models Baltic wind limits, stale forecasts, thunderstorms, waves, open-water exposure, fatigue, equipment gaps, night/overnight legs and restricted visibility.
 - The NMEA/AIS slice has a typed network readiness model, skipper-facing PGN explanations, an H-323 Elina network profile, AIS traffic snapshot logic, prioritised watch actions, watch briefs and debriefs.
 - The SRC/VHF slice has typed radio call cards for distress, urgency and safety situations linked to H-323 Elina training scenarios.
+- The radio-log slice now creates structured entries and a compact watch-change handover brief from H-323 Elina training and traffic-decision examples.
 - The landing page surfaces checklist, passage, vessel, risk, NMEA/AIS readiness, AIS traffic watch briefs, AIS debriefs and SRC/VHF radio call cards.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Extend the SRC/VHF work from call-card scripts into a radio log and handover layer.
-- Add pure radio-log domain logic for sent, received, decision and training entries, including position prompts, crew roles, follow-ups and read-back checklist content.
-- Add H-323 Elina radio-log examples that connect MOB rehearsal, Tallinn ferry-lane decision-making and Hanko fog-bank Securite practice to practical cockpit handover records.
-- Keep the implementation focused: no live VHF workflow, no persistence layer, no regulatory wizard and no external dependency.
+- Extend the SRC/VHF work from raw radio-log entries into a watch-change handover brief.
+- Add pure radio-log handover logic that prioritises critical entries, preserves position-source prompts, exposes follow-up lines and carries conservative live-transmission limitations.
+- Add an H-323 Elina family-crew handover brief using the existing MOB, Tallinn ferry-lane and Hanko fog-bank radio-log examples.
+- Keep the implementation focused: no persistence UI, no live VHF integration, no regulatory wizard and no external dependency.
 
 Rationale:
 
-- The previous radio-card UI makes scripts visible, but a skipper still needs a way to remember what was rehearsed, transmitted, decided and handed over.
-- A small structured log supports the Local-first MVP better than another isolated content card: it links training, checklist, radio and watch-handover use cases.
-- The implementation is testable as pure TypeScript and adds user-facing content immediately.
-- Radio logs are safety-sensitive, so the first version emphasizes position source, action taken, crew roles and follow-up rather than free-form confidence.
+- A structured log is useful, but a tired incoming watch needs a short read-aloud summary rather than a list of entries.
+- Radio handover is the natural bridge between SRC training, AIS watch discipline, cockpit roles and later trip-log/offline-pack work.
+- The implementation remains pure TypeScript and testable while adding product-relevant H-323 scenario content immediately.
+- Safety-sensitive logs must not imply that a training entry or remembered script replaces current position copying, lookout, boat handling or live judgement.
 
 Working log:
 
-- Added `RadioLogEntry`, `RadioLogBrief`, `createRadioLogEntryFromCard`, `summarizeRadioLog` and `findRadioLogEntriesNeedingFollowUp`.
-- Added a radio log read-back checklist covering time, channel, identity, position source, message summary, action taken and follow-up.
-- Added H-323 Elina sample log entries for MOB training, Tallinn ferry-lane decision logging and Hanko fog-bank Securite practice.
-- Added Vitest coverage for vessel identity extraction, radio-log summary metrics, missing-position prompts and follow-up filtering.
-- Exported the radio-log domain module through `src/lib/domain/index.ts`.
-- Updated the landing page to show radio log and handover entries with action taken, follow-up prompts and position read-back prompts.
-- Updated `CHANGELOG.md` with the radio-log domain logic, content, tests, exports and UI change.
+- Added `RadioLogHandoverBrief`, `buildRadioLogHandoverBrief`, critical-line generation, position prompts, follow-up lines, crew-role aggregation and explicit handover limitations.
+- Added H-323 Elina radio watch handover content for a family-crew watch change before the next Baltic approach.
+- Added Vitest coverage for critical handover ordering, position-source prompts, follow-up prompts, crew-role visibility and conservative safety wording.
+- Updated `CHANGELOG.md` with the radio-log handover brief logic, H-323 content and tests.
 
 ## Feature backlog
 
@@ -198,6 +196,7 @@ Working log:
 | B-027 | Radio call false authority | A scripted training card is mistaken for permission to make a live emergency transmission or to delay boat handling. | Keep live-transmission limits, urgency wording and boat-handling caveats in every card and test for them. |
 | B-028 | Hidden safety content | Correct emergency/radio content exists in code but is not visible to a skipper preparing offline. | Surface drill summaries and read-aloud lines on the product page, then later move them into cockpit/printable mode. |
 | B-029 | Radio log without position | A radio/traffic log records that something happened but omits the position source or action taken. | Make position source, action taken, crew roles and follow-up prompts first-class fields with tests and UI exposure. |
+| B-030 | Radio handover false confidence | A tidy radio-log handover sounds like permission to transmit from memory or stop looking out. | Keep current-position copying, live-judgement limits and boat-handling priority visible in every handover brief. |
 
 ## Roadmap
 
