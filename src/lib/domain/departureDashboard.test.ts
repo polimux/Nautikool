@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { h323ElinaTurkuParnuDepartureDashboard } from '$lib/content/departureDashboard';
+import { h323ElinaTurkuParnuHarbourDepartureGate } from '$lib/content/harbourDepartureGates';
 import { h323ElinaMaintenanceSummary } from '$lib/content/maintenanceTasks';
 import { h323ElinaNmeaNetworkSummary } from '$lib/content/nmeaNetworks';
 import { coreRiskAssessments } from '$lib/content/riskAssessments';
 import { h323ElinaSpareSummary } from '$lib/content/spareRequirements';
 import { h323ElinaTripLogSummary } from '$lib/content/tripLogs';
 import { buildDepartureDashboard, type DepartureDashboardInput } from './departureDashboard';
+import type { HarbourDepartureGate } from './harbourDepartureGates';
 import type { ChecklistRunSummary } from './types';
 
 const cleanChecklistSummary: ChecklistRunSummary = {
@@ -21,6 +23,56 @@ const cleanChecklistSummary: ChecklistRunSummary = {
   canComplete: true,
   warnings: [],
   blockers: []
+};
+
+const cleanHarbourGate: HarbourDepartureGate = {
+  title: 'Clean harbour gate',
+  status: 'ready',
+  committedStopCount: 2,
+  alternateStopCount: 1,
+  usableAlternateCount: 1,
+  checklistItems: [
+    {
+      requirementId: 'harbour-gate:test:contact',
+      label: 'Harbour contacts verified',
+      scope: 'committed-stops',
+      priority: 'required',
+      coveredByRoutePack: true,
+      verificationPrompt: 'Record the harbour contacts before departure.'
+    }
+  ],
+  findings: [],
+  readAloudBrief: ['Clean harbour gate: ready.'],
+  safetyLimitations: ['Static harbour gate still needs live harbour verification.']
+};
+
+const blockedHarbourGate: HarbourDepartureGate = {
+  ...cleanHarbourGate,
+  title: 'Blocked harbour gate',
+  status: 'blocked',
+  usableAlternateCount: 0,
+  findings: [
+    {
+      severity: 'blocker',
+      text: 'No committed-stop harbour contact is recorded.',
+      skipperAction: 'Call or otherwise verify every committed harbour before departure.'
+    }
+  ],
+  firstAction: 'Call or otherwise verify every committed harbour before departure.'
+};
+
+const cautionHarbourGate: HarbourDepartureGate = {
+  ...cleanHarbourGate,
+  title: 'Caution harbour gate',
+  status: 'caution',
+  findings: [
+    {
+      severity: 'caution',
+      text: 'Destination after-hours logistics are still open.',
+      skipperAction: 'Confirm destination after-hours logistics before committing to the final leg.'
+    }
+  ],
+  firstAction: 'Confirm destination after-hours logistics before committing to the final leg.'
 };
 
 const baseInput: DepartureDashboardInput = {
@@ -75,6 +127,7 @@ const baseInput: DepartureDashboardInput = {
     missingPositionEntries: 0,
     followUps: []
   },
+  harbourGate: cleanHarbourGate,
   assumptions: ['test scenario']
 };
 
@@ -110,6 +163,32 @@ describe('departure dashboard', () => {
     expect(dashboard.nextActions[0]).toContain('Close required checklist items');
   });
 
+  it('promotes a blocked harbour gate into a dashboard no-go finding', () => {
+    const dashboard = buildDepartureDashboard({
+      ...baseInput,
+      harbourGate: blockedHarbourGate
+    });
+
+    expect(dashboard.status).toBe('no-go');
+    expect(dashboard.canDepart).toBe(false);
+    expect(dashboard.findings.map((finding) => finding.source)).toContain('harbour');
+    expect(dashboard.nextActions[0]).toContain('Call or otherwise verify');
+    expect(dashboard.readinessScore).toBeLessThan(100);
+  });
+
+  it('keeps a caution harbour gate as a skipper-review dashboard caution', () => {
+    const dashboard = buildDepartureDashboard({
+      ...baseInput,
+      harbourGate: cautionHarbourGate
+    });
+
+    expect(dashboard.status).toBe('caution');
+    expect(dashboard.canDepart).toBe(true);
+    expect(dashboard.cautionCount).toBe(1);
+    expect(dashboard.findings[0].source).toBe('harbour');
+    expect(dashboard.findings[0].title).toContain('harbour caution');
+  });
+
   it('aggregates red risk, maintenance, spares and NMEA blockers into one no-go dashboard', () => {
     const dashboard = buildDepartureDashboard({
       ...baseInput,
@@ -127,11 +206,13 @@ describe('departure dashboard', () => {
     expect(dashboard.headline).toContain('blocker');
   });
 
-  it('publishes the H-323 Elina dashboard as user-facing scenario content', () => {
+  it('publishes the H-323 Elina dashboard as user-facing scenario content with harbour-gate aggregation', () => {
     expect(h323ElinaTurkuParnuDepartureDashboard.vesselName).toBe('Elina');
     expect(h323ElinaTurkuParnuDepartureDashboard.passageTitle).toContain('Turku to Pärnu');
     expect(h323ElinaTurkuParnuDepartureDashboard.status).toBe('no-go');
     expect(h323ElinaTurkuParnuDepartureDashboard.assumptions.join(' ')).toContain('not live sailing advice');
+    expect(h323ElinaTurkuParnuDepartureDashboard.findings.map((finding) => finding.source)).toContain('harbour');
+    expect(h323ElinaTurkuParnuHarbourDepartureGate.status).toBe('blocked');
     expect(h323ElinaTurkuParnuDepartureDashboard.readAloudBrief[0]).toContain('Elina');
   });
 });
