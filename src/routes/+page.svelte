@@ -1,6 +1,11 @@
 <script lang="ts">
   import { coreChecklistTemplates, departureReadinessTemplate } from '$lib/content/checklistTemplates';
-  import { h323ElinaNmeaNetworkProfile, h323ElinaNmeaNetworkSummary } from '$lib/content/nmeaNetworks';
+  import {
+    h323ElinaHankoApproachAisScenario,
+    h323ElinaHankoApproachAisSummary,
+    h323ElinaNmeaNetworkProfile,
+    h323ElinaNmeaNetworkSummary
+  } from '$lib/content/nmeaNetworks';
   import { turkuToParnuFamilyPassagePlan } from '$lib/content/passagePlans';
   import { coreRiskAssessments } from '$lib/content/riskAssessments';
   import { h323ElinaVesselProfile } from '$lib/content/vesselProfiles';
@@ -21,6 +26,8 @@
   const starterRiskAssessments = coreRiskAssessments;
   const starterNmeaNetwork = h323ElinaNmeaNetworkProfile;
   const starterNmeaSummary = h323ElinaNmeaNetworkSummary;
+  const starterAisScenario = h323ElinaHankoApproachAisScenario;
+  const starterAisSummary = h323ElinaHankoApproachAisSummary;
   const navigationEquipment = getVesselEquipmentByCategory(starterVessel, 'navigation');
   const safetyEquipment = getVesselEquipmentByCategory(starterVessel, 'safety');
 </script>
@@ -168,6 +175,45 @@
             {#each device.pgns.slice(0, 2) as capability}
               <li>{capability.label}: {capability.userValue}</li>
             {/each}
+          </ul>
+        </article>
+      {/each}
+    </div>
+  </section>
+
+  <section aria-labelledby="ais-title">
+    <h2 id="ais-title">Starter AIS traffic drill</h2>
+    <p>
+      A first static AIS drill turns target snapshots into skipper-facing findings for stale symbols,
+      close CPA, fast-closing traffic and missing CPA/TCPA values. It is training content, not live traffic.
+    </p>
+    <dl>
+      <div>
+        <dt>Scenario</dt>
+        <dd>{starterAisScenario.title}</dd>
+      </div>
+      <div>
+        <dt>Targets</dt>
+        <dd>{starterAisSummary.targetCount}</dd>
+      </div>
+      <div>
+        <dt>Close / stale</dt>
+        <dd>{starterAisSummary.closeTargets} / {starterAisSummary.staleTargets}</dd>
+      </div>
+      <div>
+        <dt>Warnings / blockers</dt>
+        <dd>{starterAisSummary.warnings} / {starterAisSummary.blockers}</dd>
+      </div>
+    </dl>
+    <div class="network-list">
+      {#each starterAisScenario.targets as target}
+        <article>
+          <p class="template-category">{target.targetClass}</p>
+          <h3>{target.name ?? target.mmsi}</h3>
+          <p>{target.rangeNm} nm · age {target.ageSeconds}s</p>
+          <ul>
+            <li>CPA: {target.cpaNm ?? 'not available'} nm</li>
+            <li>Watch note: {target.notes[0]}</li>
           </ul>
         </article>
       {/each}
@@ -350,15 +396,11 @@
   }
 
   h3 {
-    margin: 0.35rem 0 0.5rem;
+    margin: 0.25rem 0 0.5rem;
   }
 
   ul {
     padding-left: 1.25rem;
-  }
-
-  li + li {
-    margin-top: 0.5rem;
   }
 
   .template-category {
@@ -367,5 +409,6 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    color: #5b6470;
   }
 </style>
