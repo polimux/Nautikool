@@ -8,6 +8,9 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Added
 
+- Harbour notebook domain logic for static route-pack harbour notes, freshness, contact gaps, draft margin, night-arrival suitability and cockpit-readable offline brief lines.
+- Typed H-323 Elina Turku to Pärnu harbour-note content for Turku, Nauvo, Hanko, Dirhami, Kärdla, Haapsalu, Virtsu/Muhu and Pärnu.
+- Vitest coverage for harbour-note readiness, stale/unknown information, night-arrival blockers, H-323 route-pack content and offline brief generation.
 - Passage split recommendation domain logic that turns over-long or exposed static passage legs into skipper-facing split decisions, read-aloud briefs and safety limitations.
 - Typed H-323 Elina Turku to Pärnu split-scenario content for Hanko to Haapsalu, Haapsalu to Pärnu and Nauvo to Hanko fallback decisions, including Dirhami, Kärdla, Virtsu/Muhu and Kasnäs notes.
 - Vitest coverage for route split blockers, static-planning limitations, H-323 split content publication and invalid leg IDs.
