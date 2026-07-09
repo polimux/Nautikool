@@ -78,33 +78,34 @@ Repository state reviewed:
 - The SRC/VHF slice has typed radio call cards for distress, urgency and safety situations linked to H-323 Elina training scenarios.
 - The radio-log slice creates structured entries and a compact watch-change handover brief from H-323 Elina training and traffic-decision examples.
 - The maintenance readiness slice has pure task/finding/summary logic plus an H-323 Elina pre-passage service pack.
-- The spare readiness slice now has pure requirement/finding/summary logic plus an H-323 Elina passage spare kit linked to maintenance tasks.
-- The landing page surfaces checklist, passage, vessel, maintenance, spares, risk, NMEA/AIS readiness, AIS traffic watch briefs, AIS debriefs and SRC/VHF radio call cards.
+- The spare readiness slice has pure requirement/finding/summary logic plus an H-323 Elina passage spare kit linked to maintenance tasks.
+- The trip logbook slice now has pure entry/summary/debrief logic plus an H-323 Elina Turku to Pärnu family-passage example.
+- The landing page surfaces checklist, passage, vessel, maintenance, spares, trip logbook, risk, NMEA/AIS readiness, AIS traffic watch briefs, AIS debriefs and SRC/VHF radio call cards.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Add Spare Readiness as the next valuable slice because maintenance blockers only become actionable when the skipper knows what parts, tools and consumables must be onboard.
-- Introduce pure spare requirement logic for critical/recommended/nice-to-have priority, missing/unknown/insufficient status, blocker/caution findings and departure summaries.
-- Add H-323 Elina pre-passage spare content for raw-water impeller, diesel filter, belt, fuses, handheld VHF backup, softwood plugs, rig consumables and a SeaTalkNG/NMEA2000 troubleshooting spare.
-- Surface spare blockers and cautions on the landing page as locker-level skipper actions, not just hidden fixture data.
-- Keep the implementation focused: no inventory persistence, no barcode scanning and no vendor-specific part-number database until the static content proves useful.
+- Add Trip Logbook as the next valuable slice because the product now prepares passages and readiness, but still needs to learn from what actually happened.
+- Introduce pure trip-log logic for structured passage entries, engine-hour deltas, caution/blocker counts, missing-position prompts, follow-ups and read-aloud debrief lines.
+- Add H-323 Elina content for the Turku to Pärnu family passage: departure brief, archipelago motor-sail fatigue, diesel-filter spare follow-up and Hanko arrival lesson.
+- Surface the trip logbook on the landing page so post-leg learning becomes visible as a product workflow, not only hidden fixture data.
+- Keep the implementation focused: no persistence, sync, photo upload, GPS track ingestion or editable UI until the static domain and content shape prove useful.
 
 Rationale:
 
-- The current product can identify maintenance risk, but a skipper preparing a real Baltic passage needs a concrete answer to: "What do I need to buy, label and place onboard?"
-- Spares readiness links Vessel Profile, Maintenance Readiness, Passage Planner and Risk Engine without needing live hardware adapters.
-- Critical unknown spares must not collapse into green readiness; unknown impeller, fuel filter or belt availability is deliberately treated as blocker-grade for a family transfer leg.
+- Nautikool already answers "what should I prepare?"; the next compounding product value is answering "what should I change before the next leg?"
+- Trip logs link Passage Planner, Vessel Profile, Maintenance Readiness, Spares Readiness, Risk Engine and crew learning without requiring live hardware integrations.
+- A conservative logbook must not hide missing positions, maintenance blockers or follow-ups behind a successful arrival.
 - The implementation remains pure TypeScript and testable while adding practical user-facing content immediately.
 
 Working log:
 
-- Added `SpareRequirement`, `SpareFinding`, `SpareReadinessSummary`, `assessSpareRequirements` and `summarizeSpareReadiness`.
-- Added H-323 Elina spare readiness content for Yanmar/cooling/fuel/electrical/VHF/leak-control/rig/NMEA scenarios, with maintenance-task links and locker-level skipper actions.
-- Added Vitest coverage for critical missing/unknown blockers, insufficient quantities, H-323 spare-pack summary, maintenance linkage and green-only-when-prepared behaviour.
-- Exported the spares domain and surfaced the H-323 spare readiness card on the landing page.
-- Updated `CHANGELOG.md` with spare readiness logic, H-323 content, tests, UI exposure and decision-record linkage.
+- Added `TripLogEntry`, `TripLogSummary`, `summarizeTripLog`, `buildTripLogDebrief` and shared debrief prompts.
+- Added H-323 Elina Turku to Pärnu trip-log content with weather reality, engine hours, crew-state notes, maintenance follow-up and arrival lesson.
+- Added Vitest coverage for summary counts, engine-hour delta, missing operational positions, debrief lines and H-323 content publication.
+- Exported the trip-log domain and surfaced the H-323 trip logbook/debrief card on the landing page.
+- Updated `CHANGELOG.md` with trip-log domain logic, H-323 content, tests, UI exposure and decision-record linkage.
 
 ## Feature backlog
 
@@ -119,7 +120,7 @@ Working log:
 | F-005 | Scenario trainer | Interactive decisions for crossing traffic, squalls, harbour approaches, engine alarms and MOB. | Medium | Started |
 | F-006 | Boat systems notebook | Document seacocks, fuel, engine, electrics, NMEA network, spares and known defects. | High | Started |
 | F-007 | Maintenance log | Track engine hours, oil changes, filters, batteries, rig checks, extinguishers and liferaft service. | High | Started |
-| F-008 | Trip logbook | Capture trip, crew, weather, sail setup, incidents, lessons learned and engine hours. | Medium | Idea |
+| F-008 | Trip logbook | Capture trip, crew, weather, sail setup, incidents, lessons learned and engine hours. | Medium | Started |
 | F-009 | Harbour notebook | Store harbour notes, berth details, fees, VHF channels, fuel, groceries, sauna and approach notes. | Medium | Idea |
 | F-010 | Risk card | Generate green/yellow/red departure assessment from weather, route, crew and boat readiness. | High | Started |
 | F-011 | Radio call cards | Generate short SRC/VHF read-aloud cards for distress, urgency, safety and routine harbour calls. | High | Started |
@@ -144,6 +145,7 @@ Working log:
 | UX-012 | Radio log handover | Show recent radio calls, decisions, position sources and follow-ups during watch change. | High | Started |
 | UX-013 | Maintenance readiness card | Show overdue, due-soon and unknown service items as skipper actions. | High | Started |
 | UX-014 | Spare readiness card | Show missing, unknown and insufficient passage spares as locker-level skipper actions. | High | Started |
+| UX-015 | Trip log debrief card | Show what changed, what broke, what needs follow-up and what to brief differently next time. | High | Started |
 
 ### Navigation, offline and integration ideas
 
@@ -166,6 +168,7 @@ Working log:
 | AIS-007 | Watch debrief builder | Convert AIS watch briefs into training lessons, safety prompts and repeat drills. | High | Started |
 | VHF-001 | SRC call cards | Convert emergency and traffic situations into conservative VHF read-aloud scripts. | High | Started |
 | VHF-002 | Radio log handover | Convert radio-call cards and watch events into structured log entries and follow-up prompts. | High | Started |
+| LOG-001 | Trip log debrief | Convert sailed legs into summary metrics, follow-ups and next-leg learning prompts. | High | Started |
 | MNT-001 | Maintenance readiness | Convert maintenance tasks into conservative pre-passage blocker/caution findings. | High | Started |
 | MNT-002 | Spares readiness | Convert spare requirements into conservative onboard preparation findings. | High | Started |
 | WTH-001 | Forecast comparison | Compare wind, gusts, waves, rain and pressure across providers/models. | High | Idea |
@@ -186,7 +189,7 @@ Working log:
 | B-008 | Checklist state | Skipped required items appear as safe completion. | Checklist completion logic distinguishes clean completion from warned completion. |
 | B-009 | Missing data | Unknown weather, route or crew data defaults to green. | Model `unknown` separately and test conservative escalation. |
 | B-010 | Domain/UI coupling | UI state becomes the source of truth. | Keep checklist logic as pure TypeScript functions with tests. |
-| B-011 | Broken main branch | New features compile locally but break tests or build. | GitHub Actions validates checks, tests and build on push/PR. |
+| B-011 | Broken main branch | New features compile locally but break tests or build. | GitHub Actions validates checks, tests and build on push and pull request. |
 | B-012 | CI dependency setup | CI fails before product checks because dependency caching assumes a missing lockfile. | Avoid npm cache until a lockfile exists; then use lockfile-backed installs. |
 | B-013 | Repository drift | Changes are made without a clear decision record, validation path or safety-sensitive review shape. | Use `CONTRIBUTING.md` and the `ideas.md` decision/working-log format for meaningful changes. |
 | B-014 | Passage distance optimism | A nominal day plan hides that one leg is too long for family crew or daylight. | Keep leg-level distances and summary tests visible; later add thresholds and warnings. |
@@ -208,6 +211,7 @@ Working log:
 | B-030 | Radio handover false confidence | A tidy radio-log handover sounds like permission to transmit from memory or stop looking out. | Keep current-position copying, live-judgement limits and boat-handling priority visible in every handover brief. |
 | B-031 | Maintenance false green | Unknown or overdue safety/engine service state is treated as acceptable because the boat profile exists. | Model maintenance unknown/due/overdue states and convert critical unknowns into blocker findings with tests. |
 | B-032 | Spares false green | A maintenance plan exists but critical parts are missing, unknown or too few onboard. | Model spare priority, quantity and status separately; convert critical gaps into blocker findings with tests. |
+| B-033 | Trip debrief false confidence | A successful arrival hides missing positions, unresolved blockers or next-leg follow-ups. | Model log positions, severity, engine hours and follow-ups explicitly; expose debrief lines and test that blockers remain visible. |
 
 ## Roadmap
 
@@ -241,6 +245,7 @@ Scope:
 - Printable/exportable passage plan.
 - Maintenance readiness card.
 - Spares readiness card.
+- Trip logbook and debrief card.
 
 Success criteria:
 
