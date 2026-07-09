@@ -8,6 +8,9 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Added
 
+- Spare readiness domain logic for vessel-specific spare requirements, critical/recommended priorities, missing/unknown/insufficient findings and departure summaries.
+- Typed H-323 Elina spare readiness content covering raw-water impeller kit, primary diesel filter, alternator belt, blade fuses, handheld VHF backup, softwood plugs, rig consumables and SeaTalkNG/NMEA2000 troubleshooting parts.
+- Vitest coverage for spare blockers, insufficient quantities, H-323 spare-pack summaries, maintenance-task linkage and green-only-when-prepared behaviour.
 - Maintenance readiness domain logic for vessel-specific service tasks, date/hour due checks, findings and departure summaries.
 - Typed H-323 Elina maintenance readiness content covering Yanmar lubrication, raw-water cooling, fuel, liferaft, fire extinguishers, Ray90 DSC position, batteries and rig checks.
 - Vitest coverage for maintenance status inference, engine-hour due windows, H-323 blocker logic, unknown safety items and conservative non-green summaries.
@@ -75,6 +78,8 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Changed
 
+- Landing page now surfaces H-323 spare readiness with critical spare gaps, blocker/caution findings, example kit items and locker-level skipper actions.
+- Domain barrel exports now include the spare readiness module.
 - Landing page now surfaces H-323 maintenance readiness with blockers, cautions, covered systems and skipper actions.
 - Domain barrel exports now include the maintenance readiness module.
 - The repository has moved from documentation-only foundation to the first runnable application foundation.
@@ -106,6 +111,7 @@ This project uses a simple human-readable changelog while the product and archit
 - `ideas.md` now records the radio-log handover decision, rationale, working log and log-without-position risk.
 - `ideas.md` now records the radio handover brief decision, rationale, working log and false-confidence risk.
 - `ideas.md` now records the maintenance readiness decision, rationale, working log and maintenance false-green risk.
+- `ideas.md` now records the spare readiness decision, rationale, working log and spares false-green risk.
 
 ### Removed
 
