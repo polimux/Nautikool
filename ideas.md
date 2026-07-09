@@ -70,7 +70,8 @@ Repository state reviewed:
 - The starter content registry includes departure readiness, diesel inboard pre-start, night-arrival, heavy-weather departure and MOB immediate-action checklist templates.
 - The Passage Planner slice has typed passage plan domain types, pure summary logic, tests and one realistic Turku to Pärnu H-323 sample route.
 - The passage workload slice flags over-long family legs, likely daylight workload, exposed open-water legs, bailout coverage gaps and missing crew notes.
-- The new passage split recommendation slice turns workload blockers into concrete conservative split decisions and read-aloud briefs.
+- The passage split recommendation slice turns workload blockers into concrete conservative split decisions and read-aloud briefs.
+- The Harbour Notebook slice now models static route-pack harbour notes, freshness, VHF/contact gaps, draft margin, night-arrival suitability and offline brief lines.
 - The Vessel Profile slice has richer equipment, engine, rig, battery, tank and readiness-finding types.
 - A first H-323 Elina vessel profile exists with identity data, Yanmar engine checks, Raymarine/Orca/em-trak equipment, safety equipment and explicit assumptions about unverified capacities.
 - The Risk Engine slice models Baltic wind limits, stale forecasts, thunderstorms, waves, open-water exposure, fatigue, equipment gaps, night/overnight legs and restricted visibility.
@@ -88,25 +89,26 @@ Repository state reviewed:
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Add Passage Split Recommendations as the next valuable slice because workload analysis can identify a leg that is too long, but the skipper still needs a concrete conservative alternative to brief before departure.
-- Keep it pure TypeScript and content-backed: a split recommendation is static planning content, not live harbour, weather or traffic advice.
-- Use the H-323 Elina Turku to Pärnu plan as the first scenario because the route contains a direct Hanko to Haapsalu open-water blocker, a long Haapsalu to Pärnu coastal day and a Nauvo to Hanko fatigue fallback.
-- Treat named stops as decision prompts that must be verified with current charts, harbour facts, weather and crew state.
+- Add Harbour Notebook as the next valuable slice because passage split recommendations now name harbour decisions, but the app needs to distinguish a verified offline stop from a vague or stale harbour label.
+- Keep it pure TypeScript and content-backed: harbour notes are static preparation content, not live berth, weather, notice-to-mariners or harbour-master advice.
+- Use the H-323 Elina Turku to Pärnu plan as the first route pack because it contains home, planned stops, bailout options, decision areas and a destination.
+- Treat named harbour notes as verification prompts that must be refreshed with current charts, harbour facts, weather and crew state.
 
 Rationale:
 
-- The user-facing product already flags that the Hanko to Haapsalu leg is too optimistic for a normal family day. The next product value is converting "split the leg" into named, briefable options.
-- Route splitting strengthens both the Passage Planner and Risk Engine without adding external data dependencies.
-- Read-aloud split briefs support wet-hands cockpit use and printable preparation.
-- Explicit limitations reduce the risk that demo content is mistaken for live harbour or navigation advice.
+- Route splitting is only useful if the skipper can assess whether a named stop is actually fit for the vessel and family crew.
+- Harbour freshness, draft margin, contact details and night-arrival suitability are safety-relevant offline preparation details.
+- The slice strengthens the Passage Planner and Offline Route Pack direction without requiring external live harbour data.
+- Explicit limitations reduce the risk that demo harbour content is mistaken for live harbour availability or navigation advice.
 
 Working log:
 
-- Added `PassageSplitScenario`, `PassageSplitStop`, `PassageSplitRecommendation` and `recommendPassageSplits`.
-- Added H-323 Elina Turku to Pärnu split content for Dirhami, Kärdla, Virtsu/Muhu decision area and Kasnäs.
-- Added Vitest coverage for route split blockers, safety limitations, H-323 content publication and unknown leg errors.
-- Exported the route split recommendation domain from the domain barrel.
-- Updated `CHANGELOG.md` with split recommendation logic, H-323 content and test coverage.
+- Added `HarbourNote`, `HarbourFacility`, `HarbourApproachNote`, `HarbourFinding` and `HarbourNotebookSummary` domain types.
+- Added `assessHarbourNote`, `getHarbourNoteStatus` and `summarizeHarbourNotebook` pure domain logic.
+- Added H-323 Elina Turku to Pärnu harbour-note content for Turku, Nauvo, Hanko, Dirhami, Kärdla, Haapsalu, Virtsu/Muhu and Pärnu.
+- Added Vitest coverage for complete notes, stale/unknown source blockers, night-arrival blockers, H-323 content publication and offline brief lines.
+- Exported the harbour notebook domain from the domain barrel.
+- Updated `CHANGELOG.md` with harbour notebook logic, H-323 content and test coverage.
 
 ## Feature backlog
 
@@ -122,7 +124,7 @@ Working log:
 | F-006 | Boat systems notebook | Document seacocks, fuel, engine, electrics, NMEA network, spares and known defects. | High | Started |
 | F-007 | Maintenance log | Track engine hours, oil changes, filters, batteries, rig checks, extinguishers and liferaft service. | High | Started |
 | F-008 | Trip logbook | Capture trip, crew, weather, sail setup, incidents, lessons learned and engine hours. | Medium | Started |
-| F-009 | Harbour notebook | Store harbour notes, berth details, fees, VHF channels, fuel, groceries, sauna and approach notes. | Medium | Idea |
+| F-009 | Harbour notebook | Store harbour notes, berth details, fees, VHF channels, fuel, groceries, sauna and approach notes. | Medium | Started |
 | F-010 | Risk card | Generate green/yellow/red departure assessment from weather, route, crew and boat readiness. | High | Started |
 | F-011 | Radio call cards | Generate short SRC/VHF read-aloud cards for distress, urgency, safety and routine harbour calls. | High | Started |
 | F-012 | Radio log | Record radio calls, traffic decisions, training rehearsals, position sources, crew actions and follow-ups. | High | Started |
@@ -155,6 +157,7 @@ Working log:
 | UX-017 | Printable departure brief | Show a paper-friendly skipper brief with decision, route, weather, crew, boat, electronics and limitation sections. | High | Started |
 | UX-018 | Leg workload warnings | Show which passage legs exceed family crew distance, duration, daylight, exposure or bailout limits. | High | Started |
 | UX-019 | Route split card | Show named conservative split options, decision points and limitation copy for difficult passage legs. | High | Started |
+| UX-020 | Harbour route-pack card | Show harbour freshness, draft margin, contact gaps and night-arrival status for planned/bailout stops. | High | Started |
 
 ### Navigation, offline and integration ideas
 
@@ -165,10 +168,11 @@ Working log:
 | NAV-007 | Night passage prep | Navigation lights, watch rhythm, rest, headlamp discipline and traffic plan. | High | Started |
 | NAV-008 | Passage workload policy | Apply skipper/vessel/crew policy limits to leg distance, duration, daylight and exposure. | High | Started |
 | NAV-009 | Route split recommendations | Convert over-long or exposed legs into named fallback/split decisions with read-aloud briefs. | High | Started |
+| NAV-010 | Harbour notebook readiness | Assess static harbour notes for freshness, contact gaps, draft fit, night-arrival suitability and offline route-pack brief lines. | High | Started |
 | OFF-001 | Offline knowledge base | Core lessons and emergency procedures available without internet. | High | Idea |
 | OFF-002 | Offline checklists | Vessel and passage checklists cached locally. | High | Idea |
-| OFF-003 | Offline route pack | Save route, harbour notes, documents and weather snapshot for a trip. | High | Idea |
-| OFF-004 | Freshness labels | Show when downloaded forecasts or harbour info were last updated. | High | Idea |
+| OFF-003 | Offline route pack | Save route, harbour notes, documents and weather snapshot for a trip. | High | Started |
+| OFF-004 | Freshness labels | Show when downloaded forecasts or harbour info were last updated. | High | Started |
 | N2K-001 | Network inventory | Document devices, PGNs, power injection, terminators and adapter cables. | High | Started |
 | N2K-005 | Simulator input | Provide mock NMEA2000 data for development and tests. | High | Started |
 | AIS-002 | AIS learning mode | Explain CPA, TCPA, MMSI, COG, SOG and class A/B. | High | Started |
@@ -191,7 +195,7 @@ Working log:
 ## Expected bug classes and prevention
 
 | ID | Area | Risk | Prevention |
-|---|---|---|
+|---|---|---|---|
 | B-001 | Unit conversion | Confusion between m, nm, kn, km/h and hours. | Central unit library and tests. |
 | B-002 | Time zones | ETA and weather timestamps mismatch. | Store timezone metadata; test Baltic crossings. |
 | B-003 | Offline data | Missing route/checklist content once network is gone. | Offline manifest and offline integration tests. |
@@ -229,6 +233,7 @@ Working log:
 | B-035 | Printout false confidence | A tidy printed brief is mistaken for current live readiness after weather, crew, equipment or harbour facts change. | Include generated/static labels, live-condition caveats and re-marking prompts in the brief output and tests. |
 | B-036 | Family workload false green | A plan with realistic total distance hides one leg that is too long, too exposed or too weakly supported by bailout options. | Analyze workload per leg with target and hard limits; test H-323 route blockers and bailout cautions. |
 | B-037 | Split-route false safety | A named split harbour sounds like live permission to continue or divert without checking current facts. | Keep split recommendations static, require skipper verification and test that harbour/weather limitations remain visible. |
+| B-038 | Harbour-note false safety | A named harbour note is stale, too vague or unfit for draft/night arrival but still appears as a safe stop. | Assess harbour freshness, draft margin, contact gaps and night-arrival suitability with blocker/caution findings. |
 
 ## Roadmap
 
@@ -262,6 +267,7 @@ Scope:
 - Printable/exportable passage plan.
 - Passage workload warnings.
 - Passage split recommendations.
+- Harbour notebook readiness.
 - Maintenance readiness card.
 - Spares readiness card.
 - Trip logbook and debrief card.
