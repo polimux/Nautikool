@@ -3,6 +3,7 @@ export * from './passages';
 export * from './passageWorkload';
 export * from './passageSplitRecommendations';
 export * from './harbours';
+export * from './harbourDepartureGates';
 export * from './risks';
 export * from './vessels';
 export * from './nmea';
