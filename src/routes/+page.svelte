@@ -1,5 +1,6 @@
 <script lang="ts">
   import { coreChecklistTemplates, departureReadinessTemplate } from '$lib/content/checklistTemplates';
+  import { h323ElinaNmeaNetworkProfile, h323ElinaNmeaNetworkSummary } from '$lib/content/nmeaNetworks';
   import { turkuToParnuFamilyPassagePlan } from '$lib/content/passagePlans';
   import { coreRiskAssessments } from '$lib/content/riskAssessments';
   import { h323ElinaVesselProfile } from '$lib/content/vesselProfiles';
@@ -18,6 +19,8 @@
   const starterVessel = h323ElinaVesselProfile;
   const starterVesselSummary = summarizeVesselProfile(starterVessel);
   const starterRiskAssessments = coreRiskAssessments;
+  const starterNmeaNetwork = h323ElinaNmeaNetworkProfile;
+  const starterNmeaSummary = h323ElinaNmeaNetworkSummary;
   const navigationEquipment = getVesselEquipmentByCategory(starterVessel, 'navigation');
   const safetyEquipment = getVesselEquipmentByCategory(starterVessel, 'safety');
 </script>
@@ -127,6 +130,47 @@
           {/each}
         </ul>
       </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="nmea-title">
+    <h2 id="nmea-title">Starter NMEA/AIS network profile</h2>
+    <p>
+      The new network slice documents how Elina should share GNSS, AIS, plotter and VHF/DSC data,
+      with skipper-facing readiness findings for backbone termination, network power and AIS/position
+      data paths.
+    </p>
+    <dl>
+      <div>
+        <dt>Network</dt>
+        <dd>{starterNmeaNetwork.title}</dd>
+      </div>
+      <div>
+        <dt>Installed devices</dt>
+        <dd>{starterNmeaSummary.installedDevices}</dd>
+      </div>
+      <div>
+        <dt>Transmit / receive PGNs</dt>
+        <dd>{starterNmeaSummary.transmitPgns} / {starterNmeaSummary.receivePgns}</dd>
+      </div>
+      <div>
+        <dt>Warnings / blockers</dt>
+        <dd>{starterNmeaSummary.warnings} / {starterNmeaSummary.blockers}</dd>
+      </div>
+    </dl>
+    <div class="network-list">
+      {#each starterNmeaNetwork.devices as device}
+        <article>
+          <p class="template-category">{device.role}</p>
+          <h3>{device.name}</h3>
+          <p>{device.protocols.join(', ')} · {device.pgns.length} PGN capabilities</p>
+          <ul>
+            {#each device.pgns.slice(0, 2) as capability}
+              <li>{capability.label}: {capability.userValue}</li>
+            {/each}
+          </ul>
+        </article>
+      {/each}
     </div>
   </section>
 
@@ -284,7 +328,8 @@
   .template-list,
   .leg-list,
   .equipment-list,
-  .risk-card-list {
+  .risk-card-list,
+  .network-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 1rem;
@@ -292,7 +337,8 @@
 
   .leg-list,
   .equipment-list,
-  .risk-card-list {
+  .risk-card-list,
+  .network-list {
     margin-top: 1rem;
   }
 
