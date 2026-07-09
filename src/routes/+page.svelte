@@ -7,10 +7,12 @@
     h323ElinaNmeaNetworkSummary
   } from '$lib/content/nmeaNetworks';
   import { turkuToParnuFamilyPassagePlan } from '$lib/content/passagePlans';
+  import { coreRadioCallCards, srcTrainingNotes } from '$lib/content/radioCallCards';
   import { coreRiskAssessments } from '$lib/content/riskAssessments';
   import { h323ElinaVesselProfile } from '$lib/content/vesselProfiles';
   import { createChecklistRun, summarizeChecklistRun } from '$lib/domain/checklists';
   import { summarizePassagePlan } from '$lib/domain/passages';
+  import { summarizeRadioCallDrills } from '$lib/domain/radioCalls';
   import { getVesselEquipmentByCategory, summarizeVesselProfile } from '$lib/domain/vessels';
 
   const run = createChecklistRun(departureReadinessTemplate, {
@@ -28,6 +30,8 @@
   const starterNmeaSummary = h323ElinaNmeaNetworkSummary;
   const starterAisDrills = coreAisWatchBriefDrills;
   const starterAisDebriefs = coreAisWatchDebriefs;
+  const starterRadioCallCards = coreRadioCallCards;
+  const starterRadioCallSummary = summarizeRadioCallDrills(starterRadioCallCards, srcTrainingNotes);
   const navigationEquipment = getVesselEquipmentByCategory(starterVessel, 'navigation');
   const safetyEquipment = getVesselEquipmentByCategory(starterVessel, 'safety');
 </script>
@@ -246,6 +250,46 @@
             {/each}
           </ul>
           <p>{drill.debrief.followUpDrill}</p>
+        </article>
+      {/each}
+    </div>
+  </section>
+
+  <section aria-labelledby="radio-title">
+    <h2 id="radio-title">SRC/VHF radio call cards</h2>
+    <p>
+      Radio call cards now turn emergency and traffic scenarios into short read-aloud scripts for
+      SRC preparation. They are intentionally conservative: use them for offline training, and only
+      transmit distress or urgency wording when the real situation justifies it.
+    </p>
+    <dl>
+      <div>
+        <dt>Training cards</dt>
+        <dd>{starterRadioCallSummary.cardCount}</dd>
+      </div>
+      <div>
+        <dt>Distress / urgency / safety</dt>
+        <dd>
+          {starterRadioCallSummary.distressCards} / {starterRadioCallSummary.urgencyCards} /
+          {starterRadioCallSummary.safetyCards}
+        </dd>
+      </div>
+      <div>
+        <dt>Highest priority first line</dt>
+        <dd>{starterRadioCallSummary.firstReadAloudLine}</dd>
+      </div>
+    </dl>
+    <div class="network-list">
+      {#each starterRadioCallCards as card}
+        <article>
+          <p class="template-category">{card.urgency} · {card.area}</p>
+          <h3>{card.title}</h3>
+          <p>{card.channel}</p>
+          <ul>
+            {#each card.readAloud.slice(0, 4) as line}
+              <li>{line}</li>
+            {/each}
+          </ul>
         </article>
       {/each}
     </div>
