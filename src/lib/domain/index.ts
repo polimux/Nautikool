@@ -9,4 +9,5 @@ export * from './maintenance';
 export * from './spares';
 export * from './tripLogs';
 export * from './departureDashboard';
+export * from './departureBrief';
 export * from './types';
