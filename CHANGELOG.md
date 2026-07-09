@@ -8,6 +8,9 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Added
 
+- Passage workload analysis domain logic that flags over-long family legs, likely daylight workload, long exposed open-water passages, missing bailout coverage and missing crew notes.
+- Typed H-323 Elina Turku to Pärnu workload policy content using a 50 nm family target, 65 nm hard day-leg limit and explicit static-plan limitations.
+- Vitest coverage for green short-hop workload, hard-limit blockers, bailout cautions and the H-323 Turku to Pärnu workload publication.
 - Departure skipper brief domain logic that converts the pre-departure dashboard into printable/wet-hands sections for decision, route, weather, crew, boat, electronics, checklist and safety limitations.
 - Typed H-323 Elina Turku to Pärnu printable skipper brief content with family-crew route focus, weather checkpoints, crew role assignments, boat checks, electronics checks and conservative go/no-go question.
 - Vitest coverage for departure brief section generation, first-action visibility, static-copy safety limitations and H-323 Elina family-passage brief publication.
@@ -87,6 +90,8 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Changed
 
+- Domain barrel exports now include the passage workload module.
+- `ideas.md` now records the passage workload decision, rationale, working log and family-workload false-green risk.
 - Domain barrel exports now include the departure skipper brief module.
 - `ideas.md` now records the departure skipper brief decision, rationale, working log and printout false-confidence risk.
 - Landing page now surfaces the H-323 pre-departure dashboard with aggregated blockers, cautions, readiness score, source-level findings and read-aloud preparation brief.
