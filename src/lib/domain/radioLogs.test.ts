@@ -3,11 +3,14 @@ import { coreRadioCallCards } from '$lib/content/radioCallCards';
 import {
   h323ElinaRadioLogExamples,
   h323ElinaRadioLogFollowUps,
+  h323ElinaRadioLogHandover,
   h323ElinaRadioLogSummary
 } from '$lib/content/radioLogs';
 import {
+  buildRadioLogHandoverBrief,
   createRadioLogEntryFromCard,
   findRadioLogEntriesNeedingFollowUp,
+  radioLogHandoverLimitations,
   radioLogReadBackChecklist,
   summarizeRadioLog
 } from './radioLogs';
@@ -56,5 +59,31 @@ describe('radio log entries', () => {
     expect(followUps).toEqual(h323ElinaRadioLogFollowUps);
     expect(followUps).toHaveLength(2);
     expect(followUps.map((entry) => entry.id)).toContain('radio-log:h323-elina:tallinn-traffic-decision');
+  });
+
+  it('builds a radio watch handover brief with critical actions, position prompts and limitations', () => {
+    const handover = buildRadioLogHandoverBrief(h323ElinaRadioLogExamples, {
+      title: 'Test H-323 radio handover',
+      audience: 'incoming cockpit watch'
+    });
+
+    expect(handover.headline).toContain('3 radio log entries');
+    expect(handover.highestUrgency).toBe('distress');
+    expect(handover.criticalLines[0]).toContain('MOB Mayday rehearsal');
+    expect(handover.criticalLines[0]).toContain('Action:');
+    expect(handover.positionPrompts).toHaveLength(3);
+    expect(handover.positionPrompts[1]).toContain('North of Tallinn approach');
+    expect(handover.followUpLines).toHaveLength(2);
+    expect(handover.crewRoleLines).toContain('Crew 2: log and position prompt');
+    expect(handover.limitations).toEqual(radioLogHandoverLimitations);
+    expect(handover.limitations.join(' ')).toContain('Boat handling, lookout and collision avoidance');
+  });
+
+  it('publishes the H-323 Elina handover content for family-crew watch changes', () => {
+    expect(h323ElinaRadioLogHandover.title).toBe('H-323 Elina radio watch handover');
+    expect(h323ElinaRadioLogHandover.headline).toContain('family-crew watch change');
+    expect(h323ElinaRadioLogHandover.criticalLines).toHaveLength(3);
+    expect(h323ElinaRadioLogHandover.followUpLines.join(' ')).toContain('visibility improves');
+    expect(h323ElinaRadioLogHandover.limitations.join(' ')).toContain('copy the current position');
   });
 });
