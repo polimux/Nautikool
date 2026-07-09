@@ -3,4 +3,5 @@ export * from './passages';
 export * from './risks';
 export * from './vessels';
 export * from './nmea';
+export * from './radioCalls';
 export * from './types';
