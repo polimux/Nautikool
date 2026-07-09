@@ -8,6 +8,9 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Added
 
+- Trip logbook domain logic for structured passage entries, engine-hour deltas, missing-position prompts, follow-ups and compact debrief lines.
+- Typed H-323 Elina Turku to Pärnu family-passage trip log content covering departure brief, archipelago motor-sail fatigue, diesel-filter spare follow-up and Hanko arrival lesson.
+- Vitest coverage for trip-log summaries, missing operational positions, debrief output and H-323 trip-log content publication.
 - Spare readiness domain logic for vessel-specific spare requirements, critical/recommended priorities, missing/unknown/insufficient findings and departure summaries.
 - Typed H-323 Elina spare readiness content covering raw-water impeller kit, primary diesel filter, alternator belt, blade fuses, handheld VHF backup, softwood plugs, rig consumables and SeaTalkNG/NMEA2000 troubleshooting parts.
 - Vitest coverage for spare blockers, insufficient quantities, H-323 spare-pack summaries, maintenance-task linkage and green-only-when-prepared behaviour.
@@ -78,6 +81,8 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Changed
 
+- Landing page now surfaces the H-323 trip logbook with engine-hour delta, caution/blocker counts, follow-ups and debrief lines.
+- Domain barrel exports now include the trip logbook module.
 - Landing page now surfaces H-323 spare readiness with critical spare gaps, blocker/caution findings, example kit items and locker-level skipper actions.
 - Domain barrel exports now include the spare readiness module.
 - Landing page now surfaces H-323 maintenance readiness with blockers, cautions, covered systems and skipper actions.
@@ -112,6 +117,7 @@ This project uses a simple human-readable changelog while the product and archit
 - `ideas.md` now records the radio handover brief decision, rationale, working log and false-confidence risk.
 - `ideas.md` now records the maintenance readiness decision, rationale, working log and maintenance false-green risk.
 - `ideas.md` now records the spare readiness decision, rationale, working log and spares false-green risk.
+- `ideas.md` now records the trip logbook decision, rationale, working log and debrief false-confidence risk.
 
 ### Removed
 
