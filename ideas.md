@@ -69,6 +69,7 @@ Repository state reviewed:
 - GitHub Actions CI validates install, Svelte/TypeScript checks, unit tests and production build.
 - The starter content registry includes departure readiness, diesel inboard pre-start, night-arrival, heavy-weather departure and MOB immediate-action checklist templates.
 - The Passage Planner slice has typed passage plan domain types, pure summary logic, tests and one realistic Turku to Pärnu H-323 sample route.
+- The new passage workload slice flags over-long family legs, likely daylight workload, exposed open-water legs, bailout coverage gaps and missing crew notes.
 - The Vessel Profile slice has richer equipment, engine, rig, battery, tank and readiness-finding types.
 - A first H-323 Elina vessel profile exists with identity data, Yanmar engine checks, Raymarine/Orca/em-trak equipment, safety equipment and explicit assumptions about unverified capacities.
 - The Risk Engine slice models Baltic wind limits, stale forecasts, thunderstorms, waves, open-water exposure, fatigue, equipment gaps, night/overnight legs and restricted visibility.
@@ -79,32 +80,32 @@ Repository state reviewed:
 - The spare readiness slice has pure requirement/finding/summary logic plus an H-323 Elina passage spare kit linked to maintenance tasks.
 - The trip logbook slice has pure entry/summary/debrief logic plus an H-323 Elina Turku to Pärnu family-passage example.
 - The pre-departure dashboard slice aggregates checklist, risk, maintenance, spares, NMEA/AIS and trip-log summaries into one conservative H-323 Elina preparation card.
-- The new departure skipper brief slice converts the dashboard into a printable/wet-hands route, weather, crew, boat, electronics and limitations brief.
+- The departure skipper brief slice converts the dashboard into a printable/wet-hands route, weather, crew, boat, electronics and limitations brief.
 - The landing page surfaces checklist, passage, vessel, maintenance, spares, trip logbook, pre-departure dashboard, risk, NMEA/AIS readiness, AIS traffic watch briefs, AIS debriefs and SRC/VHF radio call cards.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Add a Departure Skipper Brief as the next valuable slice because the dashboard shows the status, but the skipper still needs a printable and read-aloud decision artifact for cockpit preparation.
-- Keep it pure TypeScript: no persistence, export UI, PDF generation or live weather ingestion yet.
-- Include user-facing H-323 Elina Turku to Pärnu family-crew content so the feature is not generic plumbing.
-- Treat the brief as a preparation artifact, not live sailing advice; make static-copy and skipper-judgement limitations part of the generated output.
+- Add Passage Workload Analysis as the next valuable slice because the route planner has distances and hazards, but not yet a clear family-crew workload judgment per leg.
+- Keep it pure TypeScript and content-backed: analyze static plan legs against a configurable workload policy without live weather, tides, current, traffic or harbour availability.
+- Use the H-323 Elina Turku to Pärnu plan as the first scenario because it contains exactly the useful tension: short archipelago start, a near-target Nauvo to Hanko day, an over-long Hanko to Haapsalu open-water crossing, and a long final coastal leg.
+- Treat workload output as a planning gate, not as permission to sail; live weather and crew state still override static policy.
 
 Rationale:
 
-- The product now has many safety slices and a dashboard. The next product value is turning the dashboard into a short artifact that can be printed, marked up and read aloud.
-- This aligns with the local-first MVP and UX-008 printable mode without introducing document generation complexity too early.
-- A family Baltic passage benefits from explicit crew roles, first action, bailout framing, weather timestamps and electronics limitations.
-- The implementation remains testable and content-rich: domain logic, H-323 scenario content, tests, exports and changelog/decision-log updates.
+- The user-facing product already shows a passage plan, risk cards, dashboard and printable brief. The next gap is making the leg table itself less optimistic.
+- A skipper planning with a 50 nm family day target needs automatic highlighting when a leg is above target, above a hard limit, likely to consume the full day, or weakly supported by bailout harbours.
+- This strengthens the Passage Planner and Risk Engine without adding UI complexity or external dependencies.
+- The implementation remains testable and content-rich: domain logic, H-323 workload policy content, realistic tests, domain export and changelog/decision-log updates.
 
 Working log:
 
-- Added `DepartureSkipperBriefInput`, `DepartureSkipperBrief`, `DepartureBriefSection` and `buildDepartureSkipperBrief`.
-- Added H-323 Elina Turku to Pärnu printable skipper brief content with route focus, weather checkpoints, crew assignments, boat checks, electronics checks, print notes and a conservative family-crew go/no-go question.
-- Added Vitest coverage for brief section generation, first-action propagation, static-copy limitations and H-323 content publication.
-- Exported the departure brief domain from the domain barrel.
-- Updated `CHANGELOG.md` with brief logic, H-323 content, tests and decision-record linkage.
+- Added `PassageWorkloadPolicy`, `PassageLegWorkloadFinding`, `PassageLegWorkload` and `analyzePassageWorkload`.
+- Added H-323 Elina Baltic family workload policy content with 50 nm target, 65 nm hard limit, exposed-leg watch-plan requirement and static-plan limitations.
+- Added Vitest coverage for green short-hop workload, hard-limit blockers, bailout cautions and H-323 Turku to Pärnu workload publication.
+- Exported the passage workload domain from the domain barrel.
+- Updated `CHANGELOG.md` with workload logic, H-323 content, tests and decision-record linkage.
 
 ## Feature backlog
 
@@ -127,6 +128,7 @@ Working log:
 | F-013 | Spares readiness | Track passage-critical spares, quantities, stowage, failure modes and links to maintenance tasks. | High | Started |
 | F-014 | Pre-departure dashboard | Aggregate checklist, risk, maintenance, spares, NMEA/AIS and logbook state into one conservative departure posture. | High | Started |
 | F-015 | Departure skipper brief | Convert dashboard state into a printable/read-aloud route, weather, crew, boat, electronics and limitation brief. | High | Started |
+| F-016 | Passage workload analysis | Convert passage legs into family-crew workload findings for distance, duration, daylight, exposure and bailout coverage. | High | Started |
 
 ### UX ideas
 
@@ -149,6 +151,7 @@ Working log:
 | UX-015 | Trip log debrief card | Show what changed, what broke, what needs follow-up and what to brief differently next time. | High | Started |
 | UX-016 | Aggregated departure card | Show one conservative status, score, blockers and first action across all preparation slices. | High | Started |
 | UX-017 | Printable departure brief | Show a paper-friendly skipper brief with decision, route, weather, crew, boat, electronics and limitation sections. | High | Started |
+| UX-018 | Leg workload warnings | Show which passage legs exceed family crew distance, duration, daylight, exposure or bailout limits. | High | Started |
 
 ### Navigation, offline and integration ideas
 
@@ -157,6 +160,7 @@ Working log:
 | NAV-001 | GPX import/export | Exchange routes and tracks with chartplotters and navigation apps. | High | Idea |
 | NAV-002 | Leg table | Course, distance, ETA, hazards, bailout options and notes by leg. | High | Started |
 | NAV-007 | Night passage prep | Navigation lights, watch rhythm, rest, headlamp discipline and traffic plan. | High | Started |
+| NAV-008 | Passage workload policy | Apply skipper/vessel/crew policy limits to leg distance, duration, daylight and exposure. | High | Started |
 | OFF-001 | Offline knowledge base | Core lessons and emergency procedures available without internet. | High | Idea |
 | OFF-002 | Offline checklists | Vessel and passage checklists cached locally. | High | Idea |
 | OFF-003 | Offline route pack | Save route, harbour notes, documents and weather snapshot for a trip. | High | Idea |
@@ -219,6 +223,7 @@ Working log:
 | B-033 | Trip debrief false confidence | A successful arrival hides missing positions, unresolved blockers or next-leg follow-ups. | Model log positions, severity, engine hours and follow-ups explicitly; expose debrief lines and test that blockers remain visible. |
 | B-034 | Dashboard false green | One clean slice hides blockers in another preparation area. | Aggregate blockers conservatively and test that any critical slice keeps the dashboard no-go. |
 | B-035 | Printout false confidence | A tidy printed brief is mistaken for current live readiness after weather, crew, equipment or harbour facts change. | Include generated/static labels, live-condition caveats and re-marking prompts in the brief output and tests. |
+| B-036 | Family workload false green | A plan with realistic total distance hides one leg that is too long, too exposed or too weakly supported by bailout options. | Analyze workload per leg with target and hard limits; test H-323 route blockers and bailout cautions. |
 
 ## Roadmap
 
@@ -250,6 +255,7 @@ Scope:
 - Static knowledge base.
 - Trip preparation pack.
 - Printable/exportable passage plan.
+- Passage workload warnings.
 - Maintenance readiness card.
 - Spares readiness card.
 - Trip logbook and debrief card.
