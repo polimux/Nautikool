@@ -8,6 +8,9 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Added
 
+- First-watch kickoff domain/content logic that turns a launch packet into a timed underway watch-start card: crew energy prompt, navigation/traffic/engineering prompts, timer cards, handover triggers and static safety limitations.
+- H-323 Elina Turku to Pärnu first-watch kickoff scenario for the 26 July 2026 family passage, including Philipp/father/son cockpit tasks, first-position logging, handheld VHF visibility, open-water reassessment and conservative bailout-decision triggers.
+- Vitest scenario coverage for blocked first-watch starts, timer-card output, H-323 Elina content publication and static/live-condition limitation wording.
 - Launch packet domain logic that converts a departure skipper brief into a final cockpit handover: berth actions, open-water actions, first-watch actions, crew read-back, paper-pack checks, emergency reference lines and static safety limitations.
 - H-323 Elina Turku to Pärnu launch packet content for the 26 July 2026 family-crew passage, including Philipp/father/son roles, MOB/Mayday/engine-confidence emergency references and concrete before-lines-off checks.
 - Vitest coverage for blocked launch packets, cockpit handover content, H-323 Elina launch packet publication and static/live-condition safety limitations.
