@@ -53,12 +53,24 @@ const gateRequirements: HarbourDepartureGateRequirement[] = [
   }
 ];
 
+function withVerifiedGateTopics(routePack: ReturnType<typeof createHarbourRoutePack>) {
+  return {
+    ...routePack,
+    verificationQueue: [
+      ...routePack.verificationQueue,
+      'Final skipper verification complete: contact, berth availability and depth margin recorded on the paper route pack.'
+    ]
+  };
+}
+
 describe('harbour departure gates', () => {
   it('creates a ready gate when route pack and required verification topics are clean', () => {
-    const routePack = createHarbourRoutePack(
-      'Green route pack',
-      [readyHarbour, { ...readyHarbour, id: 'harbour:ready-bailout', name: 'Ready Bailout', role: 'bailout' }],
-      1.45
+    const routePack = withVerifiedGateTopics(
+      createHarbourRoutePack(
+        'Green route pack',
+        [readyHarbour, { ...readyHarbour, id: 'harbour:ready-bailout', name: 'Ready Bailout', role: 'bailout' }],
+        1.45
+      )
     );
     const gate = createHarbourDepartureGate({ title: 'Green harbour gate', routePack, requirements: gateRequirements });
 
@@ -90,7 +102,7 @@ describe('harbour departure gates', () => {
       role: 'bailout',
       approach: { ...readyHarbour.approach, vhfChannel: undefined }
     };
-    const routePack = createHarbourRoutePack('Caution route pack', [readyHarbour, bailoutWithoutContact], 1.45);
+    const routePack = withVerifiedGateTopics(createHarbourRoutePack('Caution route pack', [readyHarbour, bailoutWithoutContact], 1.45));
     const gate = createHarbourDepartureGate({ title: 'Caution harbour gate', routePack, requirements: gateRequirements });
 
     expect(gate.status).toBe('caution');
