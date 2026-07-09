@@ -62,6 +62,57 @@ export interface NmeaNetworkSummary {
   findings: NmeaNetworkFinding[];
 }
 
+export type AisTargetClass = 'class-a' | 'class-b' | 'base-station' | 'unknown';
+
+export interface AisTargetSnapshot {
+  mmsi: string;
+  name?: string;
+  targetClass: AisTargetClass;
+  rangeNm: number;
+  bearingDegrees?: number;
+  cogDegrees?: number;
+  sogKn?: number;
+  cpaNm?: number;
+  tcpaMinutes?: number;
+  ageSeconds: number;
+  notes: string[];
+}
+
+export interface AisTrafficScenario {
+  id: string;
+  title: string;
+  vesselId: string;
+  area: string;
+  description: string;
+  targets: AisTargetSnapshot[];
+  assumptions: string[];
+  contentVersion: string;
+}
+
+export interface AisTrafficFinding {
+  id: string;
+  severity: 'info' | 'warning' | 'blocker';
+  targetMmsi?: string;
+  text: string;
+  recommendation: string;
+}
+
+export interface AisTrafficSummary {
+  targetCount: number;
+  staleTargets: number;
+  closeTargets: number;
+  fastClosingTargets: number;
+  warnings: number;
+  blockers: number;
+  findings: AisTrafficFinding[];
+}
+
+export interface AisTrafficSummaryOptions {
+  staleAfterSeconds?: number;
+  closeCpaNm?: number;
+  fastClosingTcpaMinutes?: number;
+}
+
 function hasInstalledTransmitter(profile: NmeaNetworkProfile, pgns: number[]): boolean {
   return profile.devices.some(
     (device) =>
@@ -85,6 +136,16 @@ function finding(
   recommendation: string
 ): NmeaNetworkFinding {
   return { id, severity, text, recommendation };
+}
+
+function trafficFinding(
+  id: string,
+  severity: AisTrafficFinding['severity'],
+  text: string,
+  recommendation: string,
+  targetMmsi?: string
+): AisTrafficFinding {
+  return { id, severity, text, recommendation, targetMmsi };
 }
 
 export const coreNmeaReferencePgns: NmeaPgnCapability[] = [
@@ -120,6 +181,96 @@ export function getDevicesByRole(profile: NmeaNetworkProfile, role: NmeaDeviceRo
 
 export function getInstalledNetworkDevices(profile: NmeaNetworkProfile): NmeaNetworkDevice[] {
   return profile.devices.filter((device) => device.installed);
+}
+
+export function summarizeAisTraffic(
+  scenario: AisTrafficScenario,
+  options: AisTrafficSummaryOptions = {}
+): AisTrafficSummary {
+  const staleAfterSeconds = options.staleAfterSeconds ?? 180;
+  const closeCpaNm = options.closeCpaNm ?? 0.5;
+  const fastClosingTcpaMinutes = options.fastClosingTcpaMinutes ?? 20;
+  const findings: AisTrafficFinding[] = [];
+
+  for (const target of scenario.targets) {
+    const targetLabel = target.name ? `${target.name} (${target.mmsi})` : target.mmsi;
+
+    if (target.ageSeconds > staleAfterSeconds) {
+      findings.push(
+        trafficFinding(
+          `ais:target-stale:${target.mmsi}`,
+          'warning',
+          `${targetLabel} has not updated for ${target.ageSeconds} seconds.`,
+          'Treat the target as stale, intensify visual lookout and avoid making a close-quarters decision from old AIS data.',
+          target.mmsi
+        )
+      );
+    }
+
+    if (target.cpaNm !== undefined && target.cpaNm <= closeCpaNm) {
+      const isFastClosing =
+        target.tcpaMinutes !== undefined && target.tcpaMinutes >= 0 && target.tcpaMinutes <= fastClosingTcpaMinutes;
+
+      findings.push(
+        trafficFinding(
+          `ais:close-cpa:${target.mmsi}`,
+          isFastClosing ? 'blocker' : 'warning',
+          `${targetLabel} has planned CPA ${target.cpaNm} nm${
+            target.tcpaMinutes !== undefined ? ` in ${target.tcpaMinutes} minutes` : ''
+          }.`,
+          isFastClosing
+            ? 'Do not continue as planned; confirm visually, apply COLREGs early, alter course decisively if required and use VHF only as a support channel.'
+            : 'Monitor bearing, CPA/TCPA trend and visual aspect; brief the watch before the target becomes urgent.',
+          target.mmsi
+        )
+      );
+    }
+
+    if (target.rangeNm <= 2 && target.cpaNm === undefined) {
+      findings.push(
+        trafficFinding(
+          `ais:close-target-without-cpa:${target.mmsi}`,
+          'warning',
+          `${targetLabel} is within ${target.rangeNm} nm but has no CPA/TCPA value in the snapshot.`,
+          'Use visual bearings, compass bearing trend and conservative speed/course changes instead of assuming AIS has enough data.',
+          target.mmsi
+        )
+      );
+    }
+
+    if (target.targetClass === 'class-a' && target.rangeNm <= 5) {
+      findings.push(
+        trafficFinding(
+          `ais:class-a-nearby:${target.mmsi}`,
+          'info',
+          `${targetLabel} is a Class A target within ${target.rangeNm} nm.`,
+          'Commercial traffic should be discussed early on watch, even when CPA currently looks acceptable.',
+          target.mmsi
+        )
+      );
+    }
+  }
+
+  const staleTargets = scenario.targets.filter((target) => target.ageSeconds > staleAfterSeconds).length;
+  const closeTargets = scenario.targets.filter((target) => target.cpaNm !== undefined && target.cpaNm <= closeCpaNm).length;
+  const fastClosingTargets = scenario.targets.filter(
+    (target) =>
+      target.cpaNm !== undefined &&
+      target.cpaNm <= closeCpaNm &&
+      target.tcpaMinutes !== undefined &&
+      target.tcpaMinutes >= 0 &&
+      target.tcpaMinutes <= fastClosingTcpaMinutes
+  ).length;
+
+  return {
+    targetCount: scenario.targets.length,
+    staleTargets,
+    closeTargets,
+    fastClosingTargets,
+    warnings: findings.filter((item) => item.severity === 'warning').length,
+    blockers: findings.filter((item) => item.severity === 'blocker').length,
+    findings
+  };
 }
 
 export function summarizeNmeaNetwork(profile: NmeaNetworkProfile): NmeaNetworkSummary {
