@@ -73,39 +73,36 @@ Repository state reviewed:
 - The Vessel Profile slice has richer equipment, engine, rig, battery, tank and readiness-finding types.
 - A first H-323 Elina vessel profile exists with identity data, Yanmar engine checks, Raymarine/Orca/em-trak equipment, safety equipment and explicit assumptions about unverified capacities.
 - The Risk Engine slice has typed weather, crew, vessel, passage and traffic-light risk assessment structures.
-- A first static Turku to Pärnu H-323 family risk scenario exists and is surfaced on the landing page.
-- Risk Engine v1 also models likely night/overnight legs and restricted visibility as explicit decision inputs.
-- A second static risk scenario demonstrates the Hanko to Haapsalu night-crossing decision problem with limited visibility and no recorded night experience.
-- The NMEA/AIS slice now has a typed network readiness model, skipper-facing PGN explanations, an H-323 Elina network profile and tests.
-- The NMEA/AIS slice now also has static AIS traffic snapshot logic, a Hanko approach training scenario, prioritised watch actions and compact watch briefs.
-- A third fog-bank AIS drill now demonstrates restricted-visibility cockpit handover with immediate, soon and stale-target priorities.
-- The NMEA/AIS slice now adds AIS watch debrief logic that converts watch briefs into teachable lessons, positive signals, follow-up drills and safety notes.
-- The SRC/VHF slice now adds typed radio call cards for distress, urgency and safety situations linked to H-323 Elina training scenarios.
-- The landing page now surfaces checklist, passage, vessel, risk, NMEA/AIS readiness, AIS traffic watch briefs, AIS debriefs and SRC/VHF radio call cards.
+- Risk Engine v1 models Baltic wind limits, stale forecasts, thunderstorms, waves, open-water exposure, fatigue, equipment gaps, night/overnight legs and restricted visibility.
+- The NMEA/AIS slice has a typed network readiness model, skipper-facing PGN explanations, an H-323 Elina network profile, AIS traffic snapshot logic, prioritised watch actions, watch briefs and debriefs.
+- The SRC/VHF slice has typed radio call cards for distress, urgency and safety situations linked to H-323 Elina training scenarios.
+- The landing page surfaces checklist, passage, vessel, risk, NMEA/AIS readiness, AIS traffic watch briefs, AIS debriefs and SRC/VHF radio call cards.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Extend the SRC/VHF slice from hidden content registry to visible product UI because radio scripts only create user value if they are easy to find, read and rehearse.
-- Add a pure radio drill summary function so cockpit/home UI can display card counts, highest urgency and safety constraints without hard-coding those values in Svelte.
-- Keep the implementation focused: no live radio workflow, no regulatory wizard and no new external dependency.
-- Preserve conservative safety wording by making the live-transmission warning visible both in domain summary tests and on the landing page.
+- Extend the SRC/VHF work from call-card scripts into a radio log and handover layer.
+- Add pure radio-log domain logic for sent, received, decision and training entries, including position prompts, crew roles, follow-ups and read-back checklist content.
+- Add H-323 Elina radio-log examples that connect MOB rehearsal, Tallinn ferry-lane decision-making and Hanko fog-bank Securite practice to practical cockpit handover records.
+- Keep the implementation focused: no live VHF workflow, no persistence layer, no regulatory wizard and no external dependency.
 
 Rationale:
 
-- The previous SRC/VHF work created useful call cards, but they were not surfaced on the main product page.
-- The next valuable improvement is therefore implementation-heavy integration: domain summary logic, tests and user-facing UI exposure.
-- This links Product Manager and User views: the feature becomes demonstrable, reviewable and useful for offline SRC practice.
-- It also creates a clearer next path toward printable emergency/radio cards without prematurely building export infrastructure.
+- The previous radio-card UI makes scripts visible, but a skipper still needs a way to remember what was rehearsed, transmitted, decided and handed over.
+- A small structured log supports the Local-first MVP better than another isolated content card: it links training, checklist, radio and watch-handover use cases.
+- The implementation is testable as pure TypeScript and adds user-facing content immediately.
+- Radio logs are safety-sensitive, so the first version emphasizes position source, action taken, crew roles and follow-up rather than free-form confidence.
 
 Working log:
 
-- Added `RadioCallDrillSummary` and `summarizeRadioCallDrills` for deterministic cockpit display metrics.
-- Added Vitest coverage for H-323 Elina SRC drill counts, urgency ordering and the live-emergency-practice warning.
-- Updated the landing page to surface SRC/VHF radio call cards with urgency, area, channel guidance and first read-aloud lines.
-- Kept the training-card copy explicitly conservative: call cards support preparation but must not delay lookout, COLREG action or boat handling.
-- Updated `CHANGELOG.md` with the radio summary logic, tests and landing-page change.
+- Added `RadioLogEntry`, `RadioLogBrief`, `createRadioLogEntryFromCard`, `summarizeRadioLog` and `findRadioLogEntriesNeedingFollowUp`.
+- Added a radio log read-back checklist covering time, channel, identity, position source, message summary, action taken and follow-up.
+- Added H-323 Elina sample log entries for MOB training, Tallinn ferry-lane decision logging and Hanko fog-bank Securite practice.
+- Added Vitest coverage for vessel identity extraction, radio-log summary metrics, missing-position prompts and follow-up filtering.
+- Exported the radio-log domain module through `src/lib/domain/index.ts`.
+- Updated the landing page to show radio log and handover entries with action taken, follow-up prompts and position read-back prompts.
+- Updated `CHANGELOG.md` with the radio-log domain logic, content, tests, exports and UI change.
 
 ## Feature backlog
 
@@ -124,6 +121,7 @@ Working log:
 | F-009 | Harbour notebook | Store harbour notes, berth details, fees, VHF channels, fuel, groceries, sauna and approach notes. | Medium | Idea |
 | F-010 | Risk card | Generate green/yellow/red departure assessment from weather, route, crew and boat readiness. | High | Started |
 | F-011 | Radio call cards | Generate short SRC/VHF read-aloud cards for distress, urgency, safety and routine harbour calls. | High | Started |
+| F-012 | Radio log | Record radio calls, traffic decisions, training rehearsals, position sources, crew actions and follow-ups. | High | Started |
 
 ### UX ideas
 
@@ -140,6 +138,7 @@ Working log:
 | UX-009 | Watch handover card | Compact read-aloud handover for AIS, weather, route and crew state. | High | Started |
 | UX-010 | Scenario debrief card | Turn a drill or watch brief into what went well, what to verify and what to repeat. | High | Started |
 | UX-011 | Radio call card | Present a single wet-hands radio script with vessel identity, position, risk and requested help. | High | Started |
+| UX-012 | Radio log handover | Show recent radio calls, decisions, position sources and follow-ups during watch change. | High | Started |
 
 ### Navigation, offline and integration ideas
 
@@ -161,6 +160,7 @@ Working log:
 | AIS-006 | Watch brief builder | Convert AIS scenario summaries into compact read-aloud cockpit handovers. | High | Started |
 | AIS-007 | Watch debrief builder | Convert AIS watch briefs into training lessons, safety prompts and repeat drills. | High | Started |
 | VHF-001 | SRC call cards | Convert emergency and traffic situations into conservative VHF read-aloud scripts. | High | Started |
+| VHF-002 | Radio log handover | Convert radio-call cards and watch events into structured log entries and follow-up prompts. | High | Started |
 | WTH-001 | Forecast comparison | Compare wind, gusts, waves, rain and pressure across providers/models. | High | Idea |
 | WTH-003 | Go/no-go logic | Conservative rule-based departure support by boat, route, crew and exposure. | High | Started |
 | WTH-006 | Weather freshness warning | Make stale forecasts impossible to overlook. | High | Started |
@@ -197,6 +197,7 @@ Working log:
 | B-026 | Debrief false certainty | A training debrief sounds like proof that an AIS-based manoeuvre was correct. | Keep debrief safety notes explicit and test that COLREG/lookout limitations remain visible. |
 | B-027 | Radio call false authority | A scripted training card is mistaken for permission to make a live emergency transmission or to delay boat handling. | Keep live-transmission limits, urgency wording and boat-handling caveats in every card and test for them. |
 | B-028 | Hidden safety content | Correct emergency/radio content exists in code but is not visible to a skipper preparing offline. | Surface drill summaries and read-aloud lines on the product page, then later move them into cockpit/printable mode. |
+| B-029 | Radio log without position | A radio/traffic log records that something happened but omits the position source or action taken. | Make position source, action taken, crew roles and follow-up prompts first-class fields with tests and UI exposure. |
 
 ## Roadmap
 
