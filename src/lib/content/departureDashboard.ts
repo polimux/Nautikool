@@ -1,4 +1,5 @@
 import { departureReadinessTemplate } from '$lib/content/checklistTemplates';
+import { h323ElinaTurkuParnuHarbourDepartureGate } from '$lib/content/harbourDepartureGates';
 import { h323ElinaMaintenanceSummary } from '$lib/content/maintenanceTasks';
 import { h323ElinaNmeaNetworkSummary } from '$lib/content/nmeaNetworks';
 import { turkuToParnuFamilyPassagePlan } from '$lib/content/passagePlans';
@@ -27,10 +28,11 @@ export const h323ElinaTurkuParnuDepartureDashboardInput: DepartureDashboardInput
   spareSummary: h323ElinaSpareSummary,
   nmeaSummary: h323ElinaNmeaNetworkSummary,
   tripLogSummary: h323ElinaTripLogSummary,
+  harbourGate: h323ElinaTurkuParnuHarbourDepartureGate,
   assumptions: [
     'Static dashboard content for product development, not live sailing advice.',
     'Checklist state intentionally starts open so the dashboard cannot appear green without real preparation.',
-    'Risk, maintenance, spares, network and logbook slices are aggregated conservatively: any blocker keeps the dashboard no-go.',
+    'Risk, maintenance, spares, network, logbook and harbour-gate slices are aggregated conservatively: any blocker keeps the dashboard no-go.',
     'The skipper must still verify live forecast, local notices, crew readiness, harbour availability and vessel condition before departure.'
   ]
 };
