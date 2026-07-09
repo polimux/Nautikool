@@ -8,6 +8,10 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Added
 
+- Launch packet domain logic that converts a departure skipper brief into a final cockpit handover: berth actions, open-water actions, first-watch actions, crew read-back, paper-pack checks, emergency reference lines and static safety limitations.
+- H-323 Elina Turku to Pärnu launch packet content for the 26 July 2026 family-crew passage, including Philipp/father/son roles, MOB/Mayday/engine-confidence emergency references and concrete before-lines-off checks.
+- Vitest coverage for blocked launch packets, cockpit handover content, H-323 Elina launch packet publication and static/live-condition safety limitations.
+- Public domain exports for the launch packet slice.
 - Departure dashboard harbour-gate aggregation so harbour blockers and cautions now affect the conservative go/caution/no-go preparation card.
 - H-323 Elina Turku to Pärnu dashboard content now includes the harbour departure gate and explicitly treats harbour-gate blockers as dashboard no-go inputs.
 - Vitest coverage for clean harbour gates, blocked harbour gates, caution harbour gates and the H-323 Elina dashboard publication with harbour-gate findings.
