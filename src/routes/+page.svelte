@@ -19,6 +19,11 @@
     h323ElinaRadioLogSummary
   } from '$lib/content/radioLogs';
   import { coreRiskAssessments } from '$lib/content/riskAssessments';
+  import {
+    h323ElinaSpareFindings,
+    h323ElinaSpareRequirements,
+    h323ElinaSpareSummary
+  } from '$lib/content/spareRequirements';
   import { h323ElinaVesselProfile } from '$lib/content/vesselProfiles';
   import { createChecklistRun, summarizeChecklistRun } from '$lib/domain/checklists';
   import { summarizePassagePlan } from '$lib/domain/passages';
@@ -48,6 +53,9 @@
   const starterMaintenanceTasks = h323ElinaMaintenanceTasks;
   const starterMaintenanceFindings = h323ElinaMaintenanceFindings;
   const starterMaintenanceSummary = h323ElinaMaintenanceSummary;
+  const starterSpareRequirements = h323ElinaSpareRequirements;
+  const starterSpareFindings = h323ElinaSpareFindings;
+  const starterSpareSummary = h323ElinaSpareSummary;
   const navigationEquipment = getVesselEquipmentByCategory(starterVessel, 'navigation');
   const safetyEquipment = getVesselEquipmentByCategory(starterVessel, 'safety');
 </script>
@@ -139,6 +147,33 @@
     <p class="small-note">
       Coverage: {starterMaintenanceSummary.systemsCovered.join(', ')} · task evidence examples include
       {starterMaintenanceTasks[0].evidence.slice(0, 2).join(', ')}.
+    </p>
+  </section>
+
+  <section aria-labelledby="spares-title">
+    <h2 id="spares-title">H-323 spare readiness</h2>
+    <p>
+      The spares slice turns maintenance risks into a locker-level preparation plan: what must be onboard,
+      where it should live and which failure mode it supports before a Baltic family passage.
+    </p>
+    <dl>
+      <div><dt>Tracked spares</dt><dd>{starterSpareSummary.spareCount}</dd></div>
+      <div><dt>Critical spares</dt><dd>{starterSpareSummary.criticalSpares}</dd></div>
+      <div><dt>Missing / unknown critical</dt><dd>{starterSpareSummary.missingCriticalSpares} / {starterSpareSummary.unknownCriticalSpares}</dd></div>
+      <div><dt>Blockers / cautions</dt><dd>{starterSpareSummary.blockerFindings} / {starterSpareSummary.cautionFindings}</dd></div>
+      <div><dt>Departure posture</dt><dd>{starterSpareSummary.canDepart ? 'spares ready' : 'spares no-go until blockers are closed'}</dd></div>
+    </dl>
+    <div class="network-list">
+      {#each starterSpareFindings.slice(0, 4) as finding}
+        <article>
+          <p class="template-category">{finding.system} · {finding.severity} · {finding.status}</p>
+          <h3>{finding.text}</h3>
+          <p>{finding.skipperAction}</p>
+        </article>
+      {/each}
+    </div>
+    <p class="small-note">
+      Example kit: {starterSpareRequirements.slice(0, 3).map((spare) => spare.title).join(', ')}.
     </p>
   </section>
 
