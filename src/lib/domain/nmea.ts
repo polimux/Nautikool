@@ -97,6 +97,17 @@ export interface AisTrafficFinding {
   recommendation: string;
 }
 
+export type AisWatchActionPriority = 'immediate' | 'soon' | 'monitor';
+
+export interface AisWatchAction {
+  id: string;
+  priority: AisWatchActionPriority;
+  targetMmsi?: string;
+  label: string;
+  reason: string;
+  crewInstruction: string;
+}
+
 export interface AisTrafficSummary {
   targetCount: number;
   staleTargets: number;
@@ -105,6 +116,7 @@ export interface AisTrafficSummary {
   warnings: number;
   blockers: number;
   findings: AisTrafficFinding[];
+  watchActions: AisWatchAction[];
 }
 
 export interface AisTrafficSummaryOptions {
@@ -146,6 +158,28 @@ function trafficFinding(
   targetMmsi?: string
 ): AisTrafficFinding {
   return { id, severity, text, recommendation, targetMmsi };
+}
+
+function watchAction(
+  id: string,
+  priority: AisWatchActionPriority,
+  label: string,
+  reason: string,
+  crewInstruction: string,
+  targetMmsi?: string
+): AisWatchAction {
+  return { id, priority, label, reason, crewInstruction, targetMmsi };
+}
+
+function priorityRank(priority: AisWatchActionPriority): number {
+  switch (priority) {
+    case 'immediate':
+      return 0;
+    case 'soon':
+      return 1;
+    case 'monitor':
+      return 2;
+  }
 }
 
 export const coreNmeaReferencePgns: NmeaPgnCapability[] = [
@@ -191,6 +225,7 @@ export function summarizeAisTraffic(
   const closeCpaNm = options.closeCpaNm ?? 0.5;
   const fastClosingTcpaMinutes = options.fastClosingTcpaMinutes ?? 20;
   const findings: AisTrafficFinding[] = [];
+  const watchActions: AisWatchAction[] = [];
 
   for (const target of scenario.targets) {
     const targetLabel = target.name ? `${target.name} (${target.mmsi})` : target.mmsi;
@@ -202,6 +237,16 @@ export function summarizeAisTraffic(
           'warning',
           `${targetLabel} has not updated for ${target.ageSeconds} seconds.`,
           'Treat the target as stale, intensify visual lookout and avoid making a close-quarters decision from old AIS data.',
+          target.mmsi
+        )
+      );
+      watchActions.push(
+        watchAction(
+          `ais-action:stale-target:${target.mmsi}`,
+          'soon',
+          'Treat stale AIS as unreliable',
+          `${targetLabel} is older than the ${staleAfterSeconds} second freshness threshold.`,
+          'Assign one crew member to visual lookout and use compass-bearing trend before assuming the symbol is clear.',
           target.mmsi
         )
       );
@@ -224,6 +269,20 @@ export function summarizeAisTraffic(
           target.mmsi
         )
       );
+      watchActions.push(
+        watchAction(
+          `ais-action:close-cpa:${target.mmsi}`,
+          isFastClosing ? 'immediate' : 'soon',
+          isFastClosing ? 'Resolve close CPA now' : 'Brief close CPA target',
+          `${targetLabel} is predicted inside ${closeCpaNm} nm${
+            target.tcpaMinutes !== undefined ? ` in ${target.tcpaMinutes} minutes` : ''
+          }.`,
+          isFastClosing
+            ? 'Skipper takes the watch, confirms the target visually, decides the COLREG action and makes any alteration early and obvious.'
+            : 'Put the target on the watch handover, monitor CPA/TCPA trend and agree the first avoiding option before it becomes urgent.',
+          target.mmsi
+        )
+      );
     }
 
     if (target.rangeNm <= 2 && target.cpaNm === undefined) {
@@ -236,6 +295,16 @@ export function summarizeAisTraffic(
           target.mmsi
         )
       );
+      watchActions.push(
+        watchAction(
+          `ais-action:no-cpa:${target.mmsi}`,
+          'soon',
+          'Establish visual bearing trend',
+          `${targetLabel} is close but has no CPA/TCPA calculation.`,
+          'Take two or more visual bearings, watch the aspect and avoid waiting for the plotter to invent a safe CPA.',
+          target.mmsi
+        )
+      );
     }
 
     if (target.targetClass === 'class-a' && target.rangeNm <= 5) {
@@ -245,6 +314,16 @@ export function summarizeAisTraffic(
           'info',
           `${targetLabel} is a Class A target within ${target.rangeNm} nm.`,
           'Commercial traffic should be discussed early on watch, even when CPA currently looks acceptable.',
+          target.mmsi
+        )
+      );
+      watchActions.push(
+        watchAction(
+          `ais-action:class-a-monitor:${target.mmsi}`,
+          'monitor',
+          'Keep Class A target in the watch picture',
+          `${targetLabel} is commercial traffic within five nautical miles.`,
+          'Name the target during watch handover and keep checking visual aspect, bearing and CPA trend.',
           target.mmsi
         )
       );
@@ -269,7 +348,8 @@ export function summarizeAisTraffic(
     fastClosingTargets,
     warnings: findings.filter((item) => item.severity === 'warning').length,
     blockers: findings.filter((item) => item.severity === 'blocker').length,
-    findings
+    findings,
+    watchActions: watchActions.sort((left, right) => priorityRank(left.priority) - priorityRank(right.priority))
   };
 }
 
