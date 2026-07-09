@@ -125,6 +125,18 @@ export interface AisTrafficSummaryOptions {
   fastClosingTcpaMinutes?: number;
 }
 
+export interface AisWatchBrief {
+  scenarioId: string;
+  title: string;
+  area: string;
+  headline: string;
+  immediateActions: AisWatchAction[];
+  soonActions: AisWatchAction[];
+  monitorActions: AisWatchAction[];
+  watchHandover: string[];
+  limitations: string[];
+}
+
 function hasInstalledTransmitter(profile: NmeaNetworkProfile, pgns: number[]): boolean {
   return profile.devices.some(
     (device) =>
@@ -180,6 +192,10 @@ function priorityRank(priority: AisWatchActionPriority): number {
     case 'monitor':
       return 2;
   }
+}
+
+function compactActionLine(action: AisWatchAction): string {
+  return `${action.priority.toUpperCase()}: ${action.label} — ${action.crewInstruction}`;
 }
 
 export const coreNmeaReferencePgns: NmeaPgnCapability[] = [
@@ -350,6 +366,42 @@ export function summarizeAisTraffic(
     blockers: findings.filter((item) => item.severity === 'blocker').length,
     findings,
     watchActions: watchActions.sort((left, right) => priorityRank(left.priority) - priorityRank(right.priority))
+  };
+}
+
+export function buildAisWatchBrief(
+  scenario: AisTrafficScenario,
+  options: AisTrafficSummaryOptions = {}
+): AisWatchBrief {
+  const summary = summarizeAisTraffic(scenario, options);
+  const immediateActions = summary.watchActions.filter((action) => action.priority === 'immediate');
+  const soonActions = summary.watchActions.filter((action) => action.priority === 'soon');
+  const monitorActions = summary.watchActions.filter((action) => action.priority === 'monitor');
+  const headline =
+    immediateActions.length > 0
+      ? `${immediateActions.length} immediate AIS action(s): skipper takes the watch before continuing the plan.`
+      : soonActions.length > 0
+        ? `${soonActions.length} AIS watch action(s) need briefing before the next decision point.`
+        : 'AIS snapshot has no immediate action, but visual lookout and bearing checks remain active.';
+
+  return {
+    scenarioId: scenario.id,
+    title: `${scenario.title} watch brief`,
+    area: scenario.area,
+    headline,
+    immediateActions,
+    soonActions,
+    monitorActions,
+    watchHandover: [
+      `Traffic picture: ${summary.targetCount} AIS target(s), ${summary.closeTargets} close CPA target(s), ${summary.staleTargets} stale target(s).`,
+      ...summary.watchActions.slice(0, 4).map(compactActionLine),
+      'Confirm the traffic picture visually before any alteration; AIS is a prompt, not proof of right-of-way or safe clearance.'
+    ],
+    limitations: [
+      'Static drill content is not live traffic advice.',
+      'AIS may be delayed, absent, misconfigured or ignored by the other vessel.',
+      'COLREG action must be early, obvious and based on lookout, bearings and the full situation.'
+    ]
   };
 }
 
