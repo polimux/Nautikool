@@ -77,33 +77,34 @@ Repository state reviewed:
 - The NMEA/AIS slice has a typed network readiness model, skipper-facing PGN explanations, an H-323 Elina network profile, AIS traffic snapshot logic, prioritised watch actions, watch briefs and debriefs.
 - The SRC/VHF slice has typed radio call cards for distress, urgency and safety situations linked to H-323 Elina training scenarios.
 - The radio-log slice creates structured entries and a compact watch-change handover brief from H-323 Elina training and traffic-decision examples.
-- The maintenance readiness slice now has pure task/finding/summary logic plus an H-323 Elina pre-passage service pack.
-- The landing page surfaces checklist, passage, vessel, maintenance, risk, NMEA/AIS readiness, AIS traffic watch briefs, AIS debriefs and SRC/VHF radio call cards.
+- The maintenance readiness slice has pure task/finding/summary logic plus an H-323 Elina pre-passage service pack.
+- The spare readiness slice now has pure requirement/finding/summary logic plus an H-323 Elina passage spare kit linked to maintenance tasks.
+- The landing page surfaces checklist, passage, vessel, maintenance, spares, risk, NMEA/AIS readiness, AIS traffic watch briefs, AIS debriefs and SRC/VHF radio call cards.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Add Maintenance Readiness as the next valuable slice because it directly improves Vessel Profile, Checklist Engine and Passage Planner value before adding more live adapters.
-- Introduce pure maintenance task logic for date-based, engine-hour-based and unknown-status checks.
-- Add H-323 Elina pre-passage maintenance content for engine oil, raw-water cooling, fuel, liferaft, extinguishers, Ray90 DSC position, batteries and rig checks.
-- Surface maintenance blockers and cautions on the landing page as skipper actions, not just hidden fixture data.
-- Keep the implementation focused: no persistence database, no reminder scheduler and no manufacturer-specific service intervals beyond explicit sample content.
+- Add Spare Readiness as the next valuable slice because maintenance blockers only become actionable when the skipper knows what parts, tools and consumables must be onboard.
+- Introduce pure spare requirement logic for critical/recommended/nice-to-have priority, missing/unknown/insufficient status, blocker/caution findings and departure summaries.
+- Add H-323 Elina pre-passage spare content for raw-water impeller, diesel filter, belt, fuses, handheld VHF backup, softwood plugs, rig consumables and a SeaTalkNG/NMEA2000 troubleshooting spare.
+- Surface spare blockers and cautions on the landing page as locker-level skipper actions, not just hidden fixture data.
+- Keep the implementation focused: no inventory persistence, no barcode scanning and no vendor-specific part-number database until the static content proves useful.
 
 Rationale:
 
-- The current product already knows the boat, route, risk and radio/AIS scenarios, but it does not yet answer the practical question: "What boat-system jobs must be closed before we cast off?"
-- A maintenance readiness card is more valuable for the local-first MVP than another narrow radio increment because it turns vessel data into a concrete pre-passage decision.
-- The implementation remains pure TypeScript and testable while adding user-facing content immediately.
-- Unknown service state must not collapse into green readiness; liferaft service and DSC position input are intentionally blocker-grade until verified.
+- The current product can identify maintenance risk, but a skipper preparing a real Baltic passage needs a concrete answer to: "What do I need to buy, label and place onboard?"
+- Spares readiness links Vessel Profile, Maintenance Readiness, Passage Planner and Risk Engine without needing live hardware adapters.
+- Critical unknown spares must not collapse into green readiness; unknown impeller, fuel filter or belt availability is deliberately treated as blocker-grade for a family transfer leg.
+- The implementation remains pure TypeScript and testable while adding practical user-facing content immediately.
 
 Working log:
 
-- Added `MaintenanceTask`, `MaintenanceFinding`, `MaintenanceReadinessSummary`, `inferMaintenanceStatus`, `assessMaintenanceTasks` and `summarizeMaintenanceReadiness`.
-- Added H-323 Elina maintenance content for Yanmar 2GM15/gearbox checks, raw-water impeller, fuel filter, liferaft service, extinguishers, Ray90 DSC position, 12 V batteries and standing rigging.
-- Added Vitest coverage for overdue/due-soon/unknown/done inference, engine-hour windows, H-323 blocker logic, unknown safety tasks and non-green maintenance summaries.
-- Exported the maintenance domain and surfaced the H-323 maintenance readiness card on the landing page.
-- Updated `CHANGELOG.md` with maintenance logic, H-323 content, tests, UI exposure and decision-record linkage.
+- Added `SpareRequirement`, `SpareFinding`, `SpareReadinessSummary`, `assessSpareRequirements` and `summarizeSpareReadiness`.
+- Added H-323 Elina spare readiness content for Yanmar/cooling/fuel/electrical/VHF/leak-control/rig/NMEA scenarios, with maintenance-task links and locker-level skipper actions.
+- Added Vitest coverage for critical missing/unknown blockers, insufficient quantities, H-323 spare-pack summary, maintenance linkage and green-only-when-prepared behaviour.
+- Exported the spares domain and surfaced the H-323 spare readiness card on the landing page.
+- Updated `CHANGELOG.md` with spare readiness logic, H-323 content, tests, UI exposure and decision-record linkage.
 
 ## Feature backlog
 
@@ -123,13 +124,14 @@ Working log:
 | F-010 | Risk card | Generate green/yellow/red departure assessment from weather, route, crew and boat readiness. | High | Started |
 | F-011 | Radio call cards | Generate short SRC/VHF read-aloud cards for distress, urgency, safety and routine harbour calls. | High | Started |
 | F-012 | Radio log | Record radio calls, traffic decisions, training rehearsals, position sources, crew actions and follow-ups. | High | Started |
+| F-013 | Spares readiness | Track passage-critical spares, quantities, stowage, failure modes and links to maintenance tasks. | High | Started |
 
 ### UX ideas
 
 | ID | UX idea | Description | Priority | Status |
 |---|---|---|---|---|
 | UX-001 | Cockpit mode | High-contrast, large-button, low-distraction interface for underway use. | High | Idea |
-| UX-002 | Pre-departure dashboard | One screen for weather, route risk, boat readiness, maintenance, crew readiness and open checklist items. | High | Started |
+| UX-002 | Pre-departure dashboard | One screen for weather, route risk, boat readiness, maintenance, spares, crew readiness and open checklist items. | High | Started |
 | UX-003 | Traffic-light decisions | Green/yellow/red decisions with short explanation and assumptions. | High | Started |
 | UX-004 | Skill-aware explanations | Beginner, competent crew, skipper and instructor explanation levels. | Medium | Idea |
 | UX-005 | Quick capture | One-tap notes for defects, harbour notes, maintenance needs and log entries. | Medium | Idea |
@@ -141,6 +143,7 @@ Working log:
 | UX-011 | Radio call card | Present a single wet-hands radio script with vessel identity, position, risk and requested help. | High | Started |
 | UX-012 | Radio log handover | Show recent radio calls, decisions, position sources and follow-ups during watch change. | High | Started |
 | UX-013 | Maintenance readiness card | Show overdue, due-soon and unknown service items as skipper actions. | High | Started |
+| UX-014 | Spare readiness card | Show missing, unknown and insufficient passage spares as locker-level skipper actions. | High | Started |
 
 ### Navigation, offline and integration ideas
 
@@ -164,6 +167,7 @@ Working log:
 | VHF-001 | SRC call cards | Convert emergency and traffic situations into conservative VHF read-aloud scripts. | High | Started |
 | VHF-002 | Radio log handover | Convert radio-call cards and watch events into structured log entries and follow-up prompts. | High | Started |
 | MNT-001 | Maintenance readiness | Convert maintenance tasks into conservative pre-passage blocker/caution findings. | High | Started |
+| MNT-002 | Spares readiness | Convert spare requirements into conservative onboard preparation findings. | High | Started |
 | WTH-001 | Forecast comparison | Compare wind, gusts, waves, rain and pressure across providers/models. | High | Idea |
 | WTH-003 | Go/no-go logic | Conservative rule-based departure support by boat, route, crew and exposure. | High | Started |
 | WTH-006 | Weather freshness warning | Make stale forecasts impossible to overlook. | High | Started |
@@ -203,6 +207,7 @@ Working log:
 | B-029 | Radio log without position | A radio/traffic log records that something happened but omits the position source or action taken. | Make position source, action taken, crew roles and follow-up prompts first-class fields with tests and UI exposure. |
 | B-030 | Radio handover false confidence | A tidy radio-log handover sounds like permission to transmit from memory or stop looking out. | Keep current-position copying, live-judgement limits and boat-handling priority visible in every handover brief. |
 | B-031 | Maintenance false green | Unknown or overdue safety/engine service state is treated as acceptable because the boat profile exists. | Model maintenance unknown/due/overdue states and convert critical unknowns into blocker findings with tests. |
+| B-032 | Spares false green | A maintenance plan exists but critical parts are missing, unknown or too few onboard. | Model spare priority, quantity and status separately; convert critical gaps into blocker findings with tests. |
 
 ## Roadmap
 
@@ -235,6 +240,7 @@ Scope:
 - Trip preparation pack.
 - Printable/exportable passage plan.
 - Maintenance readiness card.
+- Spares readiness card.
 
 Success criteria:
 
