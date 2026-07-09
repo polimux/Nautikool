@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  h323ElinaHankoApproachAisScenario,
+  h323ElinaHankoApproachAisSummary,
   h323ElinaNmeaNetworkProfile,
   h323ElinaNmeaNetworkSummary
 } from '$lib/content/nmeaNetworks';
-import { summarizeNmeaNetwork } from './nmea';
+import { summarizeAisTraffic, summarizeNmeaNetwork } from './nmea';
 
 
 describe('NMEA/AIS network readiness', () => {
@@ -66,5 +68,35 @@ describe('NMEA/AIS network readiness', () => {
     expect(h323ElinaNmeaNetworkProfile.assumptions.some((assumption) => assumption.includes('skipper language'))).toBe(
       true
     );
+  });
+
+  it('summarizes static AIS approach traffic for skipper-facing drills', () => {
+    expect(h323ElinaHankoApproachAisScenario.vesselId).toBe('vessel:h323-elina');
+    expect(h323ElinaHankoApproachAisSummary.targetCount).toBe(3);
+    expect(h323ElinaHankoApproachAisSummary.closeTargets).toBe(1);
+    expect(h323ElinaHankoApproachAisSummary.fastClosingTargets).toBe(1);
+    expect(h323ElinaHankoApproachAisSummary.staleTargets).toBe(1);
+    expect(h323ElinaHankoApproachAisSummary.blockers).toBe(1);
+  });
+
+  it('flags stale AIS targets so old symbols are not treated as current traffic', () => {
+    const summary = summarizeAisTraffic(h323ElinaHankoApproachAisScenario, { staleAfterSeconds: 120 });
+
+    expect(summary.findings.map((finding) => finding.id)).toContain('ais:target-stale:230999003');
+    expect(summary.warnings).toBeGreaterThanOrEqual(1);
+  });
+
+  it('escalates fast-closing close CPA targets as blockers', () => {
+    const summary = summarizeAisTraffic(h323ElinaHankoApproachAisScenario);
+    const blocker = summary.findings.find((finding) => finding.id === 'ais:close-cpa:230999001');
+
+    expect(blocker?.severity).toBe('blocker');
+    expect(blocker?.recommendation).toContain('COLREGs');
+  });
+
+  it('warns when a close small-craft target has no CPA/TCPA in the snapshot', () => {
+    const summary = summarizeAisTraffic(h323ElinaHankoApproachAisScenario);
+
+    expect(summary.findings.map((finding) => finding.id)).toContain('ais:close-target-without-cpa:230999002');
   });
 });
