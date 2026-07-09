@@ -2,6 +2,7 @@
   import { coreAisWatchBriefDrills } from '$lib/content/aisWatchBriefs';
   import { coreAisWatchDebriefs } from '$lib/content/aisDebriefs';
   import { coreChecklistTemplates, departureReadinessTemplate } from '$lib/content/checklistTemplates';
+  import { h323ElinaTurkuParnuDepartureDashboard } from '$lib/content/departureDashboard';
   import {
     h323ElinaMaintenanceFindings,
     h323ElinaMaintenanceSummary,
@@ -40,6 +41,7 @@
     vesselId: 'vessel:demo'
   });
   const summary = summarizeChecklistRun(departureReadinessTemplate, run);
+  const starterDepartureDashboard = h323ElinaTurkuParnuDepartureDashboard;
   const starterTemplates = coreChecklistTemplates;
   const starterPassagePlan = turkuToParnuFamilyPassagePlan;
   const starterPassageSummary = summarizePassagePlan(starterPassagePlan);
@@ -83,6 +85,30 @@
     Nautikool is being built as a calm co-skipper for coastal sailors: practical, conservative,
     offline-capable and explicit about assumptions.
   </p>
+
+  <section aria-labelledby="dashboard-title">
+    <h2 id="dashboard-title">Pre-departure dashboard</h2>
+    <p>
+      The dashboard aggregates the preparation slices into one conservative cockpit summary for the H-323 Elina
+      Turku to Pärnu family passage: checklist state, risk cards, maintenance, spares, NMEA/AIS and last-trip follow-ups.
+    </p>
+    <dl>
+      <div><dt>Status</dt><dd>{starterDepartureDashboard.status}</dd></div>
+      <div><dt>Readiness score</dt><dd>{starterDepartureDashboard.readinessScore}</dd></div>
+      <div><dt>Blockers / cautions</dt><dd>{starterDepartureDashboard.blockerCount} / {starterDepartureDashboard.cautionCount}</dd></div>
+      <div><dt>Headline</dt><dd>{starterDepartureDashboard.headline}</dd></div>
+    </dl>
+    <div class="risk-card-list">
+      {#each starterDepartureDashboard.findings.slice(0, 6) as finding}
+        <article>
+          <p class="template-category">{finding.source} · {finding.severity}</p>
+          <h3>{finding.title}</h3>
+          <p>{finding.skipperAction}</p>
+        </article>
+      {/each}
+    </div>
+    <p class="small-note">Read-aloud: {starterDepartureDashboard.readAloudBrief.join(' ')}</p>
+  </section>
 
   <section aria-labelledby="slice-title">
     <h2 id="slice-title">First product content slice</h2>
