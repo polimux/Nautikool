@@ -52,6 +52,9 @@ This project uses a simple human-readable changelog while the product and archit
 - AIS watch action domain logic that converts traffic findings into immediate, soon and monitor cockpit instructions.
 - Typed H-323 Elina Tallinn ferry-lane AIS watch drill with ferry, RoPax, close-yacht and stale-workboat targets.
 - Vitest coverage for prioritised AIS watch actions and the Tallinn ferry-lane family-crew training scenario.
+- AIS watch brief domain logic that turns target snapshots and watch actions into compact cockpit handover lines.
+- Typed H-323 Elina fog-bank AIS watch brief drill for restricted-visibility cockpit handover.
+- Vitest coverage for AIS watch briefs, restricted-visibility drill content and the watch-brief drill registry.
 
 ### Changed
 
@@ -74,6 +77,7 @@ This project uses a simple human-readable changelog while the product and archit
 - Domain barrel exports now include the NMEA/AIS readiness module.
 - Landing page now surfaces the static AIS traffic drill and target-level training notes.
 - Landing page now surfaces multiple AIS drills with prioritised watch actions instead of one target-only AIS card.
+- Landing page now surfaces AIS watch briefs with compact handover lines instead of only watch-action lists.
 
 ### Removed
 
