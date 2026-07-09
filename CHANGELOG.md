@@ -49,6 +49,9 @@ This project uses a simple human-readable changelog while the product and archit
 - AIS traffic snapshot domain logic for stale targets, close CPA, fast-closing targets and close targets without CPA/TCPA.
 - Typed H-323 Elina Hanko approach AIS traffic drill with ferry, small-craft and stale-target examples.
 - Vitest coverage for AIS target summary counts, stale-target warnings, fast-closing close-CPA blockers and missing CPA/TCPA warnings.
+- AIS watch action domain logic that converts traffic findings into immediate, soon and monitor cockpit instructions.
+- Typed H-323 Elina Tallinn ferry-lane AIS watch drill with ferry, RoPax, close-yacht and stale-workboat targets.
+- Vitest coverage for prioritised AIS watch actions and the Tallinn ferry-lane family-crew training scenario.
 
 ### Changed
 
@@ -70,6 +73,7 @@ This project uses a simple human-readable changelog while the product and archit
 - Landing page now surfaces the first NMEA/AIS network readiness card and device-level PGN explanations.
 - Domain barrel exports now include the NMEA/AIS readiness module.
 - Landing page now surfaces the static AIS traffic drill and target-level training notes.
+- Landing page now surfaces multiple AIS drills with prioritised watch actions instead of one target-only AIS card.
 
 ### Removed
 
