@@ -1,3 +1,4 @@
+import type { HarbourDepartureGate } from './harbourDepartureGates';
 import type { MaintenanceReadinessSummary } from './maintenance';
 import type { NmeaNetworkSummary } from './nmea';
 import type { SpareReadinessSummary } from './spares';
@@ -12,7 +13,8 @@ export type DepartureDashboardFindingSource =
   | 'maintenance'
   | 'spares'
   | 'nmea-ais'
-  | 'trip-log';
+  | 'trip-log'
+  | 'harbour';
 
 export interface DepartureDashboardFinding {
   id: string;
@@ -33,6 +35,7 @@ export interface DepartureDashboardInput {
   spareSummary: SpareReadinessSummary;
   nmeaSummary: NmeaNetworkSummary;
   tripLogSummary?: TripLogSummary;
+  harbourGate?: HarbourDepartureGate;
   assumptions: string[];
 }
 
@@ -218,6 +221,33 @@ export function buildDepartureDashboard(input: DepartureDashboardInput): Departu
           'Verify network warnings before relying on cockpit data.'
       )
     );
+  }
+
+  if (input.harbourGate) {
+    const harbourBlockers = input.harbourGate.findings.filter((item) => item.severity === 'blocker').length;
+    const harbourCautions = input.harbourGate.findings.filter((item) => item.severity === 'caution').length;
+
+    if (input.harbourGate.status === 'blocked') {
+      findings.push(
+        finding(
+          'dashboard:harbour-gate-blocker',
+          'harbour',
+          'blocker',
+          `${input.harbourGate.title} is blocked with ${harbourBlockers} harbour blocker(s).`,
+          input.harbourGate.firstAction ?? 'Close harbour departure-gate blockers before casting off.'
+        )
+      );
+    } else if (input.harbourGate.status === 'caution') {
+      findings.push(
+        finding(
+          'dashboard:harbour-gate-caution',
+          'harbour',
+          'caution',
+          `${input.harbourGate.title} has ${harbourCautions} harbour caution(s).`,
+          input.harbourGate.firstAction ?? 'Review harbour cautions and alternates before committing to the route.'
+        )
+      );
+    }
   }
 
   if (input.tripLogSummary && (input.tripLogSummary.blockerEntries > 0 || input.tripLogSummary.followUps.length > 0)) {
