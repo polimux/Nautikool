@@ -70,35 +70,38 @@ Repository state reviewed:
 - GitHub Actions CI validates install, Svelte/TypeScript checks, unit tests and production build.
 - The starter content registry includes departure readiness, diesel inboard pre-start, night-arrival, heavy-weather departure and MOB immediate-action checklist templates.
 - The Passage Planner slice has typed passage plan domain types, pure summary logic, tests and one realistic Turku to Pärnu H-323 sample route.
-- The Vessel Profile slice now has richer equipment, engine, rig, battery, tank and readiness-finding types.
+- The Vessel Profile slice has richer equipment, engine, rig, battery, tank and readiness-finding types.
 - A first H-323 Elina vessel profile exists with identity data, Yanmar engine checks, Raymarine/Orca/em-trak equipment, safety equipment and explicit assumptions about unverified capacities.
-- The landing page now surfaces checklist, passage and vessel content slices.
+- The Risk Engine slice now has typed weather, crew, vessel, passage and traffic-light risk assessment structures.
+- A first static Turku to Pärnu H-323 family risk scenario exists and is surfaced on the landing page.
+- The landing page now surfaces checklist, passage, vessel and risk content slices.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Move from generic content toward boat-specific product value by implementing the Vessel Profile slice.
-- Treat the H-323 Elina profile as the first reference implementation for Baltic coastal cruiser workflows.
-- Keep safety-sensitive unknowns explicit: tank capacities and battery capacities are not guessed and must not silently feed range or endurance logic.
-- Keep every commit content-bearing: domain logic, tests and UI all point at real user-facing sailing content.
+- Move from vessel/passsage data toward concrete decision support by implementing Risk Engine v1.
+- Treat the first risk card as conservative planning support, not a live weather recommendation.
+- Keep safety-sensitive unknowns explicit: stale or missing weather must not default to green.
+- Keep every commit content-bearing: the risk engine is linked to the real H-323 Elina, the Turku to Pärnu passage and a family-crew Baltic planning scenario.
 
 Rationale:
 
-- Vessel Profile is the bridge between checklist content, passage planning and later risk rules.
-- The existing passage plan already references `vessel:h323-elina`; adding the actual vessel profile removes a product gap.
-- A skipper-specific boat profile creates the first "this understands my boat" moment and makes future checklist/risk logic more meaningful.
-- Explicit equipment identifiers make later NMEA/AIS, VHF, safety-equipment and maintenance modules easier to connect without coupling them to UI strings.
-- Conservative assumptions around unverified tank and battery capacities prevent false precision.
+- The app now has the three ingredients required for a useful skipper decision: checklist readiness, route context and vessel context.
+- Risk Engine v1 creates the first clear "why green/yellow/red" product moment from those ingredients.
+- The Turku to Pärnu passage includes open-water exposure, high-severity route hazards and family-crew workload, making it a better test case than a generic marina checklist.
+- Conservative handling of stale forecasts, missing wind data, high gusts, thunderstorms, wave height, fatigue and missing critical equipment prevents false confidence.
+- The static risk scenario adds user-facing product content while avoiding the unsafe impression of live forecast advice.
 
 Working log:
 
-- Added extended vessel profile domain types for rig, engine, tanks, batteries, equipment categories and readiness findings.
-- Added pure vessel readiness helpers for equipment lookup, installed-equipment checks, missing critical equipment, profile validation and summary metrics.
-- Added H-323 Elina content with dimensions, German registration data, Yanmar 2GM15 shaft-drive diesel, Raymarine Axiom+ 9, Ray90, em-trak B953, Orca Core 2, GPS antenna, liferaft, lifejackets, fire extinguishers, anchor and documents.
-- Added tests for vessel content, equipment registry semantics, missing critical equipment and incomplete profile blockers.
-- Updated the landing page to show the vessel profile, readiness blockers, assumptions and key navigation/safety equipment.
-- Updated `CHANGELOG.md` with the vessel profile domain, content, tests and UI changes.
+- Added risk assessment domain types for weather inputs, crew inputs, findings, summaries and traffic-light levels.
+- Added pure risk engine logic for Baltic wind thresholds, stale forecast age, thunderstorm risk, wave height, open-water exposure, high route hazards, family workload, fatigue and missing critical equipment.
+- Added static Turku to Pärnu H-323 family passage risk content with moderate Baltic weather assumptions.
+- Added tests for yellow planning assessments, red wind no-go, stale forecast no-go, missing critical equipment and content linkage to `vessel:h323-elina`.
+- Updated the domain barrel export to include risk helpers.
+- Updated the landing page to display the first risk card with no-go/caution counts and first findings.
+- Updated `CHANGELOG.md` with the risk domain, content, tests and UI changes.
 
 ## Feature backlog
 
@@ -115,7 +118,7 @@ Working log:
 | F-007 | Maintenance log | Track engine hours, oil changes, filters, batteries, rig checks, extinguishers and liferaft service. | Medium | Idea |
 | F-008 | Trip logbook | Capture trip, crew, weather, sail setup, incidents, lessons learned and engine hours. | Medium | Idea |
 | F-009 | Harbour notebook | Store harbour notes, berth details, fees, VHF channels, fuel, groceries, sauna and approach notes. | Medium | Idea |
-| F-010 | Risk card | Generate green/yellow/red departure assessment from weather, route, crew and boat readiness. | High | Idea |
+| F-010 | Risk card | Generate green/yellow/red departure assessment from weather, route, crew and boat readiness. | High | Started |
 
 ### UX ideas
 
@@ -123,7 +126,7 @@ Working log:
 |---|---|---|---|---|
 | UX-001 | Cockpit mode | High-contrast, large-button, low-distraction interface for underway use. | High | Idea |
 | UX-002 | Pre-departure dashboard | One screen for weather, route risk, boat readiness, crew readiness and open checklist items. | High | Idea |
-| UX-003 | Traffic-light decisions | Green/yellow/red decisions with short explanation and assumptions. | High | Idea |
+| UX-003 | Traffic-light decisions | Green/yellow/red decisions with short explanation and assumptions. | High | Started |
 | UX-004 | Skill-aware explanations | Beginner, competent crew, skipper and instructor explanation levels. | Medium | Idea |
 | UX-005 | Quick capture | One-tap notes for defects, harbour notes, maintenance needs and log entries. | Medium | Idea |
 | UX-006 | Emergency screen | MOB, mayday, DSC, position, nearest harbour and emergency checklist. | High | Idea |
@@ -147,8 +150,8 @@ Working log:
 | AIS-003 | Collision scenario trainer | Use simulated AIS traffic for crossing, overtaking and head-on exercises. | High | Idea |
 | AIS-005 | Stale target warning | Mark AIS targets as stale when updates stop. | High | Idea |
 | WTH-001 | Forecast comparison | Compare wind, gusts, waves, rain and pressure across providers/models. | High | Idea |
-| WTH-003 | Go/no-go logic | Conservative rule-based departure support by boat, route, crew and exposure. | High | Idea |
-| WTH-006 | Weather freshness warning | Make stale forecasts impossible to overlook. | High | Idea |
+| WTH-003 | Go/no-go logic | Conservative rule-based departure support by boat, route, crew and exposure. | High | Started |
+| WTH-006 | Weather freshness warning | Make stale forecasts impossible to overlook. | High | Started |
 
 ## Expected bug classes and prevention
 
@@ -171,6 +174,8 @@ Working log:
 | B-015 | False checklist readiness | A checklist with required open items looks nearly complete and encourages departure. | Expose required-open blockers, completion eligibility and progress separately. |
 | B-016 | Vessel false precision | Unknown tank or battery capacities are guessed and then reused in range or risk logic. | Store unknown capacities explicitly and test that unverified values remain undefined. |
 | B-017 | Equipment string coupling | Features depend on UI text instead of stable equipment identifiers. | Use stable equipment IDs and tests for key navigation, communication and safety items. |
+| B-018 | False green risk | Missing or stale weather, fatigue or equipment gaps are accidentally treated as acceptable. | Risk rules escalate missing and stale inputs to yellow/red with tests. |
+| B-019 | Static scenario mistaken for live advice | Demo risk content is interpreted as current weather guidance. | Label static risk scenarios as planning examples and require explicit forecast timestamps. |
 
 ## Roadmap
 
