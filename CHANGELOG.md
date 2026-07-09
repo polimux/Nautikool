@@ -55,6 +55,9 @@ This project uses a simple human-readable changelog while the product and archit
 - AIS watch brief domain logic that turns target snapshots and watch actions into compact cockpit handover lines.
 - Typed H-323 Elina fog-bank AIS watch brief drill for restricted-visibility cockpit handover.
 - Vitest coverage for AIS watch briefs, restricted-visibility drill content and the watch-brief drill registry.
+- AIS watch debrief domain logic that converts watch briefs into lessons, positive signals, follow-up drills and conservative safety notes.
+- Typed fog-bank debrief scenario notes for family-crew AIS training.
+- Vitest coverage for AIS debrief lessons, data-quality prompts, practical fog-bank follow-up drills and the debrief registry.
 
 ### Changed
 
@@ -78,6 +81,7 @@ This project uses a simple human-readable changelog while the product and archit
 - Landing page now surfaces the static AIS traffic drill and target-level training notes.
 - Landing page now surfaces multiple AIS drills with prioritised watch actions instead of one target-only AIS card.
 - Landing page now surfaces AIS watch briefs with compact handover lines instead of only watch-action lists.
+- Landing page now surfaces AIS scenario debrief cards with lessons, positive signals and follow-up drills.
 
 ### Removed
 
