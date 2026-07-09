@@ -1,6 +1,7 @@
 <script lang="ts">
   import { coreChecklistTemplates, departureReadinessTemplate } from '$lib/content/checklistTemplates';
   import { turkuToParnuFamilyPassagePlan } from '$lib/content/passagePlans';
+  import { turkuToParnuModerateRiskAssessment } from '$lib/content/riskAssessments';
   import { h323ElinaVesselProfile } from '$lib/content/vesselProfiles';
   import { createChecklistRun, summarizeChecklistRun } from '$lib/domain/checklists';
   import { summarizePassagePlan } from '$lib/domain/passages';
@@ -16,6 +17,7 @@
   const starterPassageSummary = summarizePassagePlan(starterPassagePlan);
   const starterVessel = h323ElinaVesselProfile;
   const starterVesselSummary = summarizeVesselProfile(starterVessel);
+  const starterRiskAssessment = turkuToParnuModerateRiskAssessment;
   const navigationEquipment = getVesselEquipmentByCategory(starterVessel, 'navigation');
   const safetyEquipment = getVesselEquipmentByCategory(starterVessel, 'safety');
 </script>
@@ -125,6 +127,49 @@
           {/each}
         </ul>
       </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="risk-title">
+    <h2 id="risk-title">Starter risk card</h2>
+    <p>
+      The first risk engine slice converts vessel, route, weather and crew inputs into a conservative
+      traffic-light assessment for the Turku to Pärnu H-323 family passage.
+    </p>
+    <dl>
+      <div>
+        <dt>Assessment</dt>
+        <dd>{starterRiskAssessment.title}</dd>
+      </div>
+      <div>
+        <dt>Risk level</dt>
+        <dd>{starterRiskAssessment.level}</dd>
+      </div>
+      <div>
+        <dt>Can depart</dt>
+        <dd>{starterRiskAssessment.canDepart ? 'yes, with cautions' : 'no-go'}</dd>
+      </div>
+      <div>
+        <dt>No-go findings</dt>
+        <dd>{starterRiskAssessment.summary.noGoFindings}</dd>
+      </div>
+      <div>
+        <dt>Caution findings</dt>
+        <dd>{starterRiskAssessment.summary.cautionFindings}</dd>
+      </div>
+      <div>
+        <dt>Open-water legs</dt>
+        <dd>{starterRiskAssessment.summary.openWaterLegs}</dd>
+      </div>
+    </dl>
+    <div class="risk-findings">
+      {#each starterRiskAssessment.findings.slice(0, 4) as finding}
+        <article>
+          <p class="template-category">{finding.level} · {finding.severity}</p>
+          <h3>{finding.text}</h3>
+          <p>{finding.recommendation}</p>
+        </article>
+      {/each}
     </div>
   </section>
 
@@ -245,14 +290,16 @@
 
   .template-list,
   .leg-list,
-  .equipment-list {
+  .equipment-list,
+  .risk-findings {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 1rem;
   }
 
   .leg-list,
-  .equipment-list {
+  .equipment-list,
+  .risk-findings {
     margin-top: 1rem;
   }
 
