@@ -3,7 +3,9 @@ import {
   h323ElinaHankoApproachAisScenario,
   h323ElinaHankoApproachAisSummary,
   h323ElinaNmeaNetworkProfile,
-  h323ElinaNmeaNetworkSummary
+  h323ElinaNmeaNetworkSummary,
+  h323ElinaTallinnFerryLaneAisScenario,
+  h323ElinaTallinnFerryLaneAisSummary
 } from '$lib/content/nmeaNetworks';
 import { summarizeAisTraffic, summarizeNmeaNetwork } from './nmea';
 
@@ -98,5 +100,26 @@ describe('NMEA/AIS network readiness', () => {
     const summary = summarizeAisTraffic(h323ElinaHankoApproachAisScenario);
 
     expect(summary.findings.map((finding) => finding.id)).toContain('ais:close-target-without-cpa:230999002');
+  });
+
+  it('turns urgent AIS findings into prioritised watch actions', () => {
+    const summary = summarizeAisTraffic(h323ElinaHankoApproachAisScenario);
+
+    expect(summary.watchActions[0]).toMatchObject({
+      id: 'ais-action:close-cpa:230999001',
+      priority: 'immediate',
+      label: 'Resolve close CPA now'
+    });
+    expect(summary.watchActions.map((action) => action.label)).toContain('Establish visual bearing trend');
+    expect(summary.watchActions.map((action) => action.crewInstruction).join(' ')).toContain('Skipper takes the watch');
+  });
+
+  it('adds a Tallinn ferry-lane drill with immediate family-crew watch actions', () => {
+    expect(h323ElinaTallinnFerryLaneAisScenario.title).toContain('Tallinn ferry-lane');
+    expect(h323ElinaTallinnFerryLaneAisSummary.targetCount).toBe(4);
+    expect(h323ElinaTallinnFerryLaneAisSummary.fastClosingTargets).toBe(1);
+    expect(h323ElinaTallinnFerryLaneAisSummary.watchActions[0]?.priority).toBe('immediate');
+    expect(h323ElinaTallinnFerryLaneAisSummary.watchActions[0]?.crewInstruction).toContain('Skipper takes the watch');
+    expect(h323ElinaTallinnFerryLaneAisScenario.assumptions.join(' ')).toContain('family crew');
   });
 });
