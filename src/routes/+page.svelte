@@ -1,7 +1,7 @@
 <script lang="ts">
+  import { coreAisWatchBriefDrills } from '$lib/content/aisWatchBriefs';
   import { coreChecklistTemplates, departureReadinessTemplate } from '$lib/content/checklistTemplates';
   import {
-    coreAisTrafficDrills,
     h323ElinaNmeaNetworkProfile,
     h323ElinaNmeaNetworkSummary
   } from '$lib/content/nmeaNetworks';
@@ -25,7 +25,7 @@
   const starterRiskAssessments = coreRiskAssessments;
   const starterNmeaNetwork = h323ElinaNmeaNetworkProfile;
   const starterNmeaSummary = h323ElinaNmeaNetworkSummary;
-  const starterAisDrills = coreAisTrafficDrills;
+  const starterAisDrills = coreAisWatchBriefDrills;
   const navigationEquipment = getVesselEquipmentByCategory(starterVessel, 'navigation');
   const safetyEquipment = getVesselEquipmentByCategory(starterVessel, 'safety');
 </script>
@@ -180,17 +180,18 @@
   </section>
 
   <section aria-labelledby="ais-title">
-    <h2 id="ais-title">AIS traffic drills and watch actions</h2>
+    <h2 id="ais-title">AIS traffic drills and watch briefs</h2>
     <p>
-      Static AIS drills now turn target snapshots into skipper-facing findings and prioritised watch
-      actions. The product is starting to answer: who needs to look where, and when does the skipper
-      take the watch?
+      Static AIS drills now turn target snapshots into skipper-facing findings, prioritised watch
+      actions and compact handover briefs. The product is starting to answer: who needs to look where,
+      when does the skipper take the watch, and what should be read aloud before the next decision?
     </p>
     <div class="network-list">
       {#each starterAisDrills as drill}
         <article>
           <p class="template-category">{drill.scenario.area}</p>
           <h3>{drill.scenario.title}</h3>
+          <p>{drill.brief.headline}</p>
           <dl>
             <div>
               <dt>Targets</dt>
@@ -201,13 +202,13 @@
               <dd>{drill.summary.closeTargets} / {drill.summary.staleTargets}</dd>
             </div>
             <div>
-              <dt>Watch actions</dt>
-              <dd>{drill.summary.watchActions.length}</dd>
+              <dt>Immediate / soon</dt>
+              <dd>{drill.brief.immediateActions.length} / {drill.brief.soonActions.length}</dd>
             </div>
           </dl>
           <ul>
-            {#each drill.summary.watchActions.slice(0, 3) as action}
-              <li>{action.priority}: {action.label} — {action.crewInstruction}</li>
+            {#each drill.brief.watchHandover.slice(0, 4) as line}
+              <li>{line}</li>
             {/each}
           </ul>
         </article>
