@@ -35,6 +35,10 @@ This project uses a simple human-readable changelog while the product and archit
 - Pure vessel readiness logic for equipment lookup, missing critical equipment and profile validation.
 - Typed H-323 Elina reference vessel profile with Yanmar engine checks, Raymarine/Orca/em-trak navigation stack, safety equipment and explicit unverified-capacity assumptions.
 - Vitest coverage for vessel profile content, installed equipment, safety assumptions and readiness blockers.
+- Risk assessment domain types for weather, crew, vessel, passage and traffic-light risk findings.
+- Pure conservative risk engine for Baltic wind limits, stale forecasts, thunderstorms, wave height, open-water legs, crew fatigue and missing critical equipment.
+- Typed Turku to Pärnu H-323 family passage risk scenario with moderate Baltic weather assumptions.
+- Vitest coverage for yellow planning assessments, red no-go wind limits, stale forecasts, missing critical equipment and linked H-323 passage content.
 
 ### Changed
 
@@ -50,7 +54,8 @@ This project uses a simple human-readable changelog while the product and archit
 - Landing page now surfaces the first passage planner content slice and summary metrics.
 - Landing page now surfaces checklist readiness metrics and the expanded safety/emergency template registry.
 - Landing page now surfaces the first vessel profile and vessel readiness summary.
-- Domain barrel exports now include passage and vessel modules.
+- Landing page now surfaces a first traffic-light risk card for the Turku to Pärnu family passage.
+- Domain barrel exports now include passage, vessel and risk modules.
 
 ### Removed
 
