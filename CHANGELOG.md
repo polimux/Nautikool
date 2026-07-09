@@ -8,6 +8,9 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Added
 
+- Pre-departure dashboard domain logic that aggregates checklist, risk, maintenance, spares, NMEA/AIS and trip-log summaries into one conservative go/caution/no-go preparation card.
+- Typed H-323 Elina Turku to Pärnu pre-departure dashboard content with explicit static-scenario assumptions and read-aloud cockpit brief lines.
+- Vitest coverage for dashboard green-only-when-clean behaviour, required-checklist blockers, cross-slice blocker aggregation and H-323 dashboard publication.
 - Trip logbook domain logic for structured passage entries, engine-hour deltas, missing-position prompts, follow-ups and compact debrief lines.
 - Typed H-323 Elina Turku to Pärnu family-passage trip log content covering departure brief, archipelago motor-sail fatigue, diesel-filter spare follow-up and Hanko arrival lesson.
 - Vitest coverage for trip-log summaries, missing operational positions, debrief output and H-323 trip-log content publication.
@@ -81,6 +84,8 @@ This project uses a simple human-readable changelog while the product and archit
 
 ### Changed
 
+- Landing page now surfaces the H-323 pre-departure dashboard with aggregated blockers, cautions, readiness score, source-level findings and read-aloud preparation brief.
+- Domain barrel exports now include the departure dashboard module.
 - Landing page now surfaces the H-323 trip logbook with engine-hour delta, caution/blocker counts, follow-ups and debrief lines.
 - Domain barrel exports now include the trip logbook module.
 - Landing page now surfaces H-323 spare readiness with critical spare gaps, blocker/caution findings, example kit items and locker-level skipper actions.
@@ -118,6 +123,7 @@ This project uses a simple human-readable changelog while the product and archit
 - `ideas.md` now records the maintenance readiness decision, rationale, working log and maintenance false-green risk.
 - `ideas.md` now records the spare readiness decision, rationale, working log and spares false-green risk.
 - `ideas.md` now records the trip logbook decision, rationale, working log and debrief false-confidence risk.
+- `ideas.md` now records the pre-departure dashboard decision, rationale, working log and dashboard false-green risk.
 
 ### Removed
 
