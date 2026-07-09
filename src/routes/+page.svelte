@@ -1,8 +1,7 @@
 <script lang="ts">
   import { coreChecklistTemplates, departureReadinessTemplate } from '$lib/content/checklistTemplates';
   import {
-    h323ElinaHankoApproachAisScenario,
-    h323ElinaHankoApproachAisSummary,
+    coreAisTrafficDrills,
     h323ElinaNmeaNetworkProfile,
     h323ElinaNmeaNetworkSummary
   } from '$lib/content/nmeaNetworks';
@@ -26,8 +25,7 @@
   const starterRiskAssessments = coreRiskAssessments;
   const starterNmeaNetwork = h323ElinaNmeaNetworkProfile;
   const starterNmeaSummary = h323ElinaNmeaNetworkSummary;
-  const starterAisScenario = h323ElinaHankoApproachAisScenario;
-  const starterAisSummary = h323ElinaHankoApproachAisSummary;
+  const starterAisDrills = coreAisTrafficDrills;
   const navigationEquipment = getVesselEquipmentByCategory(starterVessel, 'navigation');
   const safetyEquipment = getVesselEquipmentByCategory(starterVessel, 'safety');
 </script>
@@ -182,38 +180,35 @@
   </section>
 
   <section aria-labelledby="ais-title">
-    <h2 id="ais-title">Starter AIS traffic drill</h2>
+    <h2 id="ais-title">AIS traffic drills and watch actions</h2>
     <p>
-      A first static AIS drill turns target snapshots into skipper-facing findings for stale symbols,
-      close CPA, fast-closing traffic and missing CPA/TCPA values. It is training content, not live traffic.
+      Static AIS drills now turn target snapshots into skipper-facing findings and prioritised watch
+      actions. The product is starting to answer: who needs to look where, and when does the skipper
+      take the watch?
     </p>
-    <dl>
-      <div>
-        <dt>Scenario</dt>
-        <dd>{starterAisScenario.title}</dd>
-      </div>
-      <div>
-        <dt>Targets</dt>
-        <dd>{starterAisSummary.targetCount}</dd>
-      </div>
-      <div>
-        <dt>Close / stale</dt>
-        <dd>{starterAisSummary.closeTargets} / {starterAisSummary.staleTargets}</dd>
-      </div>
-      <div>
-        <dt>Warnings / blockers</dt>
-        <dd>{starterAisSummary.warnings} / {starterAisSummary.blockers}</dd>
-      </div>
-    </dl>
     <div class="network-list">
-      {#each starterAisScenario.targets as target}
+      {#each starterAisDrills as drill}
         <article>
-          <p class="template-category">{target.targetClass}</p>
-          <h3>{target.name ?? target.mmsi}</h3>
-          <p>{target.rangeNm} nm · age {target.ageSeconds}s</p>
+          <p class="template-category">{drill.scenario.area}</p>
+          <h3>{drill.scenario.title}</h3>
+          <dl>
+            <div>
+              <dt>Targets</dt>
+              <dd>{drill.summary.targetCount}</dd>
+            </div>
+            <div>
+              <dt>Close / stale</dt>
+              <dd>{drill.summary.closeTargets} / {drill.summary.staleTargets}</dd>
+            </div>
+            <div>
+              <dt>Watch actions</dt>
+              <dd>{drill.summary.watchActions.length}</dd>
+            </div>
+          </dl>
           <ul>
-            <li>CPA: {target.cpaNm ?? 'not available'} nm</li>
-            <li>Watch note: {target.notes[0]}</li>
+            {#each drill.summary.watchActions.slice(0, 3) as action}
+              <li>{action.priority}: {action.label} — {action.crewInstruction}</li>
+            {/each}
           </ul>
         </article>
       {/each}
