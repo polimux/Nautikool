@@ -1,5 +1,6 @@
 import { coreRadioCallCards } from './radioCallCards';
 import {
+  buildRadioLogHandoverBrief,
   createRadioLogEntryFromCard,
   findRadioLogEntriesNeedingFollowUp,
   summarizeRadioLog,
@@ -53,3 +54,7 @@ export const h323ElinaRadioLogExamples: RadioLogEntry[] = [
 
 export const h323ElinaRadioLogSummary = summarizeRadioLog(h323ElinaRadioLogExamples);
 export const h323ElinaRadioLogFollowUps = findRadioLogEntriesNeedingFollowUp(h323ElinaRadioLogExamples);
+export const h323ElinaRadioLogHandover = buildRadioLogHandoverBrief(h323ElinaRadioLogExamples, {
+  title: 'H-323 Elina radio watch handover',
+  audience: 'a family-crew watch change before the next Baltic approach'
+});
