@@ -79,32 +79,33 @@ Repository state reviewed:
 - The NMEA/AIS slice now has a typed network readiness model, skipper-facing PGN explanations, an H-323 Elina network profile and tests.
 - The NMEA/AIS slice now also has static AIS traffic snapshot logic, a Hanko approach training scenario, prioritised watch actions and compact watch briefs.
 - A third fog-bank AIS drill now demonstrates restricted-visibility cockpit handover with immediate, soon and stale-target priorities.
-- The landing page surfaces checklist, passage, vessel, risk, NMEA/AIS readiness and AIS traffic watch-brief content slices.
+- The NMEA/AIS slice now adds AIS watch debrief logic that converts watch briefs into teachable lessons, positive signals, follow-up drills and safety notes.
+- The landing page surfaces checklist, passage, vessel, risk, NMEA/AIS readiness, AIS traffic watch briefs and AIS debrief content slices.
 - The repository currently has `package.json` but no committed npm lockfile.
 
 Decision:
 
 - Continue the 80% implementation / 20% documentation shift.
-- Extend the NMEA/AIS Adapter from action queues into a watch-brief layer that can be read aloud by tired crew.
-- Keep the implementation pure and deterministic: static AIS target snapshots in, summary/actions/briefing lines out.
-- Add a restricted-visibility fog-bank scenario because the next high-value training case is not more targets, but a compact handover under degraded attention and visibility.
-- Keep safety language conservative: the watch brief must explicitly state that AIS is a prompt, not proof of right-of-way, safe clearance or live traffic advice.
+- Extend the NMEA/AIS Adapter from cockpit handover into scenario training: each AIS watch brief should produce a post-watch debrief.
+- Keep the implementation pure and deterministic: static scenario plus watch brief in, lessons/positive signals/follow-up drill out.
+- Add debrief content for the restricted-visibility fog-bank scenario because this is where learning value is highest: stale targets, close traffic, limited attention and conservative fallback decisions.
+- Keep safety language conservative: debriefs are training artefacts and must not imply that AIS alone proves a manoeuvre was safe, legal or sufficient.
 
 Rationale:
 
-- The previous AIS slice answered "what should I do next?" but the UI still exposed actions as a list, not as a cockpit handover.
-- A watch brief is the bridge from domain logic toward cockpit mode, watch handover, printable emergency/passage cards and scenario training.
-- Restricted visibility is a known risk amplifier in the existing Risk Engine, so AIS content should teach the same conservative mental model.
-- The fog-bank drill adds new user-facing Baltic content while staying offline, deterministic and testable.
+- The previous AIS watch brief answered what to read aloud before the next decision point; the product still needed a way to learn from that drill afterwards.
+- A debrief layer moves Nautikool toward the Scenario Trainer and Learning Modules without requiring live NMEA ingestion.
+- Debriefs create a clean product loop: snapshot → findings → actions → watch brief → learning review.
+- The fog-bank scenario adds user-facing Baltic training material while staying offline, deterministic and testable.
 
 Working log:
 
-- Added `AisWatchBrief` domain types with headline, immediate/soon/monitor action groups, handover lines and safety limitations.
-- Added `buildAisWatchBrief` to convert AIS scenarios into compact skipper-facing cockpit handovers.
-- Added a typed H-323 Elina fog-bank AIS watch brief drill with a close commercial target, close fast small craft and stale harbour symbol.
-- Added Vitest coverage for watch brief construction, restricted-visibility content and the watch-brief drill registry.
-- Updated the landing page to surface AIS watch briefs and handover lines instead of only action lists.
-- Updated `CHANGELOG.md` with the AIS watch brief logic, content, tests and UI change.
+- Added `AisWatchDebrief` domain types with lessons, positive signals, follow-up drill and safety note.
+- Added `buildAisWatchDebrief` to convert AIS watch briefs into skipper-facing learning reviews.
+- Added typed fog-bank debrief scenario notes for stale AIS, fresh commercial traffic, visual bearings and conservative fallback decisions.
+- Added Vitest coverage for AIS debrief construction, data-quality prompts, COLREG safety wording and debrief registry linkage.
+- Updated the landing page to surface AIS scenario debrief cards with lesson counts, positive signals and follow-up drills.
+- Updated `CHANGELOG.md` with the AIS debrief logic, content, tests and UI change.
 
 ## Feature backlog
 
@@ -136,6 +137,7 @@ Working log:
 | UX-007 | Boat-specific home | Home screen starts from the user's own vessel and active passage. | High | Started |
 | UX-008 | Printable mode | Generate printable passage plans, checklists and emergency cards. | Medium | Idea |
 | UX-009 | Watch handover card | Compact read-aloud handover for AIS, weather, route and crew state. | High | Started |
+| UX-010 | Scenario debrief card | Turn a drill or watch brief into what went well, what to verify and what to repeat. | High | Started |
 
 ### Navigation, offline and integration ideas
 
@@ -155,6 +157,7 @@ Working log:
 | AIS-004 | Watch action queue | Convert AIS findings into ordered cockpit instructions for skipper and crew. | High | Started |
 | AIS-005 | Stale target warning | Mark AIS targets as stale when updates stop. | High | Started |
 | AIS-006 | Watch brief builder | Convert AIS scenario summaries into compact read-aloud cockpit handovers. | High | Started |
+| AIS-007 | Watch debrief builder | Convert AIS watch briefs into training lessons, safety prompts and repeat drills. | High | Started |
 | WTH-001 | Forecast comparison | Compare wind, gusts, waves, rain and pressure across providers/models. | High | Idea |
 | WTH-003 | Go/no-go logic | Conservative rule-based departure support by boat, route, crew and exposure. | High | Started |
 | WTH-006 | Weather freshness warning | Make stale forecasts impossible to overlook. | High | Started |
@@ -188,6 +191,7 @@ Working log:
 | B-023 | AIS false confidence | A stale target, missing CPA/TCPA or close fast ferry is displayed without urgency or context. | Summarize AIS target age, CPA/TCPA and Class A proximity with conservative findings and tests. |
 | B-024 | AIS action overload | Too many simultaneous AIS notes bury the urgent ferry or close-quarters decision. | Generate prioritised watch actions and test that immediate close-CPA actions sort before monitor notes. |
 | B-025 | Watch handover overload | A useful action list is still too verbose to read aloud in rain, fog or fatigue. | Build compact watch briefs with grouped actions, short handover lines and explicit limitations. |
+| B-026 | Debrief false certainty | A training debrief sounds like proof that an AIS-based manoeuvre was correct. | Keep debrief safety notes explicit and test that COLREG/lookout limitations remain visible. |
 
 ## Roadmap
 
