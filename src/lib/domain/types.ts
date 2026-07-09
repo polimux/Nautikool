@@ -149,6 +149,61 @@ export interface PassagePlanSummary {
   bailoutHarbourCount: number;
 }
 
+export type RiskLevel = 'green' | 'yellow' | 'red';
+export type RiskRuleSeverity = 'info' | 'caution' | 'no-go';
+
+export interface RiskInputWeather {
+  sustainedWindKn?: number;
+  gustKn?: number;
+  waveHeightMeters?: number;
+  visibilityNm?: number;
+  thunderstormRisk?: 'none' | 'low' | 'moderate' | 'high' | 'unknown';
+  forecastAgeHours?: number;
+}
+
+export interface RiskInputCrew {
+  skipperExperienceNm?: number;
+  hasNightExperience?: boolean;
+  crewCount: number;
+  minorsOnBoard?: number;
+  fatigueLevel?: 'low' | 'medium' | 'high' | 'unknown';
+}
+
+export interface RiskAssessmentInput {
+  id: string;
+  title: string;
+  passage: PassagePlan;
+  vessel: VesselProfile;
+  weather: RiskInputWeather;
+  crew: RiskInputCrew;
+  assumptions: Assumption[];
+}
+
+export interface RiskRuleFinding {
+  id: string;
+  severity: RiskRuleSeverity;
+  level: RiskLevel;
+  text: string;
+  recommendation: string;
+}
+
+export interface RiskAssessment {
+  id: string;
+  title: string;
+  level: RiskLevel;
+  canDepart: boolean;
+  findings: RiskRuleFinding[];
+  assumptions: Assumption[];
+  summary: {
+    noGoFindings: number;
+    cautionFindings: number;
+    infoFindings: number;
+    highSeverityHazards: number;
+    openWaterLegs: number;
+    missingCriticalEquipment: number;
+  };
+}
+
 export type ChecklistCategory =
   | 'departure'
   | 'arrival'
